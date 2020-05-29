@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
 RED='\033[0;31m'
-GREEN='\033[0;32m';
+GREEN='\033[0;32m'
 NC='\033[0m'
 DOWNLOAD_URL="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
 
 echo -e "${GREEN}This script will download the latest raspbian image, mount it and copy its files as a base for netboot, next it will build and run the docker image.${NC}"
 
 if sudo apt-get -qq install curl unzip; then
-    echo "Dependencies installed"
+  echo -e "${GREEN}Dependencies installed.${NC}"
 else
-    echo "Error installing dependencies"
+  echo -e "${RED}Error installing dependencies.${NC}"installed
 fi
 
 echo -e "${GREEN}Downloading from ${NC}${DOWNLOAD_URL}"
