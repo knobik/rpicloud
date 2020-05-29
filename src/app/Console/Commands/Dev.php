@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\GetNodeHWInfoJob;
 use App\Jobs\PrepareBaseImage;
 use Illuminate\Console\Command;
+use Symfony\Component\Process\Process;
 
 class Dev extends Command
 {
@@ -38,8 +40,10 @@ class Dev extends Command
      */
     public function handle()
     {
+        Process::fromShellCommandline('');
+
         dd(
-            PrepareBaseImage::dispatchNow()
+            GetNodeHWInfoJob::dispatchNow(1)
         );
     }
 }

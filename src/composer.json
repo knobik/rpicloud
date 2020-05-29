@@ -14,6 +14,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
+        "laravel/ui": "^2.0",
         "phpseclib/phpseclib": "^2.0",
         "spatie/ssh": "^1.4",
         "symfony/process": "^5.0"
@@ -44,6 +45,9 @@
         "classmap": [
             "database/seeds",
             "database/factories"
+        ],
+        "files": [
+            "app/functions.php"
         ]
     },
     "autoload-dev": {
@@ -58,11 +62,14 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
-        "after-build": [
+        "post-install-cmd": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan key:generate --ansi",
+            "@php artisan key:generate --ansi"
+        ],
+        "setup": [
             "@php artisan init:db",
-            "@php artisan init:ssh"
+            "@php artisan init:ssh",
+            "@php artisan init:host"
         ]
     }
 }

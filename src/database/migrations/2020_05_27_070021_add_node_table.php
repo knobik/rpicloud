@@ -16,8 +16,9 @@ class AddNodeTable extends Migration
         Schema::create('nodes', function (Blueprint $table) {
             $table->bigIncrements('id');
 
-            $table->string('mac');
             $table->string('ip');
+            $table->string('mac')->nullable()->unique();
+            $table->boolean('netboot')->default(false);
 
             $table->timestamps();
             $table->softDeletes();

@@ -7,8 +7,8 @@ use phpseclib\Crypt\RSA;
 
 class InitSSH extends Command
 {
-    private const RSA_PRIVATE = 'ssh/id_rsa';
-    private const RSA_PUBLIC = 'ssh/id_rsa.pub';
+    public const RSA_PRIVATE = 'ssh/id_rsa';
+    public const RSA_PUBLIC = 'ssh/id_rsa.pub';
 
     /**
      * The name and signature of the console command.
@@ -41,6 +41,8 @@ class InitSSH extends Command
 
             $storage->put(static::RSA_PRIVATE, $keys['privatekey']);
             $storage->put(static::RSA_PUBLIC, $keys['publickey']);
+
+            chmod(storage_path('app/' . static::RSA_PRIVATE), 0600);
 
             $this->info('SSH keys generated.');
         }

@@ -21,6 +21,8 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereMac($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property int $netboot
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereNetboot($value)
  */
 class Node extends BaseModel
 {

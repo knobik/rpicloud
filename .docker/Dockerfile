@@ -1,16 +1,18 @@
 FROM ubuntu:18.04
 
 # install required packages
-RUN apt-get update && apt-get install -y software-properties-common gosu sudo && \
+RUN apt-get update && apt-get install -y software-properties-common gosu sudo curl && \
     gosu nobody true
 
 # configure user
-RUN useradd -ms /bin/bash -u 1337 rpi && adduser rpi sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN useradd -ms /bin/bash -u 1337 rpi && adduser rpi sudo && echo 'rpi ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+#'%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 RUN add-apt-repository ppa:ondrej/php
 
 RUN apt-get update && \
-    apt-get install -y sqlite3 curl unzip supervisor dnsmasq nginx nmap \
+    curl -sL https://deb.nodesource.com/setup_12.x  | bash - && \
+    apt-get install -y sqlite3 curl unzip supervisor dnsmasq nginx nmap ssh nodejs \
     php7.4-fpm php7.4-cli \
     php7.4-sqlite3 \
     php7.4-gd \
@@ -30,8 +32,6 @@ RUN apt-get update && \
 
 # configure dnsmasq
 RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
-COPY config/dnsmasq.conf /etc/dnsmasq.d/netboot.conf
-RUN mkdir /tftpboot
 
 # configure nginx
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf

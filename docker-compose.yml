@@ -8,6 +8,7 @@ services:
       USER_UID: ${USER_UID:-1000}
       USER_GID: ${USER_GID:-1000}
     volumes:
-    - ./src:/var/www/html
-    - ./baseImage:/nfs
+      - ./.docker/config/dnsmasq:/etc/dnsmasq.d/
+      - ./src:/var/www/html
+      - ./baseImage:/nfs
     network_mode: "host"

@@ -39,7 +39,7 @@ sudo umount ${ROOT_PATH}
 echo -e "${GREEN}Buidling the docker image...${NC}"
 docker-compose up -d --build
 docker-compose exec --user rpi rpi-cluster-pxe composer install -d /var/www/html/
-docker-compose exec --user rpi rpi-cluster-pxe composer after-build -d /var/www/html/
+docker-compose exec --user rpi rpi-cluster-pxe composer setup -d /var/www/html/
 
 echo -e "${GREEN}Cleaning up...${NC}"
 rm ${IMAGE_FILENAME}
