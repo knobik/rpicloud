@@ -35,7 +35,7 @@ RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
 
 # configure nginx
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-COPY config/nginx.conf /etc/nginx/sites-available/default
+#COPY config/nginx.conf /etc/nginx/sites-available/default
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
