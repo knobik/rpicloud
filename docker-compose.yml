@@ -10,6 +10,7 @@ services:
     volumes:
       - ./.docker/config/dnsmasq:/etc/dnsmasq.d/
       - ./.docker/config/nginx:/etc/nginx/sites-enabled
-      - ./src:/var/www/html
+      - ./web:/var/www/html/web
+      - ./api:/var/www/html/api
       - ./baseImage:/nfs
     network_mode: "host"

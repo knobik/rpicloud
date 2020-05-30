@@ -30,6 +30,10 @@ RUN apt-get update && \
     mkdir /run/php && \
     apt-get -y autoremove && apt-get clean
 
+USER rpi
+RUN composer global require hirak/prestissimo
+USER root
+
 # configure dnsmasq
 RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
 
