@@ -16,3 +16,14 @@ if (!function_exists('hostIp')) {
         return trim($addresses[0]);
     }
 }
+
+if (!function_exists('d')) {
+    /**
+     * @param  array  $vars
+     * @return string
+     */
+    function d(...$vars)
+    {
+        dump(...$vars);
+    }
+}

@@ -45,6 +45,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
     }
 
+
     /**
      * Define the "api" routes for the application.
      *

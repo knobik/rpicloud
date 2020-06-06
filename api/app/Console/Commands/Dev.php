@@ -40,8 +40,6 @@ class Dev extends Command
      */
     public function handle()
     {
-        Process::fromShellCommandline('');
-
         dd(
             GetNodeHWInfoJob::dispatchNow(1)
         );

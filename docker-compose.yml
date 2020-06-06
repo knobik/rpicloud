@@ -10,7 +10,8 @@ services:
     volumes:
       - ./.docker/config/dnsmasq:/etc/dnsmasq.d/
       - ./.docker/config/nginx:/etc/nginx/sites-enabled
-      - ./web:/var/www/html/web
-      - ./api:/var/www/html/api
-      - ./baseImage:/nfs
+      - ./baseImages:/baseImages
+      - ./web:/web
+      - ./api:/api
     network_mode: "host"
+    privileged: true

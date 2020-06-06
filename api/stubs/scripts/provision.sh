@@ -11,4 +11,4 @@ echo 'rpi ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 PASSWORD=$(openssl passwd -1 __PASSWORD__)
 usermod --password ${PASSWORD} rpi
 
-curl -fsSL -X POST __URL__/api/node/register > /home/rpi/.ssh/authorized_keys
+curl -fsSL -X POST __URL__/api/provision/register > /home/rpi/.ssh/authorized_keys

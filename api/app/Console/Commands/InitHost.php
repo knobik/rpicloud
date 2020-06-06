@@ -27,13 +27,15 @@ class InitHost extends Command
     /**
      * Execute the console command.
      *
+     * @param  PXEService  $PXEService
      * @return mixed
+     * @throws PXEException
      */
     public function handle(PXEService $PXEService)
     {
         $ip = hostIp();
 
-        $this->writeNewEnvironmentFileWith('http://'.$ip);
+        $this->writeNewEnvironmentFileWith('http://'.$ip.':8080');
         $this->setPxeDnsHost($PXEService, $ip);
     }
 

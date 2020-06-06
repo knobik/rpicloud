@@ -23,6 +23,14 @@ namespace App\Models;
  * @mixin \Eloquent
  * @property int $netboot
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereNetboot($value)
+ * @property string|null $arch
+ * @property int|null $cpus
+ * @property int|null $cpu_max_freq
+ * @property int|null $ram_max
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereArch($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereCpuMaxFreq($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereCpus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereRamMax($value)
  */
 class Node extends BaseModel
 {
