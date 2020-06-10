@@ -12,7 +12,7 @@ RUN add-apt-repository ppa:ondrej/php
 
 RUN apt-get update && \
     curl -sL https://deb.nodesource.com/setup_12.x  | bash - && \
-    apt-get install -y sqlite3 curl unzip supervisor dnsmasq nginx nmap ssh nodejs qemu-user-static \
+    apt-get install -y cron sqlite3 curl unzip supervisor dnsmasq nginx nmap ssh nodejs qemu-user-static kpartx \
     php7.4-fpm php7.4-cli \
     php7.4-sqlite3 \
     php7.4-gd \
@@ -48,6 +48,10 @@ COPY config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
 
 # configure supervisor
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# configure crontab
+COPY schedule.sh /schedule.sh
+RUN chmod +X /schedule.sh
 
 # entrypoint
 COPY start-container /usr/local/bin/start-container

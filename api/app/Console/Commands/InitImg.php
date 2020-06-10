@@ -71,68 +71,12 @@ class InitImg extends Command
      */
     private function prepareForUsage(): void
     {
-        $this->mountImg();
+        // mount the image
+        $this->call('validate:mount');
 
         $isArm = Str::of($this->getLocalArch())
             ->lower()
             ->startsWith('arm');
-    }
-
-    /**
-     * @throws InitException
-     */
-    private function mountImg(): void
-    {
-        $path = '/nfs';
-        $bootPath = $path.'/boot';
-        $rootPath = $path.'/root';
-
-        (new Process(['sudo', 'mkdir', '-p', $bootPath, $rootPath]))->run();
-
-        $fatOffset = $this->getPartitionOffset(static::VFAT_INDEX);
-        $extOffset = $this->getPartitionOffset(static::EXT4_INDEX);
-
-        $this->mountPartition($fatOffset['offset'], $fatOffset['sizelimit'], 'vfat', $bootPath);
-        $this->mountPartition($fatOffset['offset'], $fatOffset['sizelimit'], 'ext4', $rootPath);
-    }
-
-    private function mountPartition(int $offset, int $sizelimit, string $type, string $destinationPath): void
-    {
-        $process = new Process(['sudo', 'mount', '-v', '-o', "offset={$offset},sizelimit={$sizelimit}", '-t', $type, static::DISTRO_STORAGE_FILENAME, $destinationPath]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new InitException(
-                "SSH ERROR: {$destinationPath} not mounted, error: {$process->getErrorOutput()}"
-            );
-        }
-    }
-
-    /**
-     * @param $index
-     * @return array
-     * @throws InitException
-     */
-    private function getPartitionOffset($index): array
-    {
-        $process = new Process(['fdisk', '-l', static::DISTRO_STORAGE_FILENAME]);
-        $process->run();
-
-        $lines = explode("\n", $process->getOutput());
-        foreach ($lines as $line) {
-            $line = Str::of($line)->replaceMatches('/\s+/', ' ');
-            if ($line->startsWith(static::DISTRO_STORAGE_FILENAME.$index)) {
-                $parts = $line->explode(' ');
-                return [
-                    'offset' => $parts[1] * 512,
-                    'sizelimit' => $parts[3] * 512
-                ];
-            }
-        }
-
-        throw new InitException(
-            "SSH ERROR: Offset for index {$index} does not exist."
-        );
     }
 
     /**
