@@ -8,12 +8,22 @@ if (!function_exists('hostIp')) {
      */
     function hostIp(): string
     {
-        $process = new Process(['hostname', '-I']);
-        $process->run();
+        // cache the ip
+        if (!app()->bound('_hostIp')) {
+            app()->singleton(
+                '_hostIp',
+                function () {
+                    $process = new Process(['hostname', '-I']);
+                    $process->run();
 
-        $addresses = explode(' ', $process->getOutput());
+                    $addresses = explode(' ', $process->getOutput());
 
-        return trim($addresses[0]);
+                    return trim($addresses[0]);
+                }
+            );
+        }
+
+        return app('_hostIp');
     }
 }
 

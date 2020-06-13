@@ -1,0 +1,2 @@
+/nfs/boot *(rw,sync,no_subtree_check,no_root_squash)
+/nfs/root *(rw,sync,no_subtree_check,no_root_squash)

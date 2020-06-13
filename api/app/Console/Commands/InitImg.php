@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\ChrootException;
 use App\Exceptions\InitException;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 
@@ -11,9 +13,6 @@ class InitImg extends Command
 {
     public const DISTRO_STORAGE_FILENAME = '/baseImages/netbootBase.img';
     public const DISTRO_IMG_URL = 'https://downloads.raspberrypi.org/raspios_lite_armhf_latest';
-
-    private const VFAT_INDEX = 1;
-    private const EXT4_INDEX = 2;
 
     /**
      * The name and signature of the console command.
@@ -30,9 +29,15 @@ class InitImg extends Command
     protected $description = 'Downloads and prepares the base netboot img.';
 
     /**
+     * @var string|null
+     */
+    protected ?string $hostArchitecture = null;
+
+    /**
      * Execute the console command.
      *
      * @return mixed
+     * @throws FileNotFoundException
      */
     public function handle()
     {
@@ -68,15 +73,94 @@ class InitImg extends Command
 
     /**
      * @return void
+     * @throws FileNotFoundException
      */
     private function prepareForUsage(): void
     {
         // mount the image
         $this->call('validate:mount');
 
-        $isArm = Str::of($this->getLocalArch())
-            ->lower()
-            ->startsWith('arm');
+        $this->copyFiles();
+        $this->addSystemUser();
+//        $this->enableSSH();
+    }
+
+    /**
+     * @return bool
+     */
+    private function needsEmulation(): bool
+    {
+        if ($this->hostArchitecture === null) {
+            $this->hostArchitecture = $this->getLocalArch();
+        }
+
+        return Str::of($this->hostArchitecture)
+                ->lower()
+                ->startsWith('arm') === false;
+    }
+
+    private function addSystemUser(): void
+    {
+        //useradd rpi
+        //mkdir -p /home/rpi/.ssh
+        //chown -R rpi:rpi /home/rpi
+        //adduser rpi sudo
+        //echo 'rpi ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+        //
+        //PASSWORD=$(openssl passwd -1 __PASSWORD__)
+        //usermod --password ${PASSWORD} rpi
+    }
+
+    /**
+     * @return void
+     * @throws FileNotFoundException
+     */
+    private function copyFiles(): void
+    {
+        $this->putFile(ValidateMount::MOUNT_BOOT.'/cmdline.txt', $this->getStub('cmdline.txt'), 'root:root');
+        $this->putFile(ValidateMount::MOUNT_ROOT.'/etc/fstab', $this->getStub('fstab'), 'root:root');
+        $this->putFile(
+            ValidateMount::MOUNT_ROOT.'/home/rpi/.ssh/authorized_keys',
+            \Storage::disk('local')->get(InitSSH::RSA_PUBLIC)
+        );
+
+        if ($this->needsEmulation()) {
+            Process::fromShellCommandline(
+                'sudo cp $(which qemu-arm-static) '.ValidateMount::MOUNT_ROOT.'/$(which qemu-arm-static)'
+            )->run();
+        }
+    }
+
+    /**
+     * @param  string  $destination
+     * @param  string  $contents
+     * @param  string|null  $owner
+     * @return void
+     */
+    private function putFile(string $destination, string $contents, ?string $owner = null): void
+    {
+        $filename = '/tmp/'.Str::random(16);
+        file_put_contents($filename, $contents);
+
+        (new Process(['sudo', 'cp', '-f', $filename, $destination]))->run();
+
+        if ($owner) {
+            (new Process(['sudo', 'chown', $owner, $destination]))->run();
+        }
+    }
+
+    private function getStub(string $name): string
+    {
+        return $this->fillParameters(file_get_contents(base_path("stubs/pxe/{$name}")));
+    }
+
+    /**
+     * @param  string  $content
+     * @return string
+     */
+    private function fillParameters(string $content): string
+    {
+        return str_replace(['__IP__'], [hostIp()], $content);
     }
 
     /**

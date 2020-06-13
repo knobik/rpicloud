@@ -1,0 +1,2 @@
+proc       /proc        proc     defaults    0    0
+__IP__:/nfs/boot /boot nfs defaults,vers=3 0 0
