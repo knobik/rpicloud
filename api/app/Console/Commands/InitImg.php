@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Exceptions\ChrootException;
 use App\Exceptions\InitException;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -29,19 +28,15 @@ class InitImg extends Command
     protected $description = 'Downloads and prepares the base netboot img.';
 
     /**
-     * @var string|null
-     */
-    protected ?string $hostArchitecture = null;
-
-    /**
      * Execute the console command.
      *
      * @return mixed
      * @throws FileNotFoundException
+     * @throws InitException
      */
     public function handle()
     {
-//        $this->downloadLatestDistro();
+        $this->downloadLatestDistro();
         $this->prepareForUsage();
 
         $this->info('Done.');
@@ -53,18 +48,18 @@ class InitImg extends Command
     public function downloadLatestDistro(): void
     {
         // download the zip file
-        $this->info('Downloading '.static::DISTRO_IMG_URL);
+        $this->info('Downloading ' . static::DISTRO_IMG_URL);
         $zipPath = '/tmp/raspbian.zip';
-        (new Process(['curl', '-fSL', static::DISTRO_IMG_URL, '-o', $zipPath]))->run();
+        (new Process(['curl', '-fSL', static::DISTRO_IMG_URL, '-o', $zipPath]))->setTimeout(null)->run();
 
         // extract the zip file
-        $this->info('Extracting from '.$zipPath);
+        $this->info('Extracting from ' . $zipPath);
         $unzipPath = '/tmp/raspbian';
-        (new Process(['unzip', '-o', $zipPath, '-d', $unzipPath]))->run();
+        (new Process(['unzip', '-o', $zipPath, '-d', $unzipPath]))->setTimeout(null)->run();
 
         // move the file
         $imgPath = head(glob("{$unzipPath}/*.img"));
-        $this->info('Moving '.$imgPath);
+        $this->info('Moving ' . $imgPath);
         rename($imgPath, static::DISTRO_STORAGE_FILENAME);
 
         $this->info('Cleaning up...');
@@ -74,6 +69,7 @@ class InitImg extends Command
     /**
      * @return void
      * @throws FileNotFoundException
+     * @throws InitException
      */
     private function prepareForUsage(): void
     {
@@ -82,33 +78,35 @@ class InitImg extends Command
 
         $this->copyFiles();
         $this->addSystemUser();
-//        $this->enableSSH();
     }
 
     /**
-     * @return bool
+     * @throws InitException
      */
-    private function needsEmulation(): bool
-    {
-        if ($this->hostArchitecture === null) {
-            $this->hostArchitecture = $this->getLocalArch();
-        }
-
-        return Str::of($this->hostArchitecture)
-                ->lower()
-                ->startsWith('arm') === false;
-    }
-
     private function addSystemUser(): void
     {
-        //useradd rpi
-        //mkdir -p /home/rpi/.ssh
-        //chown -R rpi:rpi /home/rpi
-        //adduser rpi sudo
-        //echo 'rpi ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-        //
-        //PASSWORD=$(openssl passwd -1 __PASSWORD__)
-        //usermod --password ${PASSWORD} rpi
+        $path = ValidateMount::MOUNT_ROOT;
+        $password = bcrypt(Str::random(32));
+        $commands = [
+            // add a user
+            "echo 'rpi:x:1001:1001:,,,:/home/rpi:/bin/bash' | sudo tee -a {$path}/etc/passwd",
+            "echo 'rpi:x:1001:' | sudo tee -a {$path}/etc/group",
+            "sudo chown -R 1001:1001 {$path}/home/rpi",
+            "echo 'rpi:{$password}:18409:0:99999:7:::' | sudo tee -a {$path}/etc/shadow",
+
+            // add user to sudo
+            "sudo sed -i 's/sudo:x:27:pi/sudo:x:27:pi,rpi/g' {$path}/etc/group",
+            "echo 'rpi ALL=(ALL) NOPASSWD:ALL' | sudo tee -a {$path}/etc/sudoers"
+        ];
+
+        foreach ($commands as $command) {
+            $process = Process::fromShellCommandline($command);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new InitException('Error while running command: ' . $command . "\n\n" . $process->getErrorOutput());
+            }
+        }
     }
 
     /**
@@ -117,31 +115,28 @@ class InitImg extends Command
      */
     private function copyFiles(): void
     {
-        $this->putFile(ValidateMount::MOUNT_BOOT.'/cmdline.txt', $this->getStub('cmdline.txt'), 'root:root');
-        $this->putFile(ValidateMount::MOUNT_ROOT.'/etc/fstab', $this->getStub('fstab'), 'root:root');
+        $this->putFile(ValidateMount::MOUNT_BOOT . '/cmdline.txt', $this->getStub('cmdline.txt'), 'root:root');
+        $this->putFile(ValidateMount::MOUNT_BOOT . '/ssh', '');
+
+        $this->putFile(ValidateMount::MOUNT_ROOT . '/etc/fstab', $this->getStub('fstab'), 'root:root');
         $this->putFile(
-            ValidateMount::MOUNT_ROOT.'/home/rpi/.ssh/authorized_keys',
+            ValidateMount::MOUNT_ROOT . '/home/rpi/.ssh/authorized_keys',
             \Storage::disk('local')->get(InitSSH::RSA_PUBLIC)
         );
-
-        if ($this->needsEmulation()) {
-            Process::fromShellCommandline(
-                'sudo cp $(which qemu-arm-static) '.ValidateMount::MOUNT_ROOT.'/$(which qemu-arm-static)'
-            )->run();
-        }
     }
 
     /**
-     * @param  string  $destination
-     * @param  string  $contents
-     * @param  string|null  $owner
+     * @param string $destination
+     * @param string $contents
+     * @param string|null $owner
      * @return void
      */
     private function putFile(string $destination, string $contents, ?string $owner = null): void
     {
-        $filename = '/tmp/'.Str::random(16);
+        $filename = '/tmp/' . Str::random(16);
         file_put_contents($filename, $contents);
 
+        (new Process(['sudo', 'mkdir', '-p', $destination]))->run();
         (new Process(['sudo', 'cp', '-f', $filename, $destination]))->run();
 
         if ($owner) {
@@ -155,23 +150,11 @@ class InitImg extends Command
     }
 
     /**
-     * @param  string  $content
+     * @param string $content
      * @return string
      */
     private function fillParameters(string $content): string
     {
         return str_replace(['__IP__'], [hostIp()], $content);
     }
-
-    /**
-     * @return string
-     */
-    private function getLocalArch(): string
-    {
-        $process = new Process(['uname', '--m']);
-        $process->run();
-
-        return trim($process->getOutput());
-    }
-
 }

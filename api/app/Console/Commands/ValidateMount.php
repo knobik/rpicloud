@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Exceptions\InitException;
 use App\Exceptions\PXEException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
