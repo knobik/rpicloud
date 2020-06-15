@@ -63,7 +63,7 @@ class ValidateMount extends Command
             }
         }
 
-        $this->info('Done.');
+        $this->info('Done validating mount.');
     }
 
     /**

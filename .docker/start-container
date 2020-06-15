@@ -9,13 +9,16 @@ if [ ! -z "$USER_UID" ]; then
 fi
 
 # Run NFS server
+
 # start rpcbind if it is not started yet
 /usr/sbin/rpcinfo 127.0.0.1 > /dev/null; s=$?
 if [[ ${s} -ne 0 ]]; then
    echo "Starting rpcbind"
    /sbin/rpcbind -w
 fi
+
 mount -t nfsd nfds /proc/fs/nfsd
+
 # -V 3: enable NFSv3
 /usr/sbin/rpc.mountd -N 2 -V 3
 /usr/sbin/exportfs -r
@@ -25,6 +28,7 @@ mount -t nfsd nfds /proc/fs/nfsd
 echo "NFS started."
 
 php /api/artisan validate:mount
+php /api/artisan validate:host
 
 # main entry point
 /usr/bin/supervisord

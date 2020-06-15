@@ -1,2 +1,1 @@
-console=serial0,115200 console=tty1 root=/dev/nfs
-nfsroot=__IP__:/nfs/root,vers=3 rw ip=dhcp rootwait elevator=deadline
+console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=__IP__:/nfs/root,vers=3 rw ip=dhcp rootwait elevator=deadline

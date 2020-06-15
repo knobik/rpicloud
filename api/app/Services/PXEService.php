@@ -16,7 +16,7 @@ class PXEService
     public function disableNetboot(Node $node): void
     {
         $process = Process::fromShellCommandline(
-            'echo "dhcp-mac=set:tobeignored,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->macSlug($node)
+            'echo "dhcp-mac=set:tobeignored,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'
         );
 
         $process->run();
@@ -37,7 +37,7 @@ class PXEService
      */
     public function enableNetboot(Node $node): void
     {
-        $process = Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->macSlug($node));
+        $process = Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->macSlug($node).'.conf');
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -51,16 +51,11 @@ class PXEService
     }
 
     /**
-     * @throws PXEException
+     * @return void
      */
     public function restartPxeService(): void
     {
-        $process = Process::fromShellCommandline('sudo killall dnsmasq');
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new PXEException("PXE Error: {$process->getErrorOutput()}");
-        }
+        Process::fromShellCommandline('sudo killall dnsmasq')->run();
     }
 
     /**

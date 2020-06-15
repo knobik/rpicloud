@@ -18,7 +18,7 @@ class InitImg extends Command
      *
      * @var string
      */
-    protected $signature = 'init:img';
+    protected $signature = 'init:img {--host}';
 
     /**
      * The console command description.
@@ -36,10 +36,13 @@ class InitImg extends Command
      */
     public function handle()
     {
-        $this->downloadLatestDistro();
+        if (!$this->option('host')) {
+            $this->downloadLatestDistro();
+        }
+
         $this->prepareForUsage();
 
-        $this->info('Done.');
+        $this->info('Done initizing netboot img.');
     }
 
     /**
@@ -77,7 +80,10 @@ class InitImg extends Command
         $this->call('validate:mount');
 
         $this->copyFiles();
-        $this->addSystemUser();
+
+        if (!$this->option('host')) {
+            $this->addSystemUser();
+        }
     }
 
     /**
@@ -142,6 +148,8 @@ class InitImg extends Command
         if ($owner) {
             (new Process(['sudo', 'chown', $owner, $destination]))->run();
         }
+
+        unlink($filename);
     }
 
     private function getStub(string $name): string

@@ -27,11 +27,17 @@ class InitDB extends Command
      */
     public function handle()
     {
-        $dbPath = app()->databasePath('database.sqlite');
-        if (!file_exists($dbPath)) {
-            touch($dbPath);
-            $this->call('migrate');
-            $this->call('db:seed', ['--class' => 'DatabaseSeeder']);
+        $dbPath = database_path('database.sqlite');
+
+        if (file_exists($dbPath)) {
+            $this->info('Database exists. Skipping.');
+            return;
         }
+
+        touch($dbPath);
+        $this->call('migrate');
+        $this->call('db:seed', ['--class' => 'DatabaseSeeder']);
+
+        $this->info('Done initizing database.');
     }
 }
