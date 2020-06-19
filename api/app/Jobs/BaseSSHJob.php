@@ -70,13 +70,30 @@ abstract class BaseSSHJob implements ShouldQueue
     }
 
     /**
+     * @param string|array $command
+     * @return Process
+     */
+    protected function execute($command): Process
+    {
+        $process = $this->getSSH()->execute($command);
+
+        $node = $this->getNode();
+        if ($process->isSuccessful() && !$node->online) {
+            $node->online = true;
+            $node->save();
+        }
+
+        return $process;
+    }
+
+    /**
      * @param  string  $command
      * @return Process
      * @throws SSHException
      */
-    protected function command(string $command): Process
+    protected function executeOrFail(string $command): Process
     {
-        $process = $this->getSSH()->execute($command);
+        $process = $this->execute($command);
         if (!$process->isSuccessful()) {
             throw new SSHException(
                 "SSH ERROR ({$this->getNode()->ip}): {$process->getErrorOutput()}"

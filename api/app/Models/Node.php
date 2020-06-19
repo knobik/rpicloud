@@ -36,6 +36,8 @@ namespace App\Models;
  */
 class Node extends BaseModel
 {
+    protected $table = 'nodes';
+
     /**
      * The attributes that should be cast.
      *

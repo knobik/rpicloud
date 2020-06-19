@@ -56,16 +56,10 @@ class PXEService
      * @param  Node  $node
      * @param  Process  $process
      * @param  bool  $value
-     * @throws PXEException
      */
     private function processNetboot(Node $node, Process $process, bool $value): void
     {
         $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new PXEException("PXE Error ({$node->mac}): {$process->getErrorOutput()}");
-        }
-
         $this->restartPxeService();
 
         $node->netboot = $value;

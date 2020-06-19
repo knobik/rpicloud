@@ -32,7 +32,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
     private function ramInfo(): void
     {
         $node = $this->getNode();
-        $process = $this->command('free --mega');
+        $process = $this->executeOrFail('free --mega');
 
         $matches = [];
         preg_match("/(?:Mem:\s*)(?<memory>(?:[\S]+))/", $process->getOutput(), $matches);
@@ -54,7 +54,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
     private function cpuInfo(): void
     {
         $node = $this->getNode();
-        $process = $this->command('lscpu --json');
+        $process = $this->executeOrFail('lscpu --json');
         $data = collect(
             json_decode($process->getOutput(), true, 512, JSON_THROW_ON_ERROR)['lscpu']
         )->keyBy('field')->map(fn($item) => $item['data']);
@@ -82,7 +82,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
     private function networkInfo(PXEService $PXEService): void
     {
         $node = $this->getNode();
-        $process = $this->command('sudo ifconfig -a');
+        $process = $this->executeOrFail('sudo ifconfig -a');
 
         $interface = $this->parse($process->getOutput())
             ->first(fn($row) => $row['ip'] === $node->ip);

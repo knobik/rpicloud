@@ -33,7 +33,7 @@ class ProvisionController extends ApiController
     }
 
     /**
-     * @param  RegisterNodeRequest  $request
+     * @param RegisterNodeRequest $request
      * @return string
      * @throws FileNotFoundException
      */
@@ -42,6 +42,7 @@ class ProvisionController extends ApiController
         $node = Node::firstOrCreate(
             [
                 'ip' => $request->get('ip', $_SERVER['REMOTE_ADDR']),
+                'online' => true,
             ]
         );
 

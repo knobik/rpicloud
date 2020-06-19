@@ -1,0 +1,18 @@
+#!/bin/sh -e
+
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+# if the init file exists, execute it.
+$INITFILE = "/init.sh"
+if [ -f "$INITFILE" ]; then
+    # execute the init script at boot
+    bash {$INITFILE}
+
+    # destroy init script as its not needed anymore
+    rm {$INITFILE}
+fi
+
+exit 0

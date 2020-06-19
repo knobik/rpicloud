@@ -13,12 +13,10 @@ if (!function_exists('hostIp')) {
             app()->singleton(
                 '_hostIp',
                 function () {
-                    $process = new Process(['hostname', '-I']);
+                    $process = Process::fromShellCommandline('ip route get 1 | sed -n \'s/^.*src \([0-9.]*\) .*$/\1/p\'');
                     $process->run();
 
-                    $addresses = explode(' ', $process->getOutput());
-
-                    return trim($addresses[0]);
+                    return trim($process->getOutput());
                 }
             );
         }

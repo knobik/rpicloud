@@ -126,35 +126,51 @@ class InitImg extends Command
      */
     private function copyFiles(): void
     {
-        $this->putFile(ValidateMount::MOUNT_BOOT . '/cmdline.txt', $this->getStub('cmdline.txt'), 'root:root');
-        $this->putFile(ValidateMount::MOUNT_BOOT . '/ssh', '');
+        $this->putFile(ValidateMount::MOUNT_BOOT, 'cmdline.txt', $this->getStub('cmdline.txt'), 'root:root');
+        $this->putFile(ValidateMount::MOUNT_BOOT, 'ssh', '');
 
-        $this->putFile(ValidateMount::MOUNT_ROOT . '/etc/fstab', $this->getStub('fstab'), 'root:root');
+        $this->putFile(ValidateMount::MOUNT_ROOT . '/etc', 'rc.local', $this->getStub('rc.local'), 'root:root');
+        $this->makeExecutable(ValidateMount::MOUNT_ROOT . '/etc/rc.local');
+
+        $this->putFile(ValidateMount::MOUNT_ROOT . '/etc', 'fstab', $this->getStub('fstab'), 'root:root');
+
         $this->putFile(
-            ValidateMount::MOUNT_ROOT . '/home/rpi/.ssh/authorized_keys',
+            ValidateMount::MOUNT_ROOT . '/home/rpi/.ssh', 'authorized_keys',
             \Storage::disk('local')->get(InitSSH::RSA_PUBLIC)
         );
+        $this->putFile(ValidateMount::MOUNT_ROOT, 'init.sh', $this->getStub('init.sh'));
+        $this->makeExecutable(ValidateMount::MOUNT_ROOT . '/init.sh');
     }
 
     /**
      * @param string $destination
+     * @param string $filename
      * @param string $contents
      * @param string|null $owner
      * @return void
      */
-    private function putFile(string $destination, string $contents, ?string $owner = null): void
+    private function putFile(string $destination, string $filename, string $contents, ?string $owner = null): void
     {
-        $filename = '/tmp/' . Str::random(16);
-        file_put_contents($filename, $contents);
+        $tmpFilename = '/tmp/' . Str::random(16);
+        $fullFilename = rtrim($destination, '/') . '/' . $filename;
+        file_put_contents($tmpFilename, $contents);
 
         (new Process(['sudo', 'mkdir', '-p', $destination]))->run();
-        (new Process(['sudo', 'cp', '-f', $filename, $destination]))->run();
+        (new Process(['sudo', 'cp', '-f', $tmpFilename, $fullFilename]))->run();
 
         if ($owner) {
-            (new Process(['sudo', 'chown', $owner, $destination]))->run();
+            (new Process(['sudo', 'chown', $owner, $fullFilename]))->run();
         }
 
-        unlink($filename);
+        unlink($tmpFilename);
+    }
+
+    /**
+     * @param string $filename
+     */
+    private function makeExecutable(string $filename)
+    {
+        (new Process(['sudo', 'chmod', '+x', $filename]))->run();
     }
 
     private function getStub(string $name): string
