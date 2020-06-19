@@ -31,8 +31,20 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereCpuMaxFreq($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereCpus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereRamMax($value)
+ * @property int $online
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereOnline($value)
  */
 class Node extends BaseModel
 {
-
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'ip' => 'string',
+        'mac' => 'string',
+        'netboot' => 'bool',
+        'online' => 'bool',
+    ];
 }

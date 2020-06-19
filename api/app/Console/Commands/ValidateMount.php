@@ -35,7 +35,7 @@ class ValidateMount extends Command
      */
     public function handle()
     {
-        if (!$this->hasBaseImage()) {
+        if (!static::hasBaseImage()) {
             $this->error('No base image present. Skipping.');
             return;
         }
@@ -144,7 +144,7 @@ class ValidateMount extends Command
     /**
      * @return bool
      */
-    private function hasBaseImage(): bool
+    public static function hasBaseImage(): bool
     {
         return file_exists(InitImg::DISTRO_STORAGE_FILENAME);
     }

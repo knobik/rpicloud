@@ -15,20 +15,11 @@ class PXEService
      */
     public function disableNetboot(Node $node): void
     {
-        $process = Process::fromShellCommandline(
-            'echo "dhcp-mac=set:tobeignored,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'
+        $this->processNetboot(
+            $node,
+            Process::fromShellCommandline('echo "dhcp-mac=set:tobeignored,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'),
+            false
         );
-
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new PXEException("PXE Error ({$node->mac}): {$process->getErrorOutput()}");
-        }
-
-        $this->restartPxeService();
-
-        $node->netboot = false;
-        $node->save();
     }
 
     /**
@@ -37,17 +28,11 @@ class PXEService
      */
     public function enableNetboot(Node $node): void
     {
-        $process = Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->macSlug($node).'.conf');
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new PXEException("PXE Error ({$node->mac}): {$process->getErrorOutput()}");
-        }
-
-        $this->restartPxeService();
-
-        $node->netboot = true;
-        $node->save();
+        $this->processNetboot(
+            $node,
+            Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'),
+            true
+        );
     }
 
     /**
@@ -65,5 +50,25 @@ class PXEService
     public function macSlug(Node $node): string
     {
         return str_replace(':', '-', $node->mac);
+    }
+
+    /**
+     * @param  Node  $node
+     * @param  Process  $process
+     * @param  bool  $value
+     * @throws PXEException
+     */
+    private function processNetboot(Node $node, Process $process, bool $value): void
+    {
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new PXEException("PXE Error ({$node->mac}): {$process->getErrorOutput()}");
+        }
+
+        $this->restartPxeService();
+
+        $node->netboot = $value;
+        $node->save();
     }
 }

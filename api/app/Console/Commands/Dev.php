@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\GetNodeHWInfoJob;
+use App\Jobs\GetNodeStatusJob;
 use App\Jobs\PrepareBaseImage;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
@@ -41,7 +42,7 @@ class Dev extends Command
     public function handle()
     {
         dd(
-            GetNodeHWInfoJob::dispatchNow(1)
+            GetNodeStatusJob::dispatchNow(2)
         );
     }
 }

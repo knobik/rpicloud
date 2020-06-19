@@ -76,6 +76,11 @@ class InitImg extends Command
      */
     private function prepareForUsage(): void
     {
+        if ($this->option('host') && !ValidateMount::hasBaseImage()) {
+            $this->info('No base image present. Skipping img preparation.');
+            return;
+        }
+
         // mount the image
         $this->call('validate:mount');
 

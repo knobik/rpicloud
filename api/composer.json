@@ -71,7 +71,8 @@
         "setup": [
             "@php artisan init:db",
             "@php artisan init:ssh",
-            "@php artisan init:host"
+            "@php artisan init:host",
+            "@php artisan init:img"
         ]
     }
 }

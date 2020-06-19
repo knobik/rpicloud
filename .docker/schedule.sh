@@ -4,7 +4,7 @@
 # https://sipb.mit.edu/doc/safe-shell/
 #set -eufx -o pipefail
 
-# Run scheduler
+# Run scheduler (poor man crontab ;)
 while [[ true ]]
 do
   cd /api && php artisan schedule:run --verbose --no-interaction

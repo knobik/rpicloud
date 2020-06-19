@@ -17,9 +17,10 @@ Route::group(['prefix' => 'auth'], function () {
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('nodes', 'NodeController');
-//    Route::group(['prefix' => 'node'], function () {
-//        Route::get('/', 'NodeController@index');
-//    });
+    Route::group(['prefix' => 'nodes'], function () {
+        Route::post('/{node}/enable-netboot', 'NodeController@enableNetboot');
+        Route::post('/{node}/disable-netboot', 'NodeController@disableNetboot');
+    });
 });
 
 

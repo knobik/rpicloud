@@ -16,16 +16,21 @@ export default {
   components: {
     NodeTable
   },
-  asyncData ({ params }) {
-    return Api.get('/nodes').then((response) => {
-      return {
-        items: response.data.data
-      }
-    })
-  },
   data () {
     return {
       items: []
+    }
+  },
+  mounted () {
+    this.refreshListLoop()
+  },
+  methods: {
+    refreshListLoop () {
+      Api.get('/nodes').then((response) => {
+        this.items = response.data.data
+
+        setTimeout(this.refreshListLoop, 30000)
+      })
     }
   }
 }

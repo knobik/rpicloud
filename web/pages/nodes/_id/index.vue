@@ -23,7 +23,7 @@
               <template slot="title">
                 <i class="icon-reload" /> Recovery
               </template>
-              netboot
+              <recovery-tab :node="node"></recovery-tab>
             </b-tab>
           </b-tabs>
         </b-card>
@@ -34,8 +34,12 @@
 
 <script>
 import Api from '~/assets/js/utils/Api'
+import RecoveryTab from '~/components/Nodes/Tabs/RecoveryTab'
 
 export default {
+  components: {
+    RecoveryTab
+  },
   asyncData ({ params }) {
     return Api.get(`/nodes/${params.id}`).then((response) => {
       return {
