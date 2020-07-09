@@ -61,6 +61,7 @@ export default {
       default () {
         return [
           { label: 'ip address', key: 'ip' },
+          { label: 'hostname', key: 'hostname' },
           { label: 'mac', key: 'mac' },
           { label: 'netboot', key: 'netboot' },
           { label: 'online', key: 'online' },

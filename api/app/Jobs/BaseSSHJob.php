@@ -87,6 +87,15 @@ abstract class BaseSSHJob implements ShouldQueue
     }
 
     /**
+     * @param $command
+     * @return Process
+     */
+    protected function executeAsync($command): Process
+    {
+        return $this->getSSH()->executeAsync($command);
+    }
+
+    /**
      * @param  string  $command
      * @return Process
      * @throws SSHException

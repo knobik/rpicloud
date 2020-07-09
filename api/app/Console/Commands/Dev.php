@@ -5,11 +5,15 @@ namespace App\Console\Commands;
 use App\Jobs\GetNodeHWInfoJob;
 use App\Jobs\GetNodeStatusJob;
 use App\Jobs\Operations\FinishOperationJob;
+use App\Jobs\Operations\MakeBackupJob;
 use App\Jobs\Operations\NetbootAndWaitJob;
+use App\Jobs\Operations\ShrinkImageJob;
 use App\Jobs\Operations\StartOperationJob;
 use App\Jobs\Operations\StorageBootAndWaitJob;
 use App\Jobs\Operations\TestJob;
 use App\Jobs\PrepareBaseImage;
+use App\Models\Node;
+use App\Operations\BackupOperation;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 
@@ -46,19 +50,10 @@ class Dev extends Command
      */
     public function handle()
     {
-        $nodeId = 3;
-        StartOperationJob::withChain([
-            new NetbootAndWaitJob($nodeId),
-            new TestJob($nodeId),
-            new StorageBootAndWaitJob($nodeId),
-            new FinishOperationJob($nodeId)
-        ])
-            ->dispatch($nodeId, 'Test job chaining')
-            ->allOnQueue('operations');
+        $node = Node::findOrFail(4);
+        $device = '/dev/mmcblk0';
+        $filename = now()->format('y-m-d_h-i-s') . '.img';
 
-//        dd(GetNodeStatusJob::dispatchNow(2));
-
-//        dd(TestJob::dispatchNow(2));
-
+        (new BackupOperation($node, $device, $filename))->dispatch();
     }
 }

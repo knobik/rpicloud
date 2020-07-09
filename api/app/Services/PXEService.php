@@ -11,27 +11,25 @@ class PXEService
 {
     /**
      * @param  Node  $node
-     * @throws PXEException
      */
     public function disableNetboot(Node $node): void
     {
         $this->processNetboot(
             $node,
-            Process::fromShellCommandline('echo "dhcp-mac=set:tobeignored,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'),
-            false
+            Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'),
+            true
         );
     }
 
     /**
      * @param  Node  $node
-     * @throws PXEException
      */
     public function enableNetboot(Node $node): void
     {
         $this->processNetboot(
             $node,
-            Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'),
-            true
+            Process::fromShellCommandline('echo "dhcp-mac=set:whitelisted,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->macSlug($node).'.conf'),
+            false
         );
     }
 

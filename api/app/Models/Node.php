@@ -33,6 +33,8 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereRamMax($value)
  * @property int $online
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereOnline($value)
+ * @property string|null $hostname
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereHostname($value)
  */
 class Node extends BaseModel
 {
@@ -47,6 +49,7 @@ class Node extends BaseModel
         'ip' => 'string',
         'mac' => 'string',
         'netboot' => 'bool',
+        'hostname' => 'string',
         'online' => 'bool',
     ];
 }

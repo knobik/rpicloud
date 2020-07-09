@@ -24,6 +24,7 @@ class NodeResource extends JsonResource
         return [
             'id' => $this->id,
             'ip' => $this->ip,
+            'hostname' => $this->hostname,
             'mac' => $this->mac,
             'netboot' => $this->netboot,
             'online' => $this->online,

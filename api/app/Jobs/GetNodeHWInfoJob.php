@@ -22,6 +22,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
     public function handle(PXEService $PXEService): void
     {
         $this->networkInfo($PXEService);
+        $this->hostnameInfo();
         $this->cpuInfo();
         $this->ramInfo();
     }
@@ -97,6 +98,18 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $node->save();
 
         $PXEService->disableNetboot($node);
+    }
+
+    /**
+     * @throws SSHException
+     */
+    private function hostnameInfo()
+    {
+        $node = $this->getNode();
+        $process = $this->executeOrFail('hostname');
+
+        $node->hostname = trim($process->getOutput());
+        $node->save();
     }
 
     /**

@@ -6,13 +6,14 @@ if [ "$_IP" ]; then
 fi
 
 # if the init file exists, execute it.
-$INITFILE = "/init.sh"
+INITFILE="/scripts/init.sh"
 if [ -f "$INITFILE" ]; then
+    echo "Init.sh file present. Running system initization."
     # execute the init script at boot
-    bash {$INITFILE}
+    bash $INITFILE
 
     # destroy init script as its not needed anymore
-    rm {$INITFILE}
+    rm $INITFILE
 fi
 
 exit 0

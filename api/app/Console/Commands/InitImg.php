@@ -115,7 +115,9 @@ class InitImg extends Command
             $process->run();
 
             if (!$process->isSuccessful()) {
-                throw new InitException('Error while running command: ' . $command . "\n\n" . $process->getErrorOutput());
+                throw new InitException(
+                    'Error while running command: ' . $command . "\n\n" . $process->getErrorOutput()
+                );
             }
         }
     }
@@ -126,20 +128,38 @@ class InitImg extends Command
      */
     private function copyFiles(): void
     {
-        $this->putFile(ValidateMount::MOUNT_BOOT, 'cmdline.txt', $this->getStub('cmdline.txt'), 'root:root');
-        $this->putFile(ValidateMount::MOUNT_BOOT, 'ssh', '');
+        $boot = ValidateMount::MOUNT_BOOT;
+        $root = ValidateMount::MOUNT_ROOT;
 
-        $this->putFile(ValidateMount::MOUNT_ROOT . '/etc', 'rc.local', $this->getStub('rc.local'), 'root:root');
-        $this->makeExecutable(ValidateMount::MOUNT_ROOT . '/etc/rc.local');
+        // setup nfs mounts
+        $this->putFile($boot, 'cmdline.txt', $this->getStub('pxe/cmdline.txt'), 'root:root');
+        $this->putFile("{$root}/etc", 'fstab', $this->getStub('pxe/fstab'), 'root:root');
 
-        $this->putFile(ValidateMount::MOUNT_ROOT . '/etc', 'fstab', $this->getStub('fstab'), 'root:root');
+        // setup hostname
+        $this->putFile("{$root}/etc", 'hostname', $this->getStub('pxe/hostname'), 'root:root');
+        $this->putFile("{$root}/etc", 'hosts', $this->getStub('pxe/hosts'), 'root:root');
 
-        $this->putFile(
-            ValidateMount::MOUNT_ROOT . '/home/rpi/.ssh', 'authorized_keys',
-            \Storage::disk('local')->get(InitSSH::RSA_PUBLIC)
-        );
-        $this->putFile(ValidateMount::MOUNT_ROOT, 'init.sh', $this->getStub('init.sh'));
-        $this->makeExecutable(ValidateMount::MOUNT_ROOT . '/init.sh');
+        // ssh login with a key
+        $this->putFile("{$root}/home/rpi/.ssh", 'authorized_keys', \Storage::disk('local')->get(InitSSH::RSA_PUBLIC));
+
+        // init script
+        $this->putScript("{$root}/etc", 'rc.local', $this->getStub('pxe/rc.local'), 'root:root');
+        $this->putScript("{$root}/scripts", 'init.sh', $this->getStub('pxe/init.sh'));
+
+        // helper scripts
+        $this->putScript("{$root}/scripts", 'pishrink.sh', $this->getStub('pxe/pishrink.sh'));
+    }
+
+    /**
+     * @param string $destination
+     * @param string $filename
+     * @param string $contents
+     * @param string|null $owner
+     */
+    private function putScript(string $destination, string $filename, string $contents, ?string $owner = null)
+    {
+        $this->putFile($destination, $filename, $contents, $owner);
+        $this->makeExecutable(rtrim($destination, '/') . '/' . $filename);
     }
 
     /**
@@ -175,7 +195,7 @@ class InitImg extends Command
 
     private function getStub(string $name): string
     {
-        return $this->fillParameters(file_get_contents(base_path("stubs/pxe/{$name}")));
+        return $this->fillParameters(file_get_contents(base_path("stubs/{$name}")));
     }
 
     /**
