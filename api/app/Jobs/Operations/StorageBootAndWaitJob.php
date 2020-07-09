@@ -31,7 +31,7 @@ class StorageBootAndWaitJob extends BaseOperationJob
         $this->reboot(10);
 
         // wait till node netboots
-        $this->track('Waiting for the node to boot to storage device.');
+        $this->track('Waiting for the node to storage boot.');
         $this->waitForBoot();
     }
 }

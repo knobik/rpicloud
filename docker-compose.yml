@@ -11,6 +11,7 @@ services:
       - ./.docker/config/dnsmasq:/etc/dnsmasq.d/
       - ./.docker/config/nginx:/etc/nginx/sites-enabled
       - ./baseImages:/baseImages
+      - ./backups:/backups
       - ./web:/web
       - ./api:/api
     network_mode: "host"

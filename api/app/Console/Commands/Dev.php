@@ -46,7 +46,7 @@ class Dev extends Command
      */
     public function handle()
     {
-        $nodeId = 2;
+        $nodeId = 3;
         StartOperationJob::withChain([
             new NetbootAndWaitJob($nodeId),
             new TestJob($nodeId),
