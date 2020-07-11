@@ -1,2 +1,16 @@
 @import './coreui.scss';
 
+.clickable {
+  cursor: pointer;
+}
+
+.table {
+  thead th {
+    border-top: none;
+    border-bottom-width: 1px;
+  }
+
+  td {
+    border-top: none;
+  }
+}

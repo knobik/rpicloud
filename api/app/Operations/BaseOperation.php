@@ -8,8 +8,9 @@ use App\Jobs\BaseSSHJob;
 use App\Jobs\Operations\FinishOperationJob;
 use App\Jobs\Operations\StartOperationJob;
 use App\Models\Node;
+use App\Models\Operation;
 
-abstract class Operation
+abstract class BaseOperation
 {
     public const QUEUE = 'operations';
 
@@ -50,12 +51,28 @@ abstract class Operation
     public function dispatch(): void
     {
         $this->build();
-
         $this->addJob(new FinishOperationJob($this->node->id));
 
         StartOperationJob::withChain($this->chain)
-            ->dispatch($this->node->id, $this->name())
+            ->dispatch($this->node->id)
             ->allOnQueue(static::QUEUE);
+
+        $this->createOperation($this->name());
+    }
+
+    /**
+     * @param $name
+     * @return Operation
+     */
+    private function createOperation($name): Operation
+    {
+        return Operation::create(
+            [
+                'name' => $name,
+                'description' => 'Waiting in queue.',
+                'node_id' => $this->node->id
+            ]
+        );
     }
 
     /**

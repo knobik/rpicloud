@@ -17,7 +17,6 @@ class StorageBootAndWaitJob extends BaseOperationJob
     /**
      * Execute the job.
      * @param PXEService $PXEService
-     * @throws PXEException
      */
     public function handle(PXEService $PXEService): void
     {

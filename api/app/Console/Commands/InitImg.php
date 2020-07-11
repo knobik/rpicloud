@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Exceptions\InitException;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 
@@ -204,6 +205,13 @@ class InitImg extends Command
      */
     private function fillParameters(string $content): string
     {
-        return str_replace(['__IP__'], [hostIp()], $content);
+        $config = Arr::dot(config('pxe'));
+        $keys = collect(array_keys($config))->map(fn($value) => "__config.{$value}__")->all();
+        $values = array_values($config);
+
+        $keys[] = '__ip__';
+        $values[] = hostIp();
+
+        return str_replace($keys, $values, $content);
     }
 }

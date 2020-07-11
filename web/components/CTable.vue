@@ -1,5 +1,5 @@
 <template>
-  <b-card :header="caption">
+  <div>
     <b-table
       :hover="hover"
       :striped="striped"
@@ -23,16 +23,12 @@
         align="right"
       />
     </nav>
-  </b-card>
+  </div>
 </template>
 
 <script>
 export default {
   props: {
-    caption: {
-      type: String,
-      default: 'Table'
-    },
     hover: {
       type: Boolean,
       default: false

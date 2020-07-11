@@ -41,7 +41,8 @@
 </template>
 
 <script>
-import { Header as AppHeader, SidebarToggler, Sidebar as AppSidebar, SidebarFooter, SidebarForm, SidebarHeader, SidebarMinimizer, SidebarNav, Footer as TheFooter, Breadcrumb } from '@coreui/vue'
+import { Header as AppHeader, SidebarToggler, Sidebar as AppSidebar, SidebarFooter, SidebarForm, SidebarHeader, SidebarMinimizer, SidebarNav, Footer as TheFooter } from '@coreui/vue'
+import Api from '~/assets/js/utils/Api'
 
 export default {
   middleware: 'authenticated',
@@ -49,7 +50,6 @@ export default {
     AppHeader,
     AppSidebar,
     TheFooter,
-    Breadcrumb,
     SidebarForm,
     SidebarFooter,
     SidebarToggler,
@@ -74,6 +74,13 @@ export default {
     },
     list () {
       return this.$route.matched.filter(route => route.name || route.meta.label)
+    }
+  },
+  created () {
+    if (!this.$store.state.config) {
+      Api.get('/config').then((response) => {
+        this.$store.commit('setConfig', response.data.data)
+      })
     }
   }
 }

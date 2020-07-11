@@ -19,12 +19,14 @@ class GetNodeStatusJob extends BaseSSHJob
         $node = $this->getNode();
 
         $process = $this->getSSH()
-            ->execute('whoami');
+            ->execute('hostname');
 
-        if (!$process->isSuccessful()) {
-            $node->online = false;
-        } else {
-            $node->online = true;
+        $hostname = trim($process->getOutput());
+        $node->online = $process->isSuccessful();
+
+        if ($node->online) {
+            $node->hostname = $hostname;
+            $node->netbooted = $hostname === config('pxe.hostname');
         }
 
         $node->save();

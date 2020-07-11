@@ -14,7 +14,6 @@ class ShrinkImageJob extends BaseOperationJob
     /**
      * MakeBackupJob constructor.
      * @param int $nodeId
-     * @param string $device
      * @param string $filename
      */
     public function __construct(int $nodeId, string $filename)
@@ -34,8 +33,9 @@ class ShrinkImageJob extends BaseOperationJob
         $outputFilename = "/backups/{$this->filename}";
         $process = $this->executeAsync("sudo /scripts/pishrink.sh {$outputFilename}");
 
+        $operation = $this->getOperation();
         foreach ($process as $type => $data) {
-            echo "{$data}";
+            $this->log(trim($data), $operation);
         }
     }
 }

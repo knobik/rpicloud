@@ -33,6 +33,6 @@ class NetbootAndWaitJob extends BaseOperationJob
 
         // wait till node netboots
         $this->track('Waiting for the node to netboot.');
-        $this->waitForBoot();
+        $this->waitForBoot(config('pxe.hostname'));
     }
 }

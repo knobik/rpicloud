@@ -35,6 +35,10 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereOnline($value)
  * @property string|null $hostname
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereHostname($value)
+ * @property int $netbooted
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereNetbooted($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Operation[] $operations
+ * @property-read int|null $operations_count
  */
 class Node extends BaseModel
 {
@@ -50,6 +54,15 @@ class Node extends BaseModel
         'mac' => 'string',
         'netboot' => 'bool',
         'hostname' => 'string',
+        'netbooted' => 'bool',
         'online' => 'bool',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function operations()
+    {
+        return $this->hasMany(Operation::class);
+    }
 }

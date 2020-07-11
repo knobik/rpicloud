@@ -9,19 +9,19 @@
           <b-tabs card pills vertical nav-wrapper-class="w-25" class="borderless">
             <b-tab active>
               <template slot="title">
-                <i class="icon-chart" /> Graphs
-              </template>
-              this will contain the load graphs
-            </b-tab>
-            <b-tab>
-              <template slot="title">
-                <i class="icon-calculator" /> Access
+                <i class="fa fa-calculator" /> Access
               </template>
               ssh and stuff
             </b-tab>
             <b-tab>
               <template slot="title">
-                <i class="icon-reload" /> Recovery
+                <i class="fa fa-tasks" /> Operations
+              </template>
+              <operation-tab :node="node"></operation-tab>
+            </b-tab>
+            <b-tab>
+              <template slot="title">
+                <i class="fa fa-hdd-o" /> Recovery
               </template>
               <recovery-tab :node="node"></recovery-tab>
             </b-tab>
@@ -35,10 +35,12 @@
 <script>
 import Api from '~/assets/js/utils/Api'
 import RecoveryTab from '~/components/Nodes/Tabs/RecoveryTab'
+import OperationTab from '~/components/Nodes/Tabs/OperationTab'
 
 export default {
   components: {
-    RecoveryTab
+    RecoveryTab,
+    OperationTab
   },
   asyncData ({ params }) {
     return Api.get(`/nodes/${params.id}`).then((response) => {

@@ -2,7 +2,7 @@
   <div class="animated fadeIn">
     <b-row>
       <b-col lg="12">
-        <NodeTable caption="Nodes" :items="items" />
+        <NodeTable :items="items" @update="updateNode" />
       </b-col><!--/.col-->
     </b-row>
   </div>
@@ -18,18 +18,30 @@ export default {
   },
   data () {
     return {
-      items: []
+      items: [],
+      timer: null
     }
   },
   mounted () {
     this.refreshListLoop()
   },
   methods: {
+    updateNode (node) {
+      const index = this.items.findIndex((item) => {
+        return item.ip === node.ip
+      })
+
+      this.$set(this.items, index, node)
+    },
     refreshListLoop () {
+      if (this.timer) {
+        clearInterval(this.timer)
+      }
+
       Api.get('/nodes').then((response) => {
         this.items = response.data.data
 
-        setTimeout(this.refreshListLoop, 30000)
+        this.timer = setTimeout(this.refreshListLoop, 5000)
       })
     }
   }

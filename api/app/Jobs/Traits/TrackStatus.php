@@ -4,68 +4,92 @@
 namespace App\Jobs\Traits;
 
 
-use App\Models\JobStatus;
+use App\Models\Operation;
 
 trait TrackStatus
 {
     /**
-     * @param string $description
-     * @return JobStatus
+     * @param Operation|null $operation
+     * @return Operation
      */
-    protected function track(string $description): JobStatus
+    protected function startTracking(?Operation $operation = null): Operation
     {
-        $jobStatus = $this->getJobStatus();
+        $operation = $operation ?? $this->getOperation();
 
-        $jobStatus->description = $description;
-        $jobStatus->save();
+        $operation->started_at = now();
+        $operation->save();
 
-        return $jobStatus;
+        $this->track('Operation started.', $operation);
+
+        return $operation;
     }
 
     /**
-     * @param string $name
+     * @param string $line
+     * @param Operation|null $operation
+     * @return Operation
      */
-    protected function startTracking(string $name)
+    protected function log(string $line, ?Operation $operation = null)
     {
-        $jobStatus = new JobStatus();
+        $operation = $operation ?? $this->getOperation();
 
-        $jobStatus->name = $name;
-        $jobStatus->description = '';
-        $jobStatus->node_id = $this->getNode()->id;
-        $jobStatus->save();
-    }
+        $operation->log .=  "$line\n";
+        $operation->save();
 
-    /**
-     * @param JobStatus|null $jobStatus
-     * @throws \Exception
-     */
-    protected function endTracking(?JobStatus $jobStatus = null): void
-    {
-        $jobStatus = $jobStatus ?? $this->getJobStatus();
-        $jobStatus->delete();
+        return $operation;
     }
 
     /**
      * @param string $description
-     * @throws \Exception
+     * @param Operation|null $operation
+     * @return Operation
      */
-    protected function trackError(string $description)
+    protected function track(string $description, ?Operation $operation = null): Operation
     {
-        $jobStatus = $this->getJobStatus();
+        $operation = $operation ?? $this->getOperation();
 
-        $jobStatus->failed = true;
-        $jobStatus->description = $description;
-        $jobStatus->save();
+        $time = now()->format('H:i:s');
+        $this->log("$time >> $description", $operation);
 
-        $this->endTracking($jobStatus);
+        $operation->description = $description;
+        $operation->save();
+
+        return $operation;
     }
 
     /**
-     * @return JobStatus
+     * @param Operation|null $operation
+     * @throws \Exception
      */
-    protected function getJobStatus(): JobStatus
+    protected function endTracking(?Operation $operation = null): void
     {
-        return JobStatus::where('node_id', '=', $this->getNode()->id)
+        $operation = $operation ?? $this->getOperation();
+        $operation->finished_at = now();
+        $operation->save();
+    }
+
+    /**
+     * @param string $description
+     * @param Operation|null $operation
+     * @throws \Exception
+     */
+    protected function trackError(string $description, ?Operation $operation = null)
+    {
+        $operation = $operation ?? $this->getOperation();
+
+        $operation->failed = true;
+        $operation->description = $description;
+        $operation->save();
+
+        $this->endTracking($operation);
+    }
+
+    /**
+     * @return Operation
+     */
+    protected function getOperation(): Operation
+    {
+        return Operation::where('node_id', '=', $this->getNode()->id)
             ->whereNull('finished_at')
             ->first();
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class JobStatusTable extends Migration
+class OperationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class JobStatusTable extends Migration
      */
     public function up()
     {
-        Schema::create('job_status', function (Blueprint $table) {
+        Schema::create('operations', function (Blueprint $table) {
             $table->bigIncrements('id');
 
             $table->bigInteger('node_id')->index();
@@ -40,6 +40,6 @@ class JobStatusTable extends Migration
      */
     public function down()
     {
-        Schema::drop('job_status');
+        Schema::drop('operations');
     }
 }

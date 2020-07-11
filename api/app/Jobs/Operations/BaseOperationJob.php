@@ -10,6 +10,21 @@ abstract class BaseOperationJob extends BaseSSHJob
     use TrackStatus;
 
     /**
+     * Shutdown the node
+     *
+     * @return void
+     */
+    protected function shutdown(): void
+    {
+        // if the node is online, try shutdown
+        $this->execute('sudo shutdown now');
+
+        $node = $this->getNode();
+        $node->online = false;
+        $node->save();
+    }
+
+    /**
      * Reboot the node
      *
      * @param int|null $sleepTime
@@ -18,29 +33,36 @@ abstract class BaseOperationJob extends BaseSSHJob
     protected function reboot(?int $sleepTime = null): void
     {
         // if the node is online, try to reboot it.
-        $process = $this->execute('sudo reboot');
-        if ($process->isSuccessful()) {
-            $node = $this->getNode();
-            $node->online = false;
-            $node->save();
+        $this->execute('sudo reboot');
 
-            if ($sleepTime) {
-                sleep($sleepTime);
-            }
+        $node = $this->getNode();
+        $node->online = false;
+        $node->save();
+
+        if ($sleepTime) {
+            sleep($sleepTime);
         }
     }
 
     /**
+     * @param string|null $hostname
      * @return void
      */
-    protected function waitForBoot(): void
+    protected function waitForBoot(?string $hostname = null): void
     {
         while (true) {
             sleep(5);
 
-            $process = $this->execute('whoami');
+            $process = $this->execute('hostname');
             if ($process->isSuccessful()) {
-                break;
+
+                if ($hostname !== null) {
+                    if (trim($process->getOutput()) === $hostname) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
         }
     }

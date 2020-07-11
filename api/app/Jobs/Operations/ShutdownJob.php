@@ -2,14 +2,14 @@
 
 namespace App\Jobs\Operations;
 
-class StartOperationJob extends BaseOperationJob
+class ShutdownJob extends BaseOperationJob
 {
     /**
      * Execute the job.
-     * @throws \Exception
      */
     public function handle(): void
     {
-        $this->startTracking();
+        $this->track('Shutdown the node.');
+        $this->shutdown();
     }
 }

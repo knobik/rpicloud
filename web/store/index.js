@@ -2,7 +2,8 @@ import createPersistedState from 'vuex-persistedstate'
 
 export const state = () => ({
   user: {},
-  authenticated: false
+  authenticated: false,
+  config: null
 })
 
 export const mutations = {
@@ -11,6 +12,9 @@ export const mutations = {
   },
   setAuthenticated (state, value) {
     state.authenticated = value
+  },
+  setConfig (state, config) {
+    state.config = config
   }
 }
 

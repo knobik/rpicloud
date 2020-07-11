@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api;
 
+use App\Http\Resources\Api\Nodes\OperationResource;
 use App\Models\Node;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,7 +28,13 @@ class NodeResource extends JsonResource
             'hostname' => $this->hostname,
             'mac' => $this->mac,
             'netboot' => $this->netboot,
+            'netbooted' => $this->netbooted,
             'online' => $this->online,
+            'operations' => OperationResource::collection(
+                $this->operations()
+                    ->whereNull('finished_at')
+                    ->get()
+            )
         ];
     }
 }

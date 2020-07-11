@@ -9,12 +9,14 @@ use App\Jobs\Operations\MakeBackupJob;
 use App\Jobs\Operations\NetbootAndWaitJob;
 use App\Jobs\Operations\ShrinkImageJob;
 use App\Jobs\Operations\StartOperationJob;
-use App\Jobs\Operations\StorageBootAndWaitJob;
+use App\Jobs\Operations\RebootJob;
 use App\Jobs\Operations\TestJob;
 use App\Jobs\PrepareBaseImage;
 use App\Models\Node;
 use App\Operations\BackupOperation;
+use App\Operations\RebootOperation;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Symfony\Component\Process\Process;
 
 class Dev extends Command
@@ -50,10 +52,11 @@ class Dev extends Command
      */
     public function handle()
     {
-        $node = Node::findOrFail(4);
+        $node = Node::findOrFail(5);
         $device = '/dev/mmcblk0';
         $filename = now()->format('y-m-d_h-i-s') . '.img';
-
         (new BackupOperation($node, $device, $filename))->dispatch();
+//
+//        (new RebootOperation(Node::findOrFail(4)))->dispatch();
     }
 }

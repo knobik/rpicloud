@@ -7,10 +7,11 @@ namespace App\Operations;
 use App\Jobs\Operations\MakeBackupJob;
 use App\Jobs\Operations\NetbootAndWaitJob;
 use App\Jobs\Operations\ShrinkImageJob;
+use App\Jobs\Operations\RebootJob;
 use App\Jobs\Operations\StorageBootAndWaitJob;
 use App\Models\Node;
 
-class BackupOperation extends Operation
+class BackupOperation extends BaseOperation
 {
     /**
      * @var string
