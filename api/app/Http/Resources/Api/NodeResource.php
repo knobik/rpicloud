@@ -30,11 +30,8 @@ class NodeResource extends JsonResource
             'netboot' => $this->netboot,
             'netbooted' => $this->netbooted,
             'online' => $this->online,
-            'operations' => OperationResource::collection(
-                $this->operations()
-                    ->whereNull('finished_at')
-                    ->get()
-            )
+            'storageDevices' => $this->storage_devices,
+            'pendingOperations' => OperationResource::collection($this->whenLoaded('pendingOperations')),
         ];
     }
 }

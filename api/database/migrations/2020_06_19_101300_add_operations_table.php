@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class OperationsTable extends Migration
+class AddOperationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -19,7 +19,9 @@ class OperationsTable extends Migration
             $table->bigInteger('node_id')->index();
             $table->boolean('failed')->default(false);
             $table->string('name');
-            $table->string('description');
+            $table->string('description')->nullable();
+            $table->text('log')->nullable();
+            $table->timestamp('started_at')->nullable();
             $table->timestamp('finished_at')->nullable();
 
             $table->timestamps();

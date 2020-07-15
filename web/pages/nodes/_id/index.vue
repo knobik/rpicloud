@@ -2,6 +2,16 @@
   <div class="animated fadeIn">
     <b-row>
       <b-col md="12">
+        <b-alert v-if="runningOperation !== null" variant="info" show>
+          <h5 class="alert-heading font-weight-bold">
+            {{ runningOperation.name }}
+          </h5>
+          {{ runningOperation.log ? runningOperation.log.split('\n').slice(-1).pop() : '' }}
+        </b-alert>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col md="12">
         <b-card>
           <div slot="header">
             Node <em>{{ node.ip }}</em>
@@ -9,21 +19,21 @@
           <b-tabs card pills vertical nav-wrapper-class="w-25" class="borderless">
             <b-tab active>
               <template slot="title">
-                <i class="fa fa-calculator" /> Access
+                <i class="fa fa-hdd-o" /> Access
               </template>
-              ssh and stuff
+              <access-tab :node="node" @update="overwriteNode" />
+            </b-tab>
+            <b-tab>
+              <template slot="title">
+                <i class="fa fa-database" /> Backups
+              </template>
+              <backup-tab :node="node" />
             </b-tab>
             <b-tab>
               <template slot="title">
                 <i class="fa fa-tasks" /> Operations
               </template>
-              <operation-tab :node="node"></operation-tab>
-            </b-tab>
-            <b-tab>
-              <template slot="title">
-                <i class="fa fa-hdd-o" /> Recovery
-              </template>
-              <recovery-tab :node="node"></recovery-tab>
+              <operation-tab :node="node" />
             </b-tab>
           </b-tabs>
         </b-card>
@@ -34,13 +44,15 @@
 
 <script>
 import Api from '~/assets/js/utils/Api'
-import RecoveryTab from '~/components/Nodes/Tabs/RecoveryTab'
+import AccessTab from '~/components/Nodes/Tabs/AccessTab'
 import OperationTab from '~/components/Nodes/Tabs/OperationTab'
+import BackupTab from '~/components/Nodes/Tabs/BackupTab'
 
 export default {
   components: {
-    RecoveryTab,
-    OperationTab
+    AccessTab,
+    OperationTab,
+    BackupTab
   },
   asyncData ({ params }) {
     return Api.get(`/nodes/${params.id}`).then((response) => {
@@ -48,6 +60,46 @@ export default {
         node: response.data.data
       }
     })
+  },
+  data () {
+    return {
+      timer: null
+    }
+  },
+  computed: {
+    runningOperation () {
+      const operation = this.node.pendingOperations.find((operation) => {
+        return operation.finished_at === null
+      })
+
+      return operation || null
+    }
+  },
+  mounted () {
+    this.reloadNodeTimer()
+  },
+  methods: {
+    overwriteNode (node) {
+      this.node = node
+    },
+    reloadNode () {
+      Api.get(`/nodes/${this.node.id}`).then((response) => {
+        this.node = response.data.data
+      })
+    },
+    reloadNodeTimer () {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+
+      this.timer = setTimeout(() => {
+        if (this.runningOperation !== null) {
+          this.reloadNode()
+        }
+
+        this.reloadNodeTimer()
+      }, 5000)
+    }
   }
 }
 </script>

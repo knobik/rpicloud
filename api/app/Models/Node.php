@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 /**
  * App\Models\Node
  *
@@ -39,6 +41,10 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereNetbooted($value)
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Operation[] $operations
  * @property-read int|null $operations_count
+ * @property string $storage_devices
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Node whereStorageDevices($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Operation[] $pendingOperations
+ * @property-read int|null $pending_operations_count
  */
 class Node extends BaseModel
 {
@@ -56,13 +62,22 @@ class Node extends BaseModel
         'hostname' => 'string',
         'netbooted' => 'bool',
         'online' => 'bool',
+        'storage_devices' => 'array'
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function operations()
+    public function operations(): HasMany
     {
         return $this->hasMany(Operation::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function pendingOperations(): HasMany
+    {
+        return $this->operations()->whereNull('finished_at');
     }
 }

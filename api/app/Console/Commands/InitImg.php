@@ -137,8 +137,8 @@ class InitImg extends Command
         $this->putFile("{$root}/etc", 'fstab', $this->getStub('pxe/fstab'), 'root:root');
 
         // setup hostname
-        $this->putFile("{$root}/etc", 'hostname', $this->getStub('pxe/hostname'), 'root:root');
-        $this->putFile("{$root}/etc", 'hosts', $this->getStub('pxe/hosts'), 'root:root');
+        $this->putFile("{$root}/etc", 'hostname', $this->getStub('hostname/hostname'), 'root:root');
+        $this->putFile("{$root}/etc", 'hosts', $this->getStub('hostname/hosts'), 'root:root');
 
         // ssh login with a key
         $this->putFile("{$root}/home/rpi/.ssh", 'authorized_keys', \Storage::disk('local')->get(InitSSH::RSA_PUBLIC));

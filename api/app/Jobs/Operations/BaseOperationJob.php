@@ -4,6 +4,7 @@ namespace App\Jobs\Operations;
 
 use App\Jobs\BaseSSHJob;
 use App\Jobs\Traits\TrackStatus;
+use Illuminate\Support\Str;
 
 abstract class BaseOperationJob extends BaseSSHJob
 {
@@ -65,6 +66,27 @@ abstract class BaseOperationJob extends BaseSSHJob
                 }
             }
         }
+    }
+
+    /**
+     * @param string $filename
+     * @return string
+     */
+    protected function getStub(string $filename): string
+    {
+        return file_get_contents(base_path("stubs/{$filename}"));
+    }
+
+    /**
+     * @param string $contents
+     * @return string
+     */
+    protected function makeTmpFile(string $contents)
+    {
+        $tmpFilename = '/tmp/' . Str::random(16);
+        file_put_contents($tmpFilename, $contents);
+
+        return $tmpFilename;
     }
 
 }

@@ -28,20 +28,26 @@ export default {
   },
   computed: {
     operationInProgress () {
-      return this.node.operations.filter(function (operation) {
-        return operation.finished_at === null
-      }).length > 0
+      return this.node.pendingOperations.length > 0
     }
   },
   methods: {
     reboot () {
-      Api.post(`/nodes/${this.node.id}/reboot`, {}).then((response) => {
-        this.$emit('update', response.data.data)
+      this.$confirm({
+        callback: () => {
+          Api.post(`/nodes/${this.node.id}/reboot`, {}).then((response) => {
+            this.$emit('update', response.data.data)
+          })
+        }
       })
     },
     shutdown () {
-      Api.post(`/nodes/${this.node.id}/shutdown`, {}).then((response) => {
-        this.$emit('update', response.data.data)
+      this.$confirm({
+        callback: () => {
+          Api.post(`/nodes/${this.node.id}/shutdown`, {}).then((response) => {
+            this.$emit('update', response.data.data)
+          })
+        }
       })
     }
   }

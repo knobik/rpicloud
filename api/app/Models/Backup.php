@@ -3,7 +3,7 @@
 namespace App\Models;
 
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Backup
@@ -31,10 +31,10 @@ class Backup extends BaseModel
     protected $table = 'backups';
 
     /**
-     * @return HasOne
+     * @return BelongsTo
      */
-    public function node(): HasOne
+    public function node(): BelongsTo
     {
-        return $this->hasOne(Node::class);
+        return $this->belongsTo(Node::class);
     }
 }

@@ -12,7 +12,9 @@
       :current-page="currentPage"
       :per-page="perPage"
     >
-      <slot />
+      <template v-slot:cell(actions)="data">
+        <actions :operation="data.item"></actions>
+      </template>
     </b-table>
     <nav>
       <b-pagination
@@ -28,44 +30,31 @@
 </template>
 
 <script>
+import CTable from '~/components/CTable'
+import Actions from '~/components/Nodes/Operations/Actions.vue'
+
 export default {
+  components: {
+    Actions
+  },
+  extends: CTable,
   props: {
     hover: {
       type: Boolean,
-      default: false
-    },
-    striped: {
-      type: Boolean,
-      default: false
-    },
-    bordered: {
-      type: Boolean,
-      default: false
-    },
-    small: {
-      type: Boolean,
-      default: false
-    },
-    fixed: {
-      type: Boolean,
-      default: false
-    },
-    items: {
-      type: Array,
-      required: true
+      default: true
     },
     fields: {
       type: Array,
       default () {
-        return []
+        return [
+          { label: 'Name', key: 'name' },
+          { label: 'Status', key: 'description' },
+          { label: 'Created at', key: 'created_at' },
+          { label: 'Started at', key: 'started_at' },
+          { label: 'Finished at', key: 'finished_at' },
+          { label: 'Action', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
+        ]
       }
-    }
-  },
-  data: () => {
-    return {
-      currentPage: 1,
-      perPage: 10,
-      totalRows: 0
     }
   }
 }

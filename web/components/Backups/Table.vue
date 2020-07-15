@@ -12,7 +12,12 @@
       :current-page="currentPage"
       :per-page="perPage"
     >
-      <slot />
+      <template v-slot:cell(actions)="data">
+        <actions :backup="data.item" @reload="$emit('reload')" />
+      </template>
+      <template v-slot:cell(node.ip)="data">
+        {{ data.item.node.ip }} ({{ data.item.node.hostname }})
+      </template>
     </b-table>
     <nav>
       <b-pagination
@@ -28,44 +33,28 @@
 </template>
 
 <script>
+import Actions from './Actions'
+import CTable from '~/components/CTable'
+
 export default {
+  components: {
+    Actions
+  },
+  extends: CTable,
   props: {
     hover: {
       type: Boolean,
-      default: false
-    },
-    striped: {
-      type: Boolean,
-      default: false
-    },
-    bordered: {
-      type: Boolean,
-      default: false
-    },
-    small: {
-      type: Boolean,
-      default: false
-    },
-    fixed: {
-      type: Boolean,
-      default: false
-    },
-    items: {
-      type: Array,
-      required: true
+      default: true
     },
     fields: {
       type: Array,
       default () {
-        return []
+        return [
+          { label: 'Filename', key: 'filename' },
+          { label: 'Node', key: 'node.ip' },
+          { label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
+        ]
       }
-    }
-  },
-  data: () => {
-    return {
-      currentPage: 1,
-      perPage: 10,
-      totalRows: 0
     }
   }
 }

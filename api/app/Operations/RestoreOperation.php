@@ -6,12 +6,13 @@ namespace App\Operations;
 
 use App\Jobs\Operations\MakeBackupJob;
 use App\Jobs\Operations\NetbootAndWaitJob;
+use App\Jobs\Operations\RestoreBackupJob;
+use App\Jobs\Operations\SetHostnameJob;
 use App\Jobs\Operations\ShrinkImageJob;
-use App\Jobs\Operations\RebootJob;
 use App\Jobs\Operations\StorageBootAndWaitJob;
 use App\Models\Node;
 
-class BackupOperation extends BaseOperation
+class RestoreOperation extends BaseOperation
 {
     /**
      * @var string
@@ -24,16 +25,23 @@ class BackupOperation extends BaseOperation
     private string $filename;
 
     /**
-     * @var bool
+     * @var string|null
      */
-    private bool $shrink;
+    private ?string $hostname;
 
-    public function __construct(Node $node, string $device, string $filename, bool $shrink = true)
+    /**
+     * RestoreOperation constructor.
+     * @param Node $node
+     * @param string $device
+     * @param string $filename
+     * @param string|null $hostname
+     */
+    public function __construct(Node $node, string $device, string $filename, ?string $hostname = null)
     {
         parent::__construct($node);
         $this->device = $device;
         $this->filename = $filename;
-        $this->shrink = $shrink;
+        $this->hostname = $hostname;
     }
 
     /**
@@ -41,7 +49,7 @@ class BackupOperation extends BaseOperation
      */
     protected function name(): string
     {
-        return 'Make backup.';
+        return 'Restore backup.';
     }
 
     /**
@@ -50,10 +58,10 @@ class BackupOperation extends BaseOperation
     protected function build(): void
     {
         $this->addJob(new NetbootAndWaitJob($this->node->id));
-        $this->addJob(new MakeBackupJob($this->node->id, $this->device, $this->filename));
+        $this->addJob(new RestoreBackupJob($this->node->id, $this->device, $this->filename));
 
-        if ($this->shrink) {
-            $this->addJob(new ShrinkImageJob($this->node->id, $this->filename));
+        if ($this->hostname) {
+            $this->addJob(new SetHostnameJob($this->node->id, $this->device, $this->hostname));
         }
 
         $this->addJob(new StorageBootAndWaitJob($this->node->id));

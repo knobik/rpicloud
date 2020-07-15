@@ -4,7 +4,7 @@ namespace App\Jobs\Operations;
 
 use App\Models\Backup;
 
-class MakeBackupJob extends BaseOperationJob
+class RestoreBackupJob extends BaseOperationJob
 {
     public int $timeout = 0;
 
@@ -37,29 +37,14 @@ class MakeBackupJob extends BaseOperationJob
      */
     public function handle(): void
     {
-        $this->track("Making backup of {$this->device}");
+        $this->track("Restoring backup to {$this->device}");
 
         $outputFilename = "/backups/{$this->filename}";
-        $process = $this->executeAsync("sudo dd if={$this->device} of={$outputFilename} bs=1M status=progress");
+        $process = $this->executeAsync("sudo dd if={$outputFilename} of={$this->device} bs=1M status=progress");
 
         $operation = $this->getOperation();
         foreach ($process as $type => $data) {
             $this->log(trim($data), $operation);
         }
-
-        $this->make();
-    }
-
-    /**
-     * @return Backup
-     */
-    public function make(): Backup
-    {
-        return Backup::create(
-            [
-                'node_id' => $this->nodeId,
-                'filename' => $this->filename
-            ]
-        );
     }
 }

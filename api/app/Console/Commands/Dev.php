@@ -52,11 +52,6 @@ class Dev extends Command
      */
     public function handle()
     {
-        $node = Node::findOrFail(5);
-        $device = '/dev/mmcblk0';
-        $filename = now()->format('y-m-d_h-i-s') . '.img';
-        (new BackupOperation($node, $device, $filename))->dispatch();
-//
-//        (new RebootOperation(Node::findOrFail(4)))->dispatch();
+        (new BackupOperation(Node::findOrFail(5), '/dev/mmcblk0', now()->format('y-m-d_h-i-s') . '.img'))->dispatch();
     }
 }

@@ -19,7 +19,7 @@ class NodeController extends ApiController
      */
     public function index(): AnonymousResourceCollection
     {
-        return NodeResource::collection(Node::all());
+        return NodeResource::collection(Node::with(['pendingOperations'])->get());
     }
 
     /**
@@ -28,7 +28,7 @@ class NodeController extends ApiController
      */
     public function show(Node $node): NodeResource
     {
-        return new NodeResource($node);
+        return new NodeResource($node->load(['pendingOperations']));
     }
 
     /**
@@ -41,7 +41,7 @@ class NodeController extends ApiController
     {
         $PXEService->enableNetboot($node);
 
-        return new NodeResource($node);
+        return new NodeResource($node->load(['pendingOperations']));
     }
 
     /**
@@ -54,7 +54,7 @@ class NodeController extends ApiController
     {
         $PXEService->disableNetboot($node);
 
-        return new NodeResource($node);
+        return new NodeResource($node->load(['pendingOperations']));
     }
 
     /**
@@ -65,7 +65,7 @@ class NodeController extends ApiController
     {
         (new RebootOperation($node))->dispatch();
 
-        return new NodeResource($node);
+        return new NodeResource($node->load(['pendingOperations']));
     }
 
     /**
@@ -76,6 +76,6 @@ class NodeController extends ApiController
     {
         (new ShutdownOperation($node))->dispatch();
 
-        return new NodeResource($node);
+        return new NodeResource($node->load(['pendingOperations']));
     }
 }

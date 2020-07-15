@@ -30,6 +30,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // node operations
         Route::get('/{node}/operations', 'OperationController@index');
     });
+
+    Route::get('/operations/{operation}', 'OperationController@show');
+
+    Route::get('/backups', 'BackupController@index');
+    Route::post('/backups/{backup}/restore', 'BackupController@restore');
+    Route::delete('/backups/{backup}', 'BackupController@destroy');
 });
 
 

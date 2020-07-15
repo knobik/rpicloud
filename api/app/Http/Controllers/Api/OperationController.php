@@ -23,4 +23,12 @@ class OperationController extends ApiController
         );
     }
 
+    /**
+     * @param Operation $operation
+     * @return OperationResource
+     */
+    public function show(Operation $operation): OperationResource
+    {
+        return new OperationResource($operation);
+    }
 }

@@ -25,6 +25,7 @@
     "nuxt-clipboard2": "^0.2.1",
     "perfect-scrollbar": "^1.4.0",
     "simple-line-icons": "^2.4.1",
+    "vue-confirm-dialog": "^1.0.2",
     "vue-perfect-scrollbar": "^0.1.0",
     "vuex-persistedstate": "^3.0.1"
   },

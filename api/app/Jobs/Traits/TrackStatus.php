@@ -33,7 +33,13 @@ trait TrackStatus
     {
         $operation = $operation ?? $this->getOperation();
 
-        $operation->log .=  "$line\n";
+        // otherwise ugly "new line" is first in the logs.
+        if (!empty($operation->log)) {
+            $operation->log .= "\n$line";
+        } else {
+            $operation->log = $line;
+        }
+
         $operation->save();
 
         return $operation;

@@ -6,15 +6,15 @@ export default {
     return this.axios.get(url, { ...config, ...this.config() })
   },
 
-  post (url, data, config = {}) {
+  post (url, data = {}, config = {}) {
     return this.request('post', url, data, config)
   },
 
-  put (url, data, config = {}) {
+  put (url, data = {}, config = {}) {
     return this.request('put', url, data, config)
   },
 
-  patch (url, data, config = {}) {
+  patch (url, data = {}, config = {}) {
     return this.request('patch', url, data, config)
   },
 

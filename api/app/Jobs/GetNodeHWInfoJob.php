@@ -16,7 +16,6 @@ class GetNodeHWInfoJob extends BaseSSHJob
      * @param  PXEService  $PXEService
      * @return void
      * @throws SSHException
-     * @throws PXEException
      * @throws \JsonException
      */
     public function handle(PXEService $PXEService): void
@@ -77,7 +76,6 @@ class GetNodeHWInfoJob extends BaseSSHJob
 
     /**
      * @param  PXEService  $PXEService
-     * @throws PXEException
      * @throws SSHException
      */
     private function networkInfo(PXEService $PXEService): void
@@ -96,8 +94,6 @@ class GetNodeHWInfoJob extends BaseSSHJob
 
         $node->mac = strtolower($interface['mac']);
         $node->save();
-
-        $PXEService->disableNetboot($node);
     }
 
     /**

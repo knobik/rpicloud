@@ -2,7 +2,18 @@
   <div class="animated fadeIn">
     <b-row>
       <b-col lg="12">
-        <NodeTable :items="items" @update="updateNode" />
+        <b-card>
+          <template v-slot:header>
+            <h6 class="mb-0 d-flex justify-content-between align-items-center">
+              <span>Nodes</span>
+
+              <b-badge variant="primary" class="p-2" href="#" @click="copyData(provisionScript, 'Gist copied to clipboard.')">
+                {{ provisionScript }}
+              </b-badge>
+            </h6>
+          </template>
+          <node-table :items="items" @update="updateNode" />
+        </b-card>
       </b-col><!--/.col-->
     </b-row>
   </div>
@@ -22,10 +33,29 @@ export default {
       timer: null
     }
   },
+  computed: {
+    provisionScript () {
+      return 'curl -sL ' + this.$store.state.config.url + '/api/provision/script | sudo bash -'
+    }
+  },
   mounted () {
     this.refreshListLoop()
   },
   methods: {
+    async copyData (data, message) {
+      await this.$copyText(data)
+      this.makeToast(message)
+    },
+    makeToast (message, variant = 'success') {
+      this.$bvToast.toast(message, {
+        toaster: 'b-toaster-top-right',
+        variant,
+        noCloseButton: true,
+        solid: true,
+        autoHideDelay: 2000,
+        appendToast: false
+      })
+    },
     updateNode (node) {
       const index = this.items.findIndex((item) => {
         return item.ip === node.ip
@@ -35,7 +65,7 @@ export default {
     },
     refreshListLoop () {
       if (this.timer) {
-        clearInterval(this.timer)
+        clearTimeout(this.timer)
       }
 
       Api.get('/nodes').then((response) => {

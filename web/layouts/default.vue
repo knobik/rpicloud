@@ -1,5 +1,7 @@
 <template>
   <div class="app">
+    <c-confirm></c-confirm>
+<!--    <vue-confirm-dialog></vue-confirm-dialog>-->
     <AppHeader fixed>
       <SidebarToggler class="d-lg-none" display="md" mobile />
       <b-link class="navbar-brand" to="#">
@@ -43,10 +45,12 @@
 <script>
 import { Header as AppHeader, SidebarToggler, Sidebar as AppSidebar, SidebarFooter, SidebarForm, SidebarHeader, SidebarMinimizer, SidebarNav, Footer as TheFooter } from '@coreui/vue'
 import Api from '~/assets/js/utils/Api'
+import CConfirm from '~/components/CConfirm.vue'
 
 export default {
   middleware: 'authenticated',
   components: {
+    CConfirm,
     AppHeader,
     AppSidebar,
     TheFooter,
@@ -63,7 +67,12 @@ export default {
         {
           name: 'Nodes',
           url: '/nodes',
-          icon: 'icon-speedometer'
+          icon: 'fa fa-database'
+        },
+        {
+          name: 'Backups',
+          url: '/backups',
+          icon: 'fa fa-hdd-o'
         }
       ]
     }

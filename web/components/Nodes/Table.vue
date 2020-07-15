@@ -1,14 +1,5 @@
 <template>
-  <b-card>
-    <template v-slot:header>
-      <h6 class="mb-0 d-flex justify-content-between align-items-center">
-        <span>Nodes</span>
-
-        <b-badge variant="primary" class="p-2" href="#" @click="copyData(provisionScript, 'Gist copied to clipboard.')">
-          {{ provisionScript }}
-        </b-badge>
-      </h6>
-    </template>
+  <div>
     <b-table
       :hover="hover"
       :striped="striped"
@@ -21,11 +12,8 @@
       :current-page="currentPage"
       :per-page="perPage"
     >
-      <template v-slot:cell(operations)="data">
-        {{ data.item.operations.length }}
-      </template>
-      <template v-slot:cell(ip)="data">
-        <span class="clickable" @click="copyData(data.item.ip, 'IP copied to clipboard.')">{{ data.item.ip }}</span>
+      <template v-slot:cell(pendingOperations)="data">
+        {{ data.item.pendingOperations.length }}
       </template>
       <template v-slot:cell(actions)="data">
         <actions :node="data.item" @update="$emit('update', $event)" />
@@ -62,11 +50,10 @@
         :per-page="perPage"
         prev-text="Prev"
         next-text="Next"
-        hide-goto-end-buttons
         align="right"
       />
     </nav>
-  </b-card>
+  </div>
 </template>
 
 <script>
@@ -93,32 +80,11 @@ export default {
           { label: 'Online', key: 'online' },
           { label: 'Netboot', key: 'netboot' },
           { label: 'Netbooted', key: 'netbooted' },
-          { label: 'Operations in queue', key: 'operations' },
+          { label: 'Pending operations in queue', key: 'pendingOperations' },
           { label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
         ]
       }
     }
   },
-  computed: {
-    provisionScript () {
-      return 'curl -sL ' + this.$store.state.config.url + '/api/provision/script | sudo bash -'
-    }
-  },
-  methods: {
-    async copyData (data, message) {
-      await this.$copyText(data)
-      this.makeToast(message)
-    },
-    makeToast (message, variant = 'success') {
-      this.$bvToast.toast(message, {
-        toaster: 'b-toaster-top-right',
-        variant,
-        noCloseButton: true,
-        solid: true,
-        autoHideDelay: 2000,
-        appendToast: false
-      })
-    }
-  }
 }
 </script>
