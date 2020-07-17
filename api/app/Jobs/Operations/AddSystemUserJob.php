@@ -31,7 +31,9 @@ class AddSystemUserJob extends BaseOperationJob
     public function handle(): void
     {
         $this->track("Adding system user");
-        $this->execute("sudo mount {$this->device}p2 " . static::MOUNT_POINT);
+
+        $partition = $this->getPartitionDevice($this->device, 2);
+        $this->execute("sudo mount {$partition} " . static::MOUNT_POINT);
 
         // mount the root partition so we can put files inside
         $process = $this->execute('cat ' . static::MOUNT_POINT . '/etc/passwd | grep ' . config('pxe.user') . ':');

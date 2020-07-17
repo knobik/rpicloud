@@ -35,7 +35,8 @@ class SetHostnameJob extends BaseOperationJob
         $hostsFile = $this->makeTmpFile($this->fillParameters($this->getStub('hostname/hosts')));
 
         // mount the root partition so we can put files inside
-        $this->execute("sudo mount {$this->device}p2 " . static::MOUNT_POINT);
+        $partition = $this->getPartitionDevice($this->device, 2);
+        $this->execute("sudo mount {$partition} " . static::MOUNT_POINT);
 
         $this->getSSH()->upload($hostnameFile, $hostnameFile);
         $this->execute("sudo mv {$hostnameFile} " . static::MOUNT_POINT . '/etc/hostname');

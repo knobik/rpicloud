@@ -96,4 +96,15 @@ abstract class BaseOperationJob extends BaseSSHJob
         return $tmpFilename;
     }
 
+    /**
+     * @param string $device
+     * @param int $partition
+     */
+    protected function getPartitionDevice(string $device, int $partition)
+    {
+        $addP = is_numeric(substr($device, -1));
+
+        return $device . ($addP ? 'p' : '') . $partition;
+    }
+
 }
