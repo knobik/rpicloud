@@ -1,5 +1,6 @@
 <?php
 
 return [
-    'hostname' => 'rpi-netboot'
+    'hostname' => 'rpi-netboot',
+    'user' => 'rpi',
 ];

@@ -7,6 +7,7 @@ use App\Jobs\GetNodeStatusJob;
 use App\Jobs\Operations\FinishOperationJob;
 use App\Jobs\Operations\MakeBackupJob;
 use App\Jobs\Operations\NetbootAndWaitJob;
+use App\Jobs\Operations\SetHostnameJob;
 use App\Jobs\Operations\ShrinkImageJob;
 use App\Jobs\Operations\StartOperationJob;
 use App\Jobs\Operations\RebootJob;
@@ -52,6 +53,8 @@ class Dev extends Command
      */
     public function handle()
     {
-        (new BackupOperation(Node::findOrFail(5), '/dev/mmcblk0', now()->format('y-m-d_h-i-s') . '.img'))->dispatch();
+        SetHostnameJob::dispatchNow(4, '/dev/mmcblk0', 'testtt');
+
+//        (new BackupOperation(Node::findOrFail(5), '/dev/mmcblk0', now()->format('y-m-d_h-i-s') . '.img'))->dispatch();
     }
 }

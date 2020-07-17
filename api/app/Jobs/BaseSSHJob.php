@@ -14,9 +14,17 @@ use Symfony\Component\Process\Process;
 
 abstract class BaseSSHJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    public const SSH_USER = 'rpi';
+    /**
+     * Dont retry base jobs.
+     *
+     * @var int
+     */
+    public $tries = 0;
 
     /**
      * @var int
@@ -36,7 +44,7 @@ abstract class BaseSSHJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  int  $nodeId
+     * @param int $nodeId
      */
     public function __construct(int $nodeId)
     {
@@ -61,7 +69,7 @@ abstract class BaseSSHJob implements ShouldQueue
     protected function getSSH(): Ssh
     {
         if (!$this->ssh) {
-            $this->ssh = Ssh::create(static::SSH_USER, $this->getNode()->ip)
+            $this->ssh = Ssh::create(config('pxe.user'), $this->getNode()->ip)
                 ->disableStrictHostKeyChecking()
                 ->usePrivateKey(storage_path('app/ssh/id_rsa'));
         }
@@ -96,7 +104,7 @@ abstract class BaseSSHJob implements ShouldQueue
     }
 
     /**
-     * @param  string  $command
+     * @param string $command
      * @return Process
      * @throws SSHException
      */

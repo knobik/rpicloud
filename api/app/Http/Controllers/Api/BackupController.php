@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\Backups\RestoreRequest;
+use App\Http\Resources\Api\NodeResource;
 use App\Http\Resources\Api\Nodes\BackupResource;
 use App\Models\Backup;
 use App\Models\Node;
@@ -34,14 +35,19 @@ class BackupController extends ApiController
     /**
      * @param RestoreRequest $request
      * @param Backup $backup
-     * @return BackupResource
+     * @return NodeResource
      */
-    public function restore(RestoreRequest $request, Backup $backup)
+    public function restore(RestoreRequest $request, Backup $backup): NodeResource
     {
         $node = Node::findOrFail($request->get('nodeId'));
-        (new RestoreOperation($node, $request->get('storageDevice'), $backup->filename))->dispatch();
+        (new RestoreOperation(
+            $node,
+            $request->get('storageDevice'),
+            $backup->filename,
+            $request->get('hostname')
+        ))->dispatch();
 
-        return new BackupResource($backup);
+        return new NodeResource($node);
     }
 
     /**

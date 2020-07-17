@@ -3,7 +3,7 @@
     <b-row>
       <b-col md="12" class="pb-3 text-right">
         <button class="btn btn-primary" @click="loadOperations">
-          <i class="fa fa-refresh" />
+          <i class="fa fa-refresh" /> Refresh
         </button>
       </b-col>
     </b-row>
@@ -34,7 +34,7 @@ export default {
       items: []
     }
   },
-  mounted () {
+  created () {
     this.loadOperations()
   },
   methods: {

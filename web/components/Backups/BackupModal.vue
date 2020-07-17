@@ -1,5 +1,5 @@
 <template>
-  <b-modal ref="modal" :title="`Restore backup ${backup.filename}`" @hide="$emit('hide')" @ok="submit">
+  <b-modal ref="modal" :title="`Make backup.`" @hide="$emit('hide')" @ok="submit">
     <b-form @submit.prevent="submit" @keydown="form.errors.clear($event.target.name)">
       <b-form-group label="Node" label-for="node">
         <b-form-select
@@ -12,7 +12,7 @@
         <div v-if="form.errors.has('nodeId')" class="invalid-feedback" v-text="form.errors.get('nodeId')" />
       </b-form-group>
 
-      <b-form-group label="Storage device" label-for="storageDevices">
+      <b-form-group label="Storage device to backup" label-for="storageDevices">
         <b-form-select
           id="storageDevices"
           v-model="form.storageDevice"
@@ -20,11 +20,6 @@
           :class="{ 'is-invalid': form.errors.has('storageDevice') }"
         />
         <div v-if="form.errors.has('storageDevice')" class="invalid-feedback" v-text="form.errors.get('storageDevice')" />
-      </b-form-group>
-
-      <b-form-group label="Set hostname" label-for="hostname">
-        <b-form-input id="name-input" v-model="form.hostname" :class="{ 'is-invalid': form.errors.has('hostname') }" />
-        <div v-if="form.errors.has('hostname')" class="invalid-feedback" v-text="form.errors.get('hostname')" />
       </b-form-group>
     </b-form>
 
@@ -34,7 +29,7 @@
       </b-button>
       <b-button variant="danger" :disabled="working" @click="ok()">
         <b-spinner v-if="working" small />
-        Netboot and restore
+        Netboot and backup
       </b-button>
     </template>
   </b-modal>
@@ -46,9 +41,10 @@ import Form from '~/assets/js/utils/Form'
 
 export default {
   props: {
-    backup: {
+    node: {
       type: Object,
-      required: true
+      required: false,
+      default: null
     },
     show: {
       type: Boolean,
@@ -96,8 +92,7 @@ export default {
       if (newValue === true) {
         this.loadNodes((nodes) => {
           this.nodes = nodes
-          this.form.nodeId = this.backup.node.id
-          this.form.hostname = this.backup.node.hostname
+          this.form.nodeId = this.node ? this.node.id : (nodes.length ? nodes[0].id : null)
           this.reloadFields()
 
           this.$refs.modal.show()
@@ -113,7 +108,7 @@ export default {
       e.preventDefault()
       this.working = true
 
-      this.form.post(`/backups/${this.backup.id}/restore`)
+      this.form.post(`/nodes/${this.form.nodeId}/backup`)
         .then((response) => {
           this.working = false
           this.$refs.modal.hide()

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\PXEException;
 use App\Http\Controllers\ApiController;
+use App\Http\Requests\Api\Nodes\BackupRequest;
 use App\Http\Resources\Api\NodeResource;
-use App\Jobs\Operations\ShutdownJob;
 use App\Models\Node;
+use App\Operations\BackupOperation;
 use App\Operations\RebootOperation;
 use App\Operations\ShutdownOperation;
 use App\Services\PXEService;
@@ -23,7 +24,7 @@ class NodeController extends ApiController
     }
 
     /**
-     * @param  Node  $node
+     * @param Node $node
      * @return NodeResource
      */
     public function show(Node $node): NodeResource
@@ -32,8 +33,8 @@ class NodeController extends ApiController
     }
 
     /**
-     * @param  PXEService  $PXEService
-     * @param  Node  $node
+     * @param PXEService $PXEService
+     * @param Node $node
      * @return NodeResource
      * @throws PXEException
      */
@@ -45,8 +46,8 @@ class NodeController extends ApiController
     }
 
     /**
-     * @param  PXEService  $PXEService
-     * @param  Node  $node
+     * @param PXEService $PXEService
+     * @param Node $node
      * @return NodeResource
      * @throws PXEException
      */
@@ -58,7 +59,20 @@ class NodeController extends ApiController
     }
 
     /**
-     * @param  Node  $node
+     * @param BackupRequest $request
+     * @param Node $node
+     * @return NodeResource
+     */
+    public function backup(BackupRequest $request, Node $node)
+    {
+        $filename = PXEService::slug($node) . '_' . now()->format('Y-m-d_H-i-s') . '.img';
+        (new BackupOperation($node, $request->get('storageDevice'), $filename))->dispatch();
+
+        return new NodeResource($node->load(['pendingOperations']));
+    }
+
+    /**
+     * @param Node $node
      * @return NodeResource
      */
     public function reboot(Node $node): NodeResource
@@ -69,7 +83,7 @@ class NodeController extends ApiController
     }
 
     /**
-     * @param  Node  $node
+     * @param Node $node
      * @return NodeResource
      */
     public function shutdown(Node $node): NodeResource

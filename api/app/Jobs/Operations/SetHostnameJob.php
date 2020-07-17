@@ -29,16 +29,19 @@ class SetHostnameJob extends BaseOperationJob
      */
     public function handle(): void
     {
-        $this->track("Setting hostname to {$this->hostname}");
+//        $this->track("Setting hostname to {$this->hostname}");
 
         $hostnameFile = $this->makeTmpFile($this->fillParameters($this->getStub('hostname/hostname')));
-        $hosts = $this->makeTmpFile($this->fillParameters($this->getStub('hostname/hosts')));
+        $hostsFile = $this->makeTmpFile($this->fillParameters($this->getStub('hostname/hosts')));
 
         // mount the root partition so we can put files inside
         $this->execute("sudo mount {$this->device}p2 " . static::MOUNT_POINT);
 
-        $this->getSSH()->upload($hostnameFile, static::MOUNT_POINT . '/etc/hostname');
-        $this->getSSH()->upload($hosts, static::MOUNT_POINT . '/etc/hosts');
+        $this->getSSH()->upload($hostnameFile, $hostnameFile);
+        $this->execute("sudo mv {$hostnameFile} " . static::MOUNT_POINT . '/etc/hostname');
+
+        $this->getSSH()->upload($hostsFile, $hostsFile);
+        $this->execute("sudo mv {$hostsFile} " . static::MOUNT_POINT . '/etc/hosts');
 
         $this->execute('sudo umount ' . static::MOUNT_POINT);
     }

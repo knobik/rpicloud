@@ -12,5 +12,9 @@ class RebootJob extends BaseOperationJob
         // wait till node netboots
         $this->track('Rebooting the node.');
         $this->reboot(10);
+
+        // wait till node netboots
+        $this->track('Waiting for the node to boot.');
+        $this->waitForBoot();
     }
 }

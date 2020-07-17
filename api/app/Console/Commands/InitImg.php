@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Exceptions\InitException;
+use App\Jobs\Operations\AddSystemUserJob;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Arr;
@@ -94,24 +95,11 @@ class InitImg extends Command
 
     /**
      * @throws InitException
+     * @throws FileNotFoundException
      */
     private function addSystemUser(): void
     {
-        $path = ValidateMount::MOUNT_ROOT;
-        $password = bcrypt(Str::random(32));
-        $commands = [
-            // add a user
-            "echo 'rpi:x:1001:1001:,,,:/home/rpi:/bin/bash' | sudo tee -a {$path}/etc/passwd",
-            "echo 'rpi:x:1001:' | sudo tee -a {$path}/etc/group",
-            "sudo chown -R 1001:1001 {$path}/home/rpi",
-            "echo 'rpi:{$password}:18409:0:99999:7:::' | sudo tee -a {$path}/etc/shadow",
-
-            // add user to sudo
-            "sudo sed -i 's/sudo:x:27:pi/sudo:x:27:pi,rpi/g' {$path}/etc/group",
-            "echo 'rpi ALL=(ALL) NOPASSWD:ALL' | sudo tee -a {$path}/etc/sudoers"
-        ];
-
-        foreach ($commands as $command) {
+        foreach (AddSystemUserJob::commandChain(ValidateMount::MOUNT_ROOT) as $command) {
             $process = Process::fromShellCommandline($command);
             $process->run();
 
@@ -125,7 +113,6 @@ class InitImg extends Command
 
     /**
      * @return void
-     * @throws FileNotFoundException
      */
     private function copyFiles(): void
     {
@@ -139,9 +126,6 @@ class InitImg extends Command
         // setup hostname
         $this->putFile("{$root}/etc", 'hostname', $this->getStub('hostname/hostname'), 'root:root');
         $this->putFile("{$root}/etc", 'hosts', $this->getStub('hostname/hosts'), 'root:root');
-
-        // ssh login with a key
-        $this->putFile("{$root}/home/rpi/.ssh", 'authorized_keys', \Storage::disk('local')->get(InitSSH::RSA_PUBLIC));
 
         // init script
         $this->putScript("{$root}/etc", 'rc.local', $this->getStub('pxe/rc.local'), 'root:root');

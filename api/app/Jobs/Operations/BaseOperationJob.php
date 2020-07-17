@@ -11,6 +11,13 @@ abstract class BaseOperationJob extends BaseSSHJob
     use TrackStatus;
 
     /**
+     * Default timeout 5 min
+     *
+     * @var int
+     */
+    public int $timeout = 500;
+
+    /**
      * Shutdown the node
      *
      * @return void

@@ -75,8 +75,15 @@ export default {
       return operation || null
     }
   },
-  mounted () {
+  created () {
     this.reloadNodeTimer()
+  },
+  beforeRouteLeave (to, from, next) {
+    if (this.timer) {
+      clearTimeout(this.timer)
+    }
+
+    next()
   },
   methods: {
     overwriteNode (node) {

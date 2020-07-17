@@ -7,7 +7,12 @@
             <h6 class="mb-0 d-flex justify-content-between align-items-center">
               <span>Nodes</span>
 
-              <b-badge variant="primary" class="p-2" href="#" @click="copyData(provisionScript, 'Gist copied to clipboard.')">
+              <b-badge
+                variant="primary"
+                class="p-2"
+                href="#"
+                @click="copyData(provisionScript, 'Gist copied to clipboard.')"
+              >
                 {{ provisionScript }}
               </b-badge>
             </h6>
@@ -38,8 +43,15 @@ export default {
       return 'curl -sL ' + this.$store.state.config.url + '/api/provision/script | sudo bash -'
     }
   },
-  mounted () {
+  created () {
     this.refreshListLoop()
+  },
+  beforeRouteLeave (to, from, next) {
+    if (this.timer) {
+      clearTimeout(this.timer)
+    }
+
+    next()
   },
   methods: {
     async copyData (data, message) {

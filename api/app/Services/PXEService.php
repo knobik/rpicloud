@@ -16,7 +16,7 @@ class PXEService
     {
         $this->processNetboot(
             $node,
-            Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->slug($node).'.conf'),
+            Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.static::slug($node).'.conf'),
             false
         );
     }
@@ -28,7 +28,7 @@ class PXEService
     {
         $this->processNetboot(
             $node,
-            Process::fromShellCommandline('echo "dhcp-mac=set:whitelisted,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->slug($node).'.conf'),
+            Process::fromShellCommandline('echo "dhcp-mac=set:whitelisted,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.static::slug($node).'.conf'),
             true
         );
     }
@@ -45,7 +45,7 @@ class PXEService
      * @param  Node  $node
      * @return string
      */
-    public function slug(Node $node): string
+    public static function slug(Node $node): string
     {
         return str_replace(':', '-', $node->mac);
     }

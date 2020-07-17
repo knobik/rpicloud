@@ -12,7 +12,7 @@ class NetbootAndWaitJob extends BaseOperationJob
      *
      * @var int
      */
-    public $timeout = 500;
+    public int $timeout = 500;
 
     /**
      * Execute the job.
@@ -28,7 +28,7 @@ class NetbootAndWaitJob extends BaseOperationJob
         sleep(5); // wait for the dnsmasq to restart
 
         // reboot the node
-        $this->track('Trying to reboot the node.');
+        $this->track('Rebooting the node.');
         $this->reboot(10);
 
         // wait till node netboots

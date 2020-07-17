@@ -38,11 +38,21 @@ export default {
       if (newValue === true) {
         this.loadOperation()
         this.$refs.modal.show()
+      } else if (this.timer) {
+        this.$refs.modal.hide()
+        clearTimeout(this.timer)
       }
     }
   },
-  mounted () {
+  created () {
     this.reloadTimer()
+  },
+  beforeRouteLeave (to, from, next) {
+    if (this.timer) {
+      clearTimeout(this.timer)
+    }
+
+    next()
   },
   methods: {
     loadOperation () {
