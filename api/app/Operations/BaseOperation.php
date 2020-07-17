@@ -5,6 +5,7 @@ namespace App\Operations;
 
 
 use App\Jobs\BaseSSHJob;
+use App\Jobs\Operations\ExecuteOperationChainJob;
 use App\Jobs\Operations\FinishOperationJob;
 use App\Jobs\Operations\StartOperationJob;
 use App\Models\Node;
@@ -36,13 +37,34 @@ abstract class BaseOperation
     }
 
     /**
-     * @param BaseSSHJob $job
-     *
+     * @param string $className
+     * @param array $parameters
      * @return void
+     */
+    public function addJobByClassname(string $className, array $parameters)
+    {
+        $this->chain[] = [
+            'class' => $className,
+            'parameters' => $parameters
+        ];
+    }
+
+    /**
+     * @param BaseSSHJob $job
+     * @throws \ReflectionException
      */
     public function addJob(BaseSSHJob $job)
     {
-        $this->chain[] = $job;
+        $reflection = new \ReflectionClass($job);
+
+        $parameters = [];
+        foreach ($reflection->getConstructor()->getParameters() as $parameter) {
+            $property = $reflection->getProperty($parameter->name);
+            $property->setAccessible(true);
+            $parameters[] = $property->getValue($job);
+        }
+
+        $this->addJobByClassname($reflection->name, $parameters);
     }
 
     /**
@@ -50,14 +72,32 @@ abstract class BaseOperation
      */
     public function dispatch(): void
     {
-        $this->build();
-        $this->addJob(new FinishOperationJob($this->node->id));
-
-        StartOperationJob::withChain($this->chain)
-            ->dispatch($this->node->id)
-            ->allOnQueue(static::QUEUE);
-
+        $this->compile();
         $this->createOperation($this->name());
+
+        ExecuteOperationChainJob::dispatch($this->chain)
+            ->onQueue(static::QUEUE);
+    }
+
+    /**
+     * @return void
+     */
+    public function dispatchNow(): void
+    {
+        $this->compile();
+        $this->createOperation($this->name());
+
+        ExecuteOperationChainJob::dispatchNow($this->chain);
+    }
+
+    /**
+     * @return void
+     */
+    private function compile(): void
+    {
+        $this->addJobByClassname(StartOperationJob::class, [$this->node->id]);
+        $this->build();
+        $this->addJobByClassname(FinishOperationJob::class, [$this->node->id]);
     }
 
     /**

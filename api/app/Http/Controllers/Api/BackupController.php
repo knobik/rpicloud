@@ -27,6 +27,8 @@ class BackupController extends ApiController
             $query->where('node_id', '=', $nodeId);
         }
 
+        $query->orderBy('created_at', 'desc');
+
         return BackupResource::collection(
             $query->get()
         );

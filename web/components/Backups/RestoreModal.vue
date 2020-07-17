@@ -50,6 +50,11 @@ export default {
       type: Object,
       required: true
     },
+    nodeId: {
+      type: Number,
+      required: false,
+      default: null
+    },
     show: {
       type: Boolean,
       required: true
@@ -96,7 +101,7 @@ export default {
       if (newValue === true) {
         this.loadNodes((nodes) => {
           this.nodes = nodes
-          this.form.nodeId = this.backup.node.id
+          this.form.nodeId = this.nodeId ?? this.backup.node.id
           this.form.hostname = this.backup.node.hostname
           this.reloadFields()
 

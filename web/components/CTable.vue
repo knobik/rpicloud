@@ -1,6 +1,7 @@
 <template>
   <div>
     <b-table
+      show-empty
       :hover="hover"
       :striped="striped"
       :bordered="bordered"

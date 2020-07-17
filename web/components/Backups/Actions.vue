@@ -1,6 +1,6 @@
 <template>
   <div>
-    <restore-modal :backup="backup" :show="showRestoreModal" @hide="showRestoreModal = false"></restore-modal>
+    <restore-modal :backup="backup" :node-id="nodeId" :show="showRestoreModal" @hide="showRestoreModal = false" />
     <b-button-group size="sm">
       <b-button variant="primary" title="Restore" @click="restore">
         <i class="fa fa-refresh" />
@@ -24,6 +24,11 @@ export default {
     backup: {
       type: Object,
       required: true
+    },
+    nodeId: {
+      type: Number,
+      required: false,
+      default: null
     }
   },
   data () {

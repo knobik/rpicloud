@@ -33,9 +33,12 @@ class ProvisionController extends ApiController
         $node = Node::firstOrCreate(
             [
                 'ip' => $request->get('ip', $_SERVER['REMOTE_ADDR']),
-                'online' => true,
             ]
         );
+
+        // we know its online
+        $node->online = true;
+        $node->save();
 
         GetNodeHWInfoJob::dispatch($node->id)->delay(5);
 

@@ -2,5 +2,5 @@
 
 return [
     'hostname' => 'rpi-netboot',
-    'user' => 'rpi',
+    'user' => 'pxe-system',
 ];

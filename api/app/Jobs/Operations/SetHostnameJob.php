@@ -29,7 +29,7 @@ class SetHostnameJob extends BaseOperationJob
      */
     public function handle(): void
     {
-//        $this->track("Setting hostname to {$this->hostname}");
+        $this->track("Setting hostname to {$this->hostname}");
 
         $hostnameFile = $this->makeTmpFile($this->fillParameters($this->getStub('hostname/hostname')));
         $hostsFile = $this->makeTmpFile($this->fillParameters($this->getStub('hostname/hosts')));

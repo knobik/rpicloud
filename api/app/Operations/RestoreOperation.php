@@ -55,6 +55,7 @@ class RestoreOperation extends BaseOperation
 
     /**
      * @return void
+     * @throws \ReflectionException
      */
     protected function build(): void
     {

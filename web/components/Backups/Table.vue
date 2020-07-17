@@ -1,6 +1,7 @@
 <template>
   <div>
     <b-table
+      show-empty
       :hover="hover"
       :striped="striped"
       :bordered="bordered"
@@ -13,7 +14,7 @@
       :per-page="perPage"
     >
       <template v-slot:cell(actions)="data">
-        <actions :backup="data.item" @reload="$emit('reload')" />
+        <actions :backup="data.item" :node-id="nodeId" @reload="$emit('reload')" />
       </template>
       <template v-slot:cell(node.ip)="data">
         {{ data.item.node.ip }} ({{ data.item.node.hostname }})
@@ -42,6 +43,11 @@ export default {
   },
   extends: CTable,
   props: {
+    nodeId: {
+      type: Number,
+      required: false,
+      default: null
+    },
     hover: {
       type: Boolean,
       default: true
@@ -52,6 +58,7 @@ export default {
         return [
           { label: 'Filename', key: 'filename' },
           { label: 'Node', key: 'node.ip' },
+          { label: 'Created at', key: 'created_at' },
           { label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
         ]
       }
