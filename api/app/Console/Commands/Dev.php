@@ -13,13 +13,8 @@ use App\Jobs\Operations\StartOperationJob;
 use App\Jobs\Operations\RebootJob;
 use App\Jobs\Operations\TestJob;
 use App\Jobs\PrepareBaseImage;
-use App\Models\Node;
-use App\Operations\BackupOperation;
-use App\Operations\RebootOperation;
 use App\Operations\TestOperation;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
-use Symfony\Component\Process\Process;
 
 class Dev extends Command
 {
