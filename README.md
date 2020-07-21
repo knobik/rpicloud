@@ -1,12 +1,12 @@
 **!!! This software is in alpha stage, i dont recommend using it in production !!!**
 
-#Quick start
+# Quick start
 
-###Requirements
+### Requirements
 * Docker version 19.03 or newer
 * docker-compose version 1.25 or newer
 
-###Setup
+### Setup
 Clone the repository 
 ```
 git clone git@github.com:knobik/rpi-cluster-pxe.git
@@ -24,15 +24,15 @@ run the `build.sh` script
 
 This will take a while, it needs to download all php and node dependencies and also download the latest raspberry pi os and set it up for pxe booting.
 
-#Development
+# Development
 All operations are made inside the docker container, so you need to ssh into the container. You can do it easy with `./ssh.sh`
 
-###Frontend development
+### Frontend development
 ```
 $ cd /web && npm run dev
 ```
 
-###Backend development
+### Backend development
 ```
 $ cd /api
 ```
