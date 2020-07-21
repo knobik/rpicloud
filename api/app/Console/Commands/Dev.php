@@ -54,8 +54,7 @@ class Dev extends Command
      */
     public function handle()
     {
-//        SetHostnameJob::dispatchNow(4, '/dev/mmcblk0', 'testtt');
-
+//        SetHostnameJob::dispatchNow(9, '/dev/mmcblk0', 'testtt');
 //        (new BackupOperation(Node::findOrFail(5), '/dev/mmcblk0', now()->format('y-m-d_h-i-s') . '.img'))->dispatch();
     }
 }
