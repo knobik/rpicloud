@@ -37,7 +37,9 @@ Route::group(
                 Route::post('/{node}/enable-netboot', 'NodeController@enableNetboot');
                 Route::post('/{node}/disable-netboot', 'NodeController@disableNetboot');
                 Route::post('/{node}/reboot', 'NodeController@reboot');
+                Route::post('/bulk-reboot', 'NodeController@bulkReboot');
                 Route::post('/{node}/shutdown', 'NodeController@shutdown');
+                Route::post('/bulk-shutdown', 'NodeController@bulkShutdown');
                 Route::post('/{node}/backup', 'NodeController@backup');
 
                 // node operations

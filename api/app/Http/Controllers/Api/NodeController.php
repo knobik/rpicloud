@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\PXEException;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\Nodes\BackupRequest;
+use App\Http\Requests\Api\Nodes\BulkRequest;
 use App\Http\Resources\Api\NodeResource;
 use App\Models\Node;
 use App\Operations\BackupOperation;
@@ -12,6 +13,7 @@ use App\Operations\RebootOperation;
 use App\Operations\ShutdownOperation;
 use App\Services\PXEService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Collection;
 
 class NodeController extends ApiController
 {
@@ -83,6 +85,20 @@ class NodeController extends ApiController
     }
 
     /**
+     * @param BulkRequest $request
+     * @return Collection
+     */
+    public function bulkReboot(BulkRequest $request): Collection
+    {
+        $resources = collect();
+        foreach ($request->get('nodeId', []) as $nodeId) {
+            $resources[] = $this->reboot(Node::findOrFail($nodeId));
+        }
+
+        return $resources;
+    }
+
+    /**
      * @param Node $node
      * @return NodeResource
      */
@@ -91,5 +107,19 @@ class NodeController extends ApiController
         (new ShutdownOperation($node))->dispatch();
 
         return new NodeResource($node->load(['pendingOperations']));
+    }
+
+    /**
+     * @param BulkRequest $request
+     * @return Collection
+     */
+    public function bulkShutdown(BulkRequest $request): Collection
+    {
+        $resources = collect();
+        foreach ($request->get('nodeId', []) as $nodeId) {
+            $resources[] = $this->shutdown(Node::findOrFail($nodeId));
+        }
+
+        return $resources;
     }
 }

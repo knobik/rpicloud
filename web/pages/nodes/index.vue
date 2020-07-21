@@ -27,6 +27,7 @@
 <script>
 import NodeTable from '~/components/Nodes/Table.vue'
 import Api from '~/assets/js/utils/Api'
+import MetaWrapped from '~/assets/js/utils/MetaWrapped'
 
 export default {
   components: {
@@ -35,6 +36,9 @@ export default {
   data () {
     return {
       items: [],
+      defaultMeta: {
+        selected: false
+      },
       timer: null
     }
   },
@@ -81,7 +85,7 @@ export default {
       }
 
       Api.get('/nodes').then((response) => {
-        this.items = response.data.data
+        this.items = MetaWrapped.wrap(response.data.data, this.items, this.defaultMeta)
 
         this.timer = setTimeout(this.refreshListLoop, 5000)
       })

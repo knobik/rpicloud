@@ -56,9 +56,9 @@ export default {
       type: Array,
       default () {
         return [
-          { label: 'Filename', key: 'filename' },
-          { label: 'Node', key: 'node.ip' },
-          { label: 'Created at', key: 'created_at' },
+          { label: 'Filename', key: 'filename', sortable: true },
+          { label: 'Node', key: 'node.ip', sortable: true },
+          { label: 'Created at', key: 'created_at', sortable: true },
           { label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
         ]
       }

@@ -4,6 +4,7 @@
 namespace App\Operations;
 
 
+use App\Jobs\GetNodeStatusJob;
 use App\Jobs\Operations\AddSystemUserJob;
 use App\Jobs\Operations\MakeBackupJob;
 use App\Jobs\Operations\NetbootAndWaitJob;
@@ -68,5 +69,6 @@ class RestoreOperation extends BaseOperation
         }
 
         $this->addJob(new StorageBootAndWaitJob($this->node->id));
+        $this->addJob(new GetNodeStatusJob($this->node->id));
     }
 }

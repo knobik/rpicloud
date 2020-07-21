@@ -12,10 +12,10 @@
       />
     </b-form-group>
     <b-form-group label-cols="4" label-cols-lg="2" label="Actions" label-for="input-sm">
-      <b-button variant="warning" :disabled="!node.online || node.pendingOperations.length > 0" @click="reboot">
+      <b-button variant="warning" @click="reboot">
         <i class="fa fa-refresh" /> Reboot
       </b-button>
-      <b-button variant="danger" :disabled="!node.online || node.pendingOperations.length > 0" @click="shutdown">
+      <b-button variant="danger" @click="shutdown">
         <i class="fa fa-power-off" /> Shutdown
       </b-button>
     </b-form-group>

@@ -48,11 +48,11 @@ export default {
       type: Array,
       default () {
         return [
-          { label: 'Name', key: 'name' },
-          { label: 'Status', key: 'description' },
-          { label: 'Created at', key: 'created_at' },
-          { label: 'Started at', key: 'started_at' },
-          { label: 'Finished at', key: 'finished_at' },
+          { label: 'Name', key: 'name', sortable: true },
+          { label: 'Status', key: 'description', sortable: true },
+          { label: 'Created at', key: 'created_at', sortable: true },
+          { label: 'Started at', key: 'started_at', sortable: true },
+          { label: 'Finished at', key: 'finished_at', sortable: true },
           { label: 'Action', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
         ]
       }

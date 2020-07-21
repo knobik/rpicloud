@@ -3,11 +3,9 @@
 namespace App\Jobs;
 
 
-use Symfony\Component\Process\Process;
-
 class GetNodeStatusJob extends BaseSSHJob
 {
-    public const TIMEOUT = 3;
+    public const TIMEOUT = 10;
 
     /**
      * Execute the job.

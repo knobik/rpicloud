@@ -13,6 +13,23 @@
       :current-page="currentPage"
       :per-page="perPage"
     >
+      <template v-slot:head(selected)="data">
+        <b-dropdown size="sm" split variant="light">
+          <template v-slot:button-content>
+            <b-checkbox @change="toggleAll" />
+          </template>
+          <b-dropdown-item @click="reboot">
+            Reboot
+          </b-dropdown-item>
+          <b-dropdown-item @click="shutdown">
+            Shutdown
+          </b-dropdown-item>
+        </b-dropdown>
+      </template>
+      <template v-slot:cell(selected)="data">
+        <b-checkbox v-model="data.item.selected" class="ml-2" />
+      </template>
+
       <template v-slot:cell(pendingOperations)="data">
         {{ data.item.pendingOperations.length }}
       </template>
@@ -60,6 +77,7 @@
 <script>
 import Actions from './Actions'
 import CTable from '~/components/CTable'
+import Api from '~/assets/js/utils/Api'
 
 export default {
   components: {
@@ -75,17 +93,39 @@ export default {
       type: Array,
       default () {
         return [
-          { label: 'IP address', key: 'ip' },
-          { label: 'Hostname', key: 'hostname' },
-          { label: 'Mac', key: 'mac' },
-          { label: 'Online', key: 'online' },
-          { label: 'Netboot', key: 'netboot' },
-          { label: 'Netbooted', key: 'netbooted' },
-          { label: 'Pending operations in queue', key: 'pendingOperations' },
+          { label: '', key: 'selected' },
+          { label: 'IP address', key: 'ip', sortable: true },
+          { label: 'Hostname', key: 'hostname', sortable: true },
+          { label: 'Mac', key: 'mac', sortable: true },
+          { label: 'Online', key: 'online', sortable: true },
+          { label: 'Netboot', key: 'netboot', sortable: true },
+          { label: 'Netbooted', key: 'netbooted', sortable: true },
+          { label: 'Pending operations in queue', key: 'pendingOperations', sortable: true },
           { label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
         ]
       }
     }
   },
+  computed: {
+    selectedItems () {
+      return this.items.filter(item => item.selected)
+    },
+    selectedItemsIds () {
+      return this.selectedItems.map(item => item.id)
+    }
+  },
+  methods: {
+    reboot () {
+      Api.post('/nodes/bulk-reboot', { nodeId: this.selectedItemsIds })
+    },
+    shutdown () {
+      Api.post('/nodes/bulk-shutdown', { nodeId: this.selectedItemsIds })
+    },
+    toggleAll (value) {
+      this.items.forEach((item) => {
+        item.selected = value
+      })
+    }
+  }
 }
 </script>

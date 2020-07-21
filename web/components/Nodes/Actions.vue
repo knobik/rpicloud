@@ -6,10 +6,10 @@
       </b-button>
     </b-button-group>
     <b-button-group size="sm">
-      <b-button variant="warning" title="Reboot" :disabled="!node.online || operationInProgress" @click="reboot">
+      <b-button variant="warning" title="Reboot" @click="reboot">
         <i class="fa fa-refresh" />
       </b-button>
-      <b-button variant="danger" title="Shutdown" :disabled="!node.online || operationInProgress" @click="shutdown">
+      <b-button variant="danger" title="Shutdown" @click="shutdown">
         <i class="fa fa-power-off" />
       </b-button>
     </b-button-group>
@@ -24,11 +24,6 @@ export default {
     node: {
       type: Object,
       required: true
-    }
-  },
-  computed: {
-    operationInProgress () {
-      return this.node.pendingOperations.length > 0
     }
   },
   methods: {
