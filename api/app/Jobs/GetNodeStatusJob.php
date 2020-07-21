@@ -3,9 +3,12 @@
 namespace App\Jobs;
 
 
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Process\Process;
+
 class GetNodeStatusJob extends BaseSSHJob
 {
-    public int $timeout = 10;
+    public const TIMEOUT = 3;
 
     /**
      * Execute the job.
@@ -16,11 +19,17 @@ class GetNodeStatusJob extends BaseSSHJob
     {
         $node = $this->getNode();
 
-        $process = $this->getSSH()
-            ->execute('hostname');
+        $hostname = '';
+        try {
+            $process = $this->getSSH()
+                ->configureProcess(fn(Process $process) => $process->setTimeout(static::TIMEOUT))
+                ->execute('hostname');
 
-        $hostname = trim($process->getOutput());
-        $node->online = $process->isSuccessful();
+            $hostname = trim($process->getOutput());
+            $node->online = $process->isSuccessful();
+        } catch (ProcessTimedOutException $e) {
+            $node->online = false;
+        }
 
         if ($node->online) {
             $node->hostname = $hostname;
@@ -40,8 +49,7 @@ class GetNodeStatusJob extends BaseSSHJob
      */
     private function getDisks(): ?array
     {
-        $process = $this->getSSH()
-            ->execute('lsblk --json');
+        $process = $this->execute('lsblk --json');
 
         $disks = null;
         if ($process->isSuccessful()) {
