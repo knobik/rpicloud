@@ -3,14 +3,13 @@
 # About
 Ever wanted to just "reinstall" your RPi4 node in your cluster without the hussle of pulling the sd card out, flashing it on a PC and putting it back in? This is exacly the reason i started this.
 
-My cluster is based on RPi4 only, so i didnt test it on other version. 
+My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other PI revisions. 
 
 # Features
-* Manage pi cluster inventory (TODO: export as ansible)
+* Manage pi cluster inventory (TODO: export to ansible)
 * Reboot / Shutdown nodes
 * Netboot node for recovery
-* Backup node
-* Restore node from backup
+* Backup / Restore node
 * Easy reinstall through netboot, without removing sd card or usb device.
 
 # Quick start
@@ -58,3 +57,11 @@ Hot reloaded frontend: `http://localhost:3000`
 ```
 $ cd /api
 ```
+
+### Side notes
+* One netbooted PI at a time, booting multiple PI's from one image might corrupt the image or lead to operation errors.
+* There are no checks to see if you have enough space in the backup directory for the next backup, keep that in mind when doing a backup. In the background, `dd` is used to make an img of your sd card and then a script is used to resize it so each backup doesnt take 16/32+ GB of space ;) This means you need atleast as much free space on your host as the size of your sd card / usb drive.
+
+### Todo
+- [ ] Validate free disk space before making a backup 
+- [ ] Multiple netboot images, preferably one per node or a netboot pool.
