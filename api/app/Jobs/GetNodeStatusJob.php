@@ -5,7 +5,7 @@ namespace App\Jobs;
 
 class GetNodeStatusJob extends BaseSSHJob
 {
-    public const TIMEOUT = 10;
+    public int $timeout = 10;
 
     /**
      * Execute the job.
