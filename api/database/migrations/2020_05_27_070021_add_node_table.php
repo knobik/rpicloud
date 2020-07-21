@@ -17,8 +17,16 @@ class AddNodeTable extends Migration
             $table->bigIncrements('id');
 
             $table->string('ip');
-            $table->string('mac')->nullable()->unique();
+            $table->string('hostname')->nullable();
+            $table->string('mac')->nullable();
             $table->boolean('netboot')->default(false);
+            $table->boolean('netbooted')->default(false);
+            $table->boolean('online')->default(false);
+            $table->string('arch')->nullable();
+            $table->unsignedInteger('cpus')->nullable();
+            $table->unsignedInteger('cpu_max_freq')->nullable();
+            $table->unsignedInteger('ram_max')->nullable();
+            $table->text('storage_devices')->default('[]');
 
             $table->timestamps();
             $table->softDeletes();

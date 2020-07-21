@@ -11,8 +11,10 @@ RUN useradd -ms /bin/bash -u 1337 rpi && adduser rpi sudo && echo 'rpi ALL=(ALL)
 RUN add-apt-repository ppa:ondrej/php
 
 RUN apt-get update && \
-    curl -sL https://deb.nodesource.com/setup_12.x  | bash - && \
-    apt-get install -y sqlite3 curl unzip supervisor dnsmasq nginx nmap ssh nodejs \
+    curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get install -y \
+    cron sqlite3 curl unzip supervisor \
+    dnsmasq nginx ssh nodejs \
+    kpartx nfs-kernel-server \
     php7.4-fpm php7.4-cli \
     php7.4-sqlite3 \
     php7.4-gd \
@@ -33,6 +35,8 @@ RUN apt-get update && \
 USER rpi
 RUN composer global require hirak/prestissimo
 USER root
+RUN mkdir -p /nfs/root /nfs/boot /nfs/backups
+VOLUME /nfs
 
 # configure dnsmasq
 RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
@@ -48,6 +52,13 @@ COPY config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
 
 # configure supervisor
 COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# configure crontab
+COPY schedule.sh /schedule.sh
+RUN chmod +X /schedule.sh
+
+# configure nfs
+COPY config/nfs-exports /etc/exports
 
 # entrypoint
 COPY start-container /usr/local/bin/start-container

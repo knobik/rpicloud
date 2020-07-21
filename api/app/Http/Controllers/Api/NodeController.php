@@ -2,51 +2,124 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Console\Commands\InitSSH;
+use App\Exceptions\PXEException;
 use App\Http\Controllers\ApiController;
-use App\Http\Requests\Api\RegisterNodeRequest;
-use App\Jobs\GetNodeHWInfoJob;
+use App\Http\Requests\Api\Nodes\BackupRequest;
+use App\Http\Requests\Api\Nodes\BulkRequest;
+use App\Http\Resources\Api\NodeResource;
 use App\Models\Node;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use App\Operations\BackupOperation;
+use App\Operations\RebootOperation;
+use App\Operations\ShutdownOperation;
+use App\Services\PXEService;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Collection;
 
 class NodeController extends ApiController
 {
     /**
-     * run
-     * curl -sL http://192.168.1.2/api/node/provision | sudo bash -
-     *
-     * @return string
+     * @return AnonymousResourceCollection
      */
-    public function provision(): string
+    public function index(): AnonymousResourceCollection
     {
-        return str_replace(
-            [
-                '__PASSWORD__',
-                '__URL__'
-            ],
-            [
-                \Str::random(100),
-                config('app.url')
-            ],
-            file_get_contents(base_path('scripts/provision.sh'))
-        );
+        return NodeResource::collection(Node::with(['pendingOperations'])->get());
     }
 
     /**
-     * @param  RegisterNodeRequest  $request
-     * @return string
-     * @throws FileNotFoundException
+     * @param Node $node
+     * @return NodeResource
      */
-    public function register(RegisterNodeRequest $request): string
+    public function show(Node $node): NodeResource
     {
-        $node = Node::firstOrCreate(
-            [
-                'ip' => $request->get('ip', $_SERVER['REMOTE_ADDR']),
-            ]
-        );
+        return new NodeResource($node->load(['pendingOperations']));
+    }
 
-        GetNodeHWInfoJob::dispatch($node->id)->delay(5);
+    /**
+     * @param PXEService $PXEService
+     * @param Node $node
+     * @return NodeResource
+     * @throws PXEException
+     */
+    public function enableNetboot(PXEService $PXEService, Node $node): NodeResource
+    {
+        $PXEService->enableNetboot($node);
 
-        return \Storage::disk('local')->get(InitSSH::RSA_PUBLIC);
+        return new NodeResource($node->load(['pendingOperations']));
+    }
+
+    /**
+     * @param PXEService $PXEService
+     * @param Node $node
+     * @return NodeResource
+     * @throws PXEException
+     */
+    public function disableNetboot(PXEService $PXEService, Node $node): NodeResource
+    {
+        $PXEService->disableNetboot($node);
+
+        return new NodeResource($node->load(['pendingOperations']));
+    }
+
+    /**
+     * @param BackupRequest $request
+     * @param Node $node
+     * @return NodeResource
+     */
+    public function backup(BackupRequest $request, Node $node)
+    {
+        $filename = PXEService::slug($node) . '_' . now()->format('Y-m-d_H-i-s') . '.img';
+        (new BackupOperation($node, $request->get('storageDevice'), $filename))->dispatch();
+
+        return new NodeResource($node->load(['pendingOperations']));
+    }
+
+    /**
+     * @param Node $node
+     * @return NodeResource
+     */
+    public function reboot(Node $node): NodeResource
+    {
+        (new RebootOperation($node))->dispatch();
+
+        return new NodeResource($node->load(['pendingOperations']));
+    }
+
+    /**
+     * @param BulkRequest $request
+     * @return Collection
+     */
+    public function bulkReboot(BulkRequest $request): Collection
+    {
+        $resources = collect();
+        foreach ($request->get('nodeId', []) as $nodeId) {
+            $resources[] = $this->reboot(Node::findOrFail($nodeId));
+        }
+
+        return $resources;
+    }
+
+    /**
+     * @param Node $node
+     * @return NodeResource
+     */
+    public function shutdown(Node $node): NodeResource
+    {
+        (new ShutdownOperation($node))->dispatch();
+
+        return new NodeResource($node->load(['pendingOperations']));
+    }
+
+    /**
+     * @param BulkRequest $request
+     * @return Collection
+     */
+    public function bulkShutdown(BulkRequest $request): Collection
+    {
+        $resources = collect();
+        foreach ($request->get('nodeId', []) as $nodeId) {
+            $resources[] = $this->shutdown(Node::findOrFail($nodeId));
+        }
+
+        return $resources;
     }
 }

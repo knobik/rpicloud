@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Exceptions\PXEException;
 use App\Exceptions\SSHException;
+use App\Models\Node;
 use App\Services\PXEService;
 use Illuminate\Support\Collection;
 
@@ -15,17 +16,72 @@ class GetNodeHWInfoJob extends BaseSSHJob
      * @param  PXEService  $PXEService
      * @return void
      * @throws SSHException
-     * @throws PXEException
+     * @throws \JsonException
      */
     public function handle(PXEService $PXEService): void
     {
-        $process = $this->getSSH()->execute('sudo ifconfig -a');
+        $this->networkInfo($PXEService);
+        $this->hostnameInfo();
+        $this->cpuInfo();
+        $this->ramInfo();
+    }
+
+    /**
+     * @throws SSHException
+     */
+    private function ramInfo(): void
+    {
         $node = $this->getNode();
-        if (!$process->isSuccessful()) {
+        $process = $this->executeOrFail('free --mega');
+
+        $matches = [];
+        preg_match("/(?:Mem:\s*)(?<memory>(?:[\S]+))/", $process->getOutput(), $matches);
+
+        if (!isset($matches['memory'])) {
             throw new SSHException(
-                "SSH ERROR ({$node->ip}): {$process->getErrorOutput()}"
+                "SSH ERROR ({$node->ip}): memory not found."
             );
         }
+
+        $node->ram_max = $matches['memory'];
+        $node->save();
+    }
+
+    /**
+     * @throws SSHException
+     * @throws \JsonException
+     */
+    private function cpuInfo(): void
+    {
+        $node = $this->getNode();
+        $process = $this->executeOrFail('lscpu --json');
+        $data = collect(
+            json_decode($process->getOutput(), true, 512, JSON_THROW_ON_ERROR)['lscpu']
+        )->keyBy('field')->map(fn($item) => $item['data']);
+
+        // map information into db columns
+        $fieldMap = [
+            'Architecture:' => 'arch',
+            'CPU(s):' => 'cpus',
+            'CPU max MHz:' => 'cpu_max_freq',
+        ];
+        foreach ($fieldMap as $field => $column) {
+            if (isset($data[$field])) {
+                $node->{$column} = $data[$field];
+            }
+        }
+
+        $node->save();
+    }
+
+    /**
+     * @param  PXEService  $PXEService
+     * @throws SSHException
+     */
+    private function networkInfo(PXEService $PXEService): void
+    {
+        $node = $this->getNode();
+        $process = $this->executeOrFail('sudo ifconfig -a');
 
         $interface = $this->parse($process->getOutput())
             ->first(fn($row) => $row['ip'] === $node->ip);
@@ -38,8 +94,18 @@ class GetNodeHWInfoJob extends BaseSSHJob
 
         $node->mac = strtolower($interface['mac']);
         $node->save();
+    }
 
-        $PXEService->disableNetboot($node);
+    /**
+     * @throws SSHException
+     */
+    private function hostnameInfo()
+    {
+        $node = $this->getNode();
+        $process = $this->executeOrFail('hostname');
+
+        $node->hostname = trim($process->getOutput());
+        $node->save();
     }
 
     /**

@@ -8,11 +8,30 @@ if (!function_exists('hostIp')) {
      */
     function hostIp(): string
     {
-        $process = new Process(['hostname', '-I']);
-        $process->run();
+        // cache the ip
+        if (!app()->bound('_hostIp')) {
+            app()->singleton(
+                '_hostIp',
+                function () {
+                    $process = Process::fromShellCommandline('ip route get 1 | sed -n \'s/^.*src \([0-9.]*\) .*$/\1/p\'');
+                    $process->run();
 
-        $addresses = explode(' ', $process->getOutput());
+                    return trim($process->getOutput());
+                }
+            );
+        }
 
-        return trim($addresses[0]);
+        return app('_hostIp');
+    }
+}
+
+if (!function_exists('d')) {
+    /**
+     * @param  array  $vars
+     * @return string
+     */
+    function d(...$vars)
+    {
+        dump(...$vars);
     }
 }

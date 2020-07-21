@@ -33,18 +33,21 @@ class InitSSH extends Command
     {
         $storage = \Storage::disk('local');
 
-        if (!$storage->exists(static::RSA_PRIVATE)) {
-            $rsa = new RSA();
-            $rsa->setPrivateKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
-            $rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
-            $keys = $rsa->createKey();
-
-            $storage->put(static::RSA_PRIVATE, $keys['privatekey']);
-            $storage->put(static::RSA_PUBLIC, $keys['publickey']);
-
-            chmod(storage_path('app/' . static::RSA_PRIVATE), 0600);
-
-            $this->info('SSH keys generated.');
+        if ($storage->exists(static::RSA_PRIVATE)) {
+            $this->info('SSH already initized. Skipping.');
+            return;
         }
+
+        $rsa = new RSA();
+        $rsa->setPrivateKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
+        $rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
+        $keys = $rsa->createKey();
+
+        $storage->put(static::RSA_PRIVATE, $keys['privatekey']);
+        $storage->put(static::RSA_PUBLIC, $keys['publickey']);
+
+        chmod(storage_path('app/' . static::RSA_PRIVATE), 0600);
+
+        $this->info('SSH keys generated.');
     }
 }

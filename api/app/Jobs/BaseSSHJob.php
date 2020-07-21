@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\SSHException;
 use App\Models\Node;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,12 +10,21 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Spatie\Ssh\Ssh;
+use Symfony\Component\Process\Process;
 
 abstract class BaseSSHJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    public const SSH_USER = 'rpi';
+    /**
+     * Dont retry base jobs.
+     *
+     * @var int
+     */
+    public $tries = 0;
 
     /**
      * @var int
@@ -34,7 +44,7 @@ abstract class BaseSSHJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param  int  $nodeId
+     * @param int $nodeId
      */
     public function __construct(int $nodeId)
     {
@@ -59,11 +69,54 @@ abstract class BaseSSHJob implements ShouldQueue
     protected function getSSH(): Ssh
     {
         if (!$this->ssh) {
-            $this->ssh = Ssh::create(static::SSH_USER, $this->getNode()->ip)
+            $this->ssh = Ssh::create(config('pxe.user'), $this->getNode()->ip)
                 ->disableStrictHostKeyChecking()
                 ->usePrivateKey(storage_path('app/ssh/id_rsa'));
         }
 
         return $this->ssh;
+    }
+
+    /**
+     * @param string|array $command
+     * @return Process
+     */
+    protected function execute($command): Process
+    {
+        $process = $this->getSSH()->execute($command);
+
+        $node = $this->getNode();
+        if ($process->isSuccessful() && !$node->online) {
+            $node->online = true;
+            $node->save();
+        }
+
+        return $process;
+    }
+
+    /**
+     * @param $command
+     * @return Process
+     */
+    protected function executeAsync($command): Process
+    {
+        return $this->getSSH()->executeAsync($command);
+    }
+
+    /**
+     * @param string $command
+     * @return Process
+     * @throws SSHException
+     */
+    protected function executeOrFail(string $command): Process
+    {
+        $process = $this->execute($command);
+        if (!$process->isSuccessful()) {
+            throw new SSHException(
+                "SSH ERROR ({$this->getNode()->ip}): {$process->getErrorOutput()}"
+            );
+        }
+
+        return $process;
     }
 }

@@ -11,64 +11,56 @@ class PXEService
 {
     /**
      * @param  Node  $node
-     * @throws PXEException
      */
     public function disableNetboot(Node $node): void
     {
-        $process = Process::fromShellCommandline(
-            'echo "dhcp-mac=set:tobeignored,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.$this->macSlug($node)
+        $this->processNetboot(
+            $node,
+            Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.static::slug($node).'.conf'),
+            false
         );
-
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new PXEException("PXE Error ({$node->mac}): {$process->getErrorOutput()}");
-        }
-
-        $this->restartPxeService();
-
-        $node->netboot = false;
-        $node->save();
     }
 
     /**
      * @param  Node  $node
-     * @throws PXEException
      */
     public function enableNetboot(Node $node): void
     {
-        $process = Process::fromShellCommandline('sudo rm /etc/dnsmasq.d/'.$this->macSlug($node));
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new PXEException("PXE Error ({$node->mac}): {$process->getErrorOutput()}");
-        }
-
-        $this->restartPxeService();
-
-        $node->netboot = true;
-        $node->save();
+        $this->processNetboot(
+            $node,
+            Process::fromShellCommandline('echo "dhcp-mac=set:whitelisted,'.$node->mac.'" | sudo tee /etc/dnsmasq.d/'.static::slug($node).'.conf'),
+            true
+        );
     }
 
     /**
-     * @throws PXEException
+     * @return void
      */
     public function restartPxeService(): void
     {
-        $process = Process::fromShellCommandline('sudo killall dnsmasq');
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new PXEException("PXE Error: {$process->getErrorOutput()}");
-        }
+        Process::fromShellCommandline('sudo killall dnsmasq')->run();
     }
 
     /**
      * @param  Node  $node
      * @return string
      */
-    public function macSlug(Node $node): string
+    public static function slug(Node $node): string
     {
         return str_replace(':', '-', $node->mac);
+    }
+
+    /**
+     * @param  Node  $node
+     * @param  Process  $process
+     * @param  bool  $value
+     */
+    private function processNetboot(Node $node, Process $process, bool $value): void
+    {
+        $process->run();
+        $this->restartPxeService();
+
+        $node->netboot = $value;
+        $node->save();
     }
 }

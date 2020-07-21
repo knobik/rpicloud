@@ -27,13 +27,15 @@ class InitHost extends Command
     /**
      * Execute the console command.
      *
+     * @param  PXEService  $PXEService
      * @return mixed
+     * @throws PXEException
      */
     public function handle(PXEService $PXEService)
     {
         $ip = hostIp();
 
-        $this->writeNewEnvironmentFileWith('http://'.$ip);
+        $this->writeNewEnvironmentFileWith('http://'.$ip.':8080');
         $this->setPxeDnsHost($PXEService, $ip);
     }
 
@@ -74,6 +76,11 @@ class InitHost extends Command
      */
     private function setPxeDnsHost(PXEService $PXEService, string $ip): void
     {
+        // replace the last part of ip with 1
+        $ipParts = explode('.', $ip);
+        $ipParts[3] = 1;
+        $ip = implode('.', $ipParts);
+
         $process = Process::fromShellCommandline(
             'echo "dhcp-range='.$ip.',proxy" | sudo tee /etc/dnsmasq.d/dns-range.conf'
         );
