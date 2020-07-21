@@ -24,6 +24,12 @@ run the `build.sh` script
 
 This will take a while, it needs to download all php and node dependencies and also download the latest raspberry pi os and set it up for pxe booting.
 
+Login and have fun:
+```
+login: admin@example.com
+password: admin
+```
+
 # Development
 All operations are made inside the docker container, so you need to ssh into the container. You can do it easy with `./ssh.sh`
 
@@ -31,6 +37,8 @@ All operations are made inside the docker container, so you need to ssh into the
 ```
 $ cd /web && npm run dev
 ```
+
+Hot reloaded frontend: `http://localhost:3000`
 
 ### Backend development
 ```
