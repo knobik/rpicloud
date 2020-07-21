@@ -38,6 +38,11 @@ class InitImg extends Command
      */
     public function handle()
     {
+        if (file_exists(static::DISTRO_STORAGE_FILENAME)) {
+            $this->info("Base image already exists, skipping.");
+            return;
+        }
+
         if (!$this->option('host')) {
             $this->downloadLatestDistro();
         }
