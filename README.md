@@ -1,12 +1,12 @@
 **!!! This software is in alpha stage, i dont recommend using it in production !!!**
 
 # About
-Ever wanted to just "reinstall" your RPi4 node in your cluster without the hussle of pulling the sd card out, flashing it on a PC and putting it back in? This is exacly the reason i started this.
+Ever wanted to just "reinstall" your RPi4 node in your cluster without the hussle of pulling the sd card out, flashing it on a PC and putting it back in? This is exacly the reason i started this. Awsome raspberry pi cluster management software you can host on your PC or one of your nodes.
 
-My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other PI revisions. 
+My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other PI revisions.
 
 # Features
-* Manage pi cluster inventory (TODO: export to ansible)
+* Manage pi cluster inventory, status, etc (TODO: export to ansible)
 * Reboot / Shutdown nodes
 * Netboot node for recovery
 * Backup / Restore node
@@ -64,4 +64,5 @@ $ cd /api
 
 ### Todo
 - [ ] Validate free disk space before making a backup 
-- [ ] Multiple netboot images, preferably one per node or a netboot pool.
+- [ ] Multiple netboot images, preferably one per node or a netboot pool. (maybe, each netboot image takes atleast 3GB+ of disk space)
+- [ ] Export inventory to ansible
