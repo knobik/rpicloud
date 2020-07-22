@@ -18,7 +18,13 @@
       </template>
       <template v-slot:cell(status)="data">
         <b-badge
-          v-if="!data.item.finished_at"
+          v-if="!data.item.finished_at && !data.item.started_at"
+          variant="info"
+        >
+          in queue
+        </b-badge>
+        <b-badge
+          v-if="!data.item.finished_at && data.item.started_at"
           variant="warning"
         >
           working
