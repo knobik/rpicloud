@@ -12,6 +12,7 @@ use App\Jobs\Operations\ShrinkImageJob;
 use App\Jobs\Operations\StartOperationJob;
 use App\Jobs\Operations\RebootJob;
 use App\Jobs\Operations\TestJob;
+use App\Jobs\Operations\ValidateFreeSpaceJob;
 use App\Jobs\PrepareBaseImage;
 use App\Operations\TestOperation;
 use Illuminate\Console\Command;
@@ -49,7 +50,6 @@ class Dev extends Command
      */
     public function handle()
     {
-//        SetHostnameJob::dispatchNow(9, '/dev/mmcblk0', 'testtt');
-//        (new BackupOperation(Node::findOrFail(5), '/dev/mmcblk0', now()->format('y-m-d_h-i-s') . '.img'))->dispatch();
+        ValidateFreeSpaceJob::dispatchNow(13, '/dev/mmcblk0');
     }
 }

@@ -6,6 +6,8 @@ use App\Models\Backup;
 
 class MakeBackupJob extends BaseOperationJob
 {
+    public const BACKUP_DIRECTORY = '/backups';
+
     public int $timeout = 0;
 
     /**
@@ -39,7 +41,7 @@ class MakeBackupJob extends BaseOperationJob
     {
         $this->track("Making backup of {$this->device}");
 
-        $outputFilename = "/backups/{$this->filename}";
+        $outputFilename = static::BACKUP_DIRECTORY . "/{$this->filename}";
         $process = $this->executeAsync("sudo dd if={$this->device} of={$outputFilename} bs=1M status=progress");
 
         $operation = $this->getOperation();

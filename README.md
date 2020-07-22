@@ -64,5 +64,6 @@ $ cd /api
 
 ### Todo
 - [ ] Validate free disk space before making a backup 
-- [ ] Multiple netboot images, preferably one per node or a netboot pool. (maybe, each netboot image takes atleast 3GB+ of disk space)
+- [ ] User management (now the user is admin@example.com, we need to change that!)
 - [ ] Export inventory to ansible
+- [ ] Multiple netboot images, preferably one per node or a netboot pool. (maybe, each netboot image takes atleast 3GB+ of disk space)

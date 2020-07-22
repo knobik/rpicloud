@@ -9,6 +9,7 @@ use App\Jobs\Operations\NetbootAndWaitJob;
 use App\Jobs\Operations\ShrinkImageJob;
 use App\Jobs\Operations\RebootJob;
 use App\Jobs\Operations\StorageBootAndWaitJob;
+use App\Jobs\Operations\ValidateFreeSpaceJob;
 use App\Models\Node;
 
 class BackupOperation extends BaseOperation
@@ -50,6 +51,7 @@ class BackupOperation extends BaseOperation
      */
     protected function build(): void
     {
+        $this->addJob(new ValidateFreeSpaceJob($this->node->id, $this->device));
         $this->addJob(new NetbootAndWaitJob($this->node->id));
         $this->addJob(new MakeBackupJob($this->node->id, $this->device, $this->filename));
 
