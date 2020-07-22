@@ -41,6 +41,7 @@ class Operation extends BaseModel
         'name' => 'string',
         'description' => 'string',
         'log' => 'string',
+        'failed' => 'boolean',
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
     ];
