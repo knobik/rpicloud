@@ -24,12 +24,12 @@ abstract class BaseSSHJob implements ShouldQueue
      *
      * @var int
      */
-    public $tries = 1;
+    public int $tries = 1;
 
     /**
      * @var int
      */
-    protected $nodeId;
+    protected int $nodeId;
 
     /**
      * @var Node|null

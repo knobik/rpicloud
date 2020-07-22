@@ -3,7 +3,7 @@
 namespace App\Exceptions;
 
 
-class SSHException extends \Exception
+class SSHException extends OperationException
 {
 
 }
