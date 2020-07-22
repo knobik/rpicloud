@@ -16,6 +16,26 @@
       <template v-slot:cell(actions)="data">
         <actions :operation="data.item"></actions>
       </template>
+      <template v-slot:cell(status)="data">
+        <b-badge
+          v-if="!data.item.finished_at && !data.item.started_at"
+          variant="info"
+        >
+          in queue
+        </b-badge>
+        <b-badge
+          v-if="!data.item.finished_at && data.item.started_at"
+          variant="warning"
+        >
+          working
+        </b-badge>
+        <b-badge v-if="data.item.finished_at && !data.item.failed" variant="success">
+          success
+        </b-badge>
+        <b-badge v-if="!data.item.netbooted && data.item.failed" variant="danger">
+          failed
+        </b-badge>
+      </template>
     </b-table>
     <nav>
       <b-pagination
@@ -53,6 +73,7 @@ export default {
           { label: 'Created at', key: 'created_at', sortable: true },
           { label: 'Started at', key: 'started_at', sortable: true },
           { label: 'Finished at', key: 'finished_at', sortable: true },
+          { label: 'Status', key: 'status', sortable: false },
           { label: 'Action', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
         ]
       }

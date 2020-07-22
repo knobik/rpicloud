@@ -27,6 +27,7 @@ class OperationResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'log' => $this->log,
+            'failed' => $this->failed,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'started_at' => $this->started_at ? $this->started_at->format('Y-m-d H:i:s') : null,
             'finished_at' => $this->finished_at ? $this->finished_at->format('Y-m-d H:i:s') : null,

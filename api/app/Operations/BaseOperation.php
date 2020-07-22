@@ -75,7 +75,7 @@ abstract class BaseOperation
         $this->compile();
         $this->createOperation($this->name());
 
-        ExecuteOperationChainJob::dispatch($this->chain)
+        ExecuteOperationChainJob::dispatch($this->node->id, $this->chain)
             ->onQueue(static::QUEUE);
     }
 
@@ -87,7 +87,7 @@ abstract class BaseOperation
         $this->compile();
         $this->createOperation($this->name());
 
-        ExecuteOperationChainJob::dispatchNow($this->chain);
+        ExecuteOperationChainJob::dispatchNow($this->node->id, $this->chain);
     }
 
     /**

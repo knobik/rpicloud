@@ -14,6 +14,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class BackupController extends ApiController
 {
+    public const BACKUPS_DIRECTORY = "/nfs/backups";
 
     /**
      * @param Request $request
@@ -58,7 +59,7 @@ class BackupController extends ApiController
      */
     public function destroy(Backup $backup)
     {
-        $path = "/nfs/backups/{$backup->filename}";
+        $path = static::BACKUPS_DIRECTORY . "/{$backup->filename}";
         if (file_exists($path)) {
             unlink($path);
         }

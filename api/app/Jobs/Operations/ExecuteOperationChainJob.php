@@ -2,20 +2,10 @@
 
 namespace App\Jobs\Operations;
 
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class ExecuteOperationChainJob  implements ShouldQueue
+class ExecuteOperationChainJob extends BaseOperationJob
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
-
     /**
      * Dont retry base jobs.
      *
@@ -33,25 +23,32 @@ class ExecuteOperationChainJob  implements ShouldQueue
      */
     private array $operations;
 
-
     /**
      * MakeBackupJob constructor.
+     * @param int $nodeId
      * @param array $operations
      */
-    public function __construct(array $operations)
+    public function __construct(int $nodeId, array $operations)
     {
+        parent::__construct($nodeId);
+
         $this->operations = $operations;
     }
 
     /**
      * Execute the job.
+     * @throws \Exception
      */
     public function handle(): void
     {
-        foreach ($this->operations as $operation) {
-            /** @var BaseOperationJob $job */
-            $job = new $operation['class'](...$operation['parameters']);
-            app(Dispatcher::class)->dispatchNow($job);
+        try {
+            foreach ($this->operations as $operation) {
+                /** @var BaseOperationJob $job */
+                $job = new $operation['class'](...$operation['parameters']);
+                app(Dispatcher::class)->dispatchNow($job);
+            }
+        } catch (\Exception $exception) {
+            $this->trackError($exception->getMessage());
         }
     }
 }
