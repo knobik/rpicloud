@@ -60,10 +60,10 @@ $ cd /api
 
 ### Side notes
 * One netbooted PI at a time, booting multiple PI's from one image might corrupt the image or lead to operation errors.
-* There are no checks to see if you have enough space in the backup directory for the next backup, keep that in mind when doing a backup. In the background, `dd` is used to make an img of your sd card and then a script is used to resize it so each backup doesnt take 16/32+ GB of space ;) This means you need atleast as much free space on your host as the size of your sd card / usb drive.
+* In the background, `dd` is used to make an img of your sd card and then a script is used to resize it so each backup doesnt take 16/32+ GB of space ;) This means you need atleast as much free space on your host as the size of your sd card / usb drive.
 
 ### Todo
-- [ ] Validate free disk space before making a backup 
+- [X] Validate free disk space before making a backup 
 - [ ] User management (now the user is admin@example.com, we need to change that!)
 - [ ] Export inventory to ansible
 - [ ] Multiple netboot images, preferably one per node or a netboot pool. (maybe, each netboot image takes atleast 3GB+ of disk space)
