@@ -1,5 +1,5 @@
 <template>
-  <b-modal ref="modal" :title="`Restore backup ${backup.filename}`" @hide="$emit('hide')" @ok="submit">
+  <b-modal ref="modal" :title="`Restore backup ${backup.filename}`" @hidden="$emit('hide')" @ok="submit">
     <b-form @submit.prevent="submit" @keydown="form.errors.clear($event.target.name)">
       <b-form-group label="Node" label-for="node">
         <b-form-select
