@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\Backups\RestoreRequest;
+use App\Http\Requests\Api\Backups\UploadRequest;
 use App\Http\Resources\Api\NodeResource;
 use App\Http\Resources\Api\Nodes\BackupResource;
 use App\Models\Backup;
@@ -51,6 +52,25 @@ class BackupController extends ApiController
         ))->dispatch();
 
         return new NodeResource($node);
+    }
+
+    /**
+     * @param UploadRequest $request
+     * @return BackupResource
+     */
+    public function upload(UploadRequest $request): BackupResource
+    {
+        $file = $request->file('file');
+        $path = static::BACKUPS_DIRECTORY . "/{$file->getClientOriginalName()}";
+        rename($file->getPathname(), $path);
+
+        $model = Backup::firstOrCreate(
+            [
+                'filename' => $file->getClientOriginalName()
+            ]
+        );
+
+        return new BackupResource($model);
     }
 
     /**

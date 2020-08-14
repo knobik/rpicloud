@@ -52,5 +52,6 @@ Route::group(
         Route::apiResource('backups', 'BackupController')
             ->except(['show', 'store', 'update']);
         Route::post('/backups/{backup}/restore', 'BackupController@restore');
+        Route::post('/backups/upload', 'BackupController@upload');
     }
 );

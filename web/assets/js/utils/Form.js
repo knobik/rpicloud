@@ -68,7 +68,11 @@ export default class {
 
   submit (requestType, url) {
     return new Promise((resolve, reject) => {
-      Api[requestType.toLowerCase()](url, this.data())
+      Api[requestType.toLowerCase()](url, this.data(), {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
         .then((response) => {
           this.onSuccess(response.data)
           resolve(response.data)

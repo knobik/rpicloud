@@ -17,7 +17,7 @@
         <actions :backup="data.item" :node-id="nodeId" @reload="$emit('reload')" />
       </template>
       <template v-slot:cell(node.ip)="data">
-        {{ data.item.node.ip }} ({{ data.item.node.hostname }})
+        <template v-if="data.item.node">{{ data.item.node.ip }} ({{ data.item.node.hostname }})</template>
       </template>
     </b-table>
     <nav>
