@@ -4,8 +4,6 @@ namespace App\Jobs\Operations;
 
 class SetHostnameJob extends BaseOperationJob
 {
-    public const MOUNT_POINT = '/mnt';
-
     /**
      * @var string
      */

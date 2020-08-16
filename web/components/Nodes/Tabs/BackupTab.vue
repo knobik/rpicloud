@@ -1,6 +1,6 @@
 <template>
   <div>
-    <backup-modal :node="this.node" :show="showBackupModal" @hide="showBackupModal = false" />
+    <backup-modal :node="node" :show="showBackupModal" @hide="showBackupModal = false" @update="updateNode" />
     <b-row class="pb-3 d-flex justify-content-between align-content-center">
       <b-col md="2" class="d-flex justify-content-start align-content-center">
         <span class="pt-1 pr-2">Show all</span>
@@ -21,7 +21,7 @@
     </b-row>
     <b-row>
       <b-col md="12">
-        <backup-table :node-id="node.id" :small="true" :items="items" />
+        <backup-table :node-id="node.id" :small="true" :items="items" @update="updateNode" />
       </b-col>
     </b-row>
   </div>
@@ -56,6 +56,9 @@ export default {
     this.loadBackups()
   },
   methods: {
+    updateNode (node) {
+      this.$emit('update', node)
+    },
     loadBackups () {
       Api.get('/backups' + (this.showAll ? '' : `?nodeId=${this.node.id}`)).then((response) => {
         this.items = response.data.data

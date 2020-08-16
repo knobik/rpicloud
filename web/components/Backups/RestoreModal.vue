@@ -64,7 +64,7 @@ export default {
     return {
       form: new Form({
         nodeId: null,
-        hostname: null,
+        hostname: '',
         storageDevice: null
       }),
       working: false,
@@ -102,7 +102,9 @@ export default {
         this.loadNodes((nodes) => {
           this.nodes = nodes
           this.form.nodeId = this.nodeId ?? this.backup.node.id
-          this.form.hostname = this.backup.node.hostname
+          if (this.backup.node !== null) {
+            this.form.hostname = this.backup.node.hostname
+          }
           this.reloadFields()
 
           this.$refs.modal.show()

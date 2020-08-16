@@ -31,7 +31,7 @@ class NodeResource extends JsonResource
             'netbooted' => $this->netbooted,
             'online' => $this->online,
             'storageDevices' => $this->storage_devices,
-            'pendingOperations' => OperationResource::collection($this->whenLoaded('pendingOperations')),
+            'pendingOperations' => OperationResource::collection($this->pendingOperations),
         ];
     }
 }

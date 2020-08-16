@@ -12,6 +12,9 @@ My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other
 * Backup / Restore node
 * Easy reinstall through netboot, without removing sd card or usb device.
 
+## For updates see [CHANGELOG.md]
+[CHANGELOG.md]: CHANGELOG.md
+
 # Quick start
 
 ### Requirements

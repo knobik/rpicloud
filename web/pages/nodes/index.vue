@@ -7,14 +7,17 @@
             <h6 class="mb-0 d-flex justify-content-between align-items-center">
               <span>Nodes</span>
 
-              <b-badge
-                variant="primary"
-                class="p-2"
-                href="#"
-                @click="copyData(provisionScript, 'Gist copied to clipboard.')"
-              >
-                {{ provisionScript }}
-              </b-badge>
+              <span>
+                <span class="small">Add node by running:</span>
+                <b-badge
+                  variant="primary"
+                  class="p-2"
+                  href="#"
+                  @click="copyData(provisionScript, 'Gist copied to clipboard.')"
+                >
+                  {{ provisionScript }}
+                </b-badge>
+              </span>
             </h6>
           </template>
           <node-table :items="items" @update="updateNode" />

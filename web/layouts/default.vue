@@ -10,7 +10,7 @@
       </b-link>
       <SidebarToggler class="d-md-down-none" display="lg" />
       <b-navbar-nav class="ml-auto">
-        <b-nav-item class="d-md-down-none">
+        <b-nav-item class="d-md-down-none" @click="logout">
           <i class="icon-logout" />
         </b-nav-item>
       </b-navbar-nav>
@@ -89,6 +89,14 @@ export default {
     if (!this.$store.state.config) {
       Api.get('/config').then((response) => {
         this.$store.commit('setConfig', response.data.data)
+      })
+    }
+  },
+  methods: {
+    logout () {
+      Api.post('/auth/logout').then(() => {
+        this.$store.commit('setAuthenticated', false)
+        this.$router.push({ name: '/auth/login' })
       })
     }
   }

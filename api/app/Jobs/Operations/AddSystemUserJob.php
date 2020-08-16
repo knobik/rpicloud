@@ -9,8 +9,6 @@ use Illuminate\Support\Str;
 
 class AddSystemUserJob extends BaseOperationJob
 {
-    public const MOUNT_POINT = '/mnt';
-
     /**
      * @var string
      */

@@ -74,12 +74,12 @@ export default class {
         }
       })
         .then((response) => {
-          this.onSuccess(response.data)
-          resolve(response.data)
+          this.onSuccess(response)
+          resolve(response)
         })
         .catch((error) => {
-          this.onFailure(error.response.data)
-          reject(error.response.data)
+          this.onFailure(error.response)
+          reject(error.response)
         })
     })
   }

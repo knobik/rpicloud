@@ -31,7 +31,7 @@ class NodeController extends ApiController
      */
     public function show(Node $node): NodeResource
     {
-        return new NodeResource($node->load(['pendingOperations']));
+        return new NodeResource($node);
     }
 
     /**
@@ -44,7 +44,7 @@ class NodeController extends ApiController
     {
         $PXEService->enableNetboot($node);
 
-        return new NodeResource($node->load(['pendingOperations']));
+        return new NodeResource($node);
     }
 
     /**
@@ -57,7 +57,7 @@ class NodeController extends ApiController
     {
         $PXEService->disableNetboot($node);
 
-        return new NodeResource($node->load(['pendingOperations']));
+        return new NodeResource($node);
     }
 
     /**
@@ -70,7 +70,7 @@ class NodeController extends ApiController
         $filename = PXEService::slug($node) . '_' . now()->format('Y-m-d_H-i-s') . '.img';
         (new BackupOperation($node, $request->get('storageDevice'), $filename))->dispatch();
 
-        return new NodeResource($node->load(['pendingOperations']));
+        return new NodeResource($node);
     }
 
     /**
@@ -81,7 +81,7 @@ class NodeController extends ApiController
     {
         (new RebootOperation($node))->dispatch();
 
-        return new NodeResource($node->load(['pendingOperations']));
+        return new NodeResource($node);
     }
 
     /**
@@ -106,7 +106,7 @@ class NodeController extends ApiController
     {
         (new ShutdownOperation($node))->dispatch();
 
-        return new NodeResource($node->load(['pendingOperations']));
+        return new NodeResource($node);
     }
 
     /**

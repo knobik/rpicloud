@@ -3,8 +3,9 @@
     <b-row>
       <b-col md="12">
         <b-alert v-if="runningOperation !== null" variant="info" show>
-          <h5 class="alert-heading font-weight-bold">
-            {{ runningOperation.name }}
+          <h5 class="alert-heading font-weight-bold d-flex align-items-center">
+            <span>{{ runningOperation.name }}</span>
+            <b-spinner class="ml-auto" small variant="primary"></b-spinner>
           </h5>
           {{ runningOperation.log ? runningOperation.log.split('\n').slice(-1).pop() : '' }}
         </b-alert>
@@ -27,7 +28,7 @@
               <template slot="title">
                 <i class="fa fa-database" /> Backups
               </template>
-              <backup-tab :node="node" />
+              <backup-tab :node="node" @update="overwriteNode" />
             </b-tab>
             <b-tab>
               <template slot="title">
