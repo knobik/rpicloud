@@ -14,7 +14,7 @@
       :per-page="perPage"
     >
       <template v-slot:cell(actions)="data">
-        <actions :backup="data.item" :node-id="nodeId" @reload="$emit('reload')" />
+        <actions :backup="data.item" :node-id="nodeId" @reload="$emit('reload')" @update="$emit('update', $event)" />
       </template>
       <template v-slot:cell(node.ip)="data">
         <template v-if="data.item.node">{{ data.item.node.ip }} ({{ data.item.node.hostname }})</template>

@@ -27,7 +27,7 @@
               <template slot="title">
                 <i class="fa fa-database" /> Backups
               </template>
-              <backup-tab :node="node" />
+              <backup-tab :node="node" @update="overwriteNode" />
             </b-tab>
             <b-tab>
               <template slot="title">
