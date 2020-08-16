@@ -10,6 +10,8 @@ abstract class BaseOperationJob extends BaseSSHJob
 {
     use TrackStatus;
 
+    public const MOUNT_POINT = '/mnt';
+
     /**
      * Default timeout 5 min
      *

@@ -12,6 +12,7 @@ use App\Models\Node;
 use App\Operations\RestoreOperation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\Process\Process;
 
 class BackupController extends ApiController
 {
@@ -63,6 +64,7 @@ class BackupController extends ApiController
         $file = $request->file('file');
         $path = static::BACKUPS_DIRECTORY . "/{$file->getClientOriginalName()}";
         rename($file->getPathname(), $path);
+        (new Process(['sudo', 'chown', 'root:root', $path]))->run();
 
         $model = Backup::firstOrCreate(
             [

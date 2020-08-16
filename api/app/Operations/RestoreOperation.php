@@ -6,6 +6,7 @@ namespace App\Operations;
 
 use App\Jobs\GetNodeStatusJob;
 use App\Jobs\Operations\AddSystemUserJob;
+use App\Jobs\Operations\EnableSSHJob;
 use App\Jobs\Operations\MakeBackupJob;
 use App\Jobs\Operations\NetbootAndWaitJob;
 use App\Jobs\Operations\RestoreBackupJob;
@@ -63,6 +64,7 @@ class RestoreOperation extends BaseOperation
         $this->addJob(new NetbootAndWaitJob($this->node->id));
         $this->addJob(new RestoreBackupJob($this->node->id, $this->device, $this->filename));
         $this->addJob(new AddSystemUserJob($this->node->id, $this->device));
+        $this->addJob(new EnableSSHJob($this->node->id, $this->device));
 
         if ($this->hostname) {
             $this->addJob(new SetHostnameJob($this->node->id, $this->device, $this->hostname));

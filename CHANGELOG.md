@@ -10,9 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Restoring backup updates node model on the frontend
 - Making backup updates node model on the frontend
+- User logout
+- Spinner to operation alert
+- Node provision tooltip on node list page
+- Enable SSH after restore (/boot/ssh file method)
 
 ### Fixed
 - Restore mondal not showing for nodeless/uploaded backups.
+- Uploaded image permissions
 
 ## [0.1.8] - 2020-08-14
 ### Added
