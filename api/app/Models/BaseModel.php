@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BaseModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BaseModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BaseModel query()
- * @mixin \Eloquent
  * @method static \Illuminate\Database\Query\Builder|\App\Models\BaseModel onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BaseModel query()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\BaseModel withTrashed()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\BaseModel withoutTrashed()
+ * @mixin \Eloquent
  */
 class BaseModel extends Model
 {

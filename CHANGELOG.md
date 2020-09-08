@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10] - 2020-08-16
+### Added
+- Browser SSH terminal.
+
+### Fixed
+- Restore modal id error when trying to restore nodeless backup from global backup list.
+
 ## [0.1.9] - 2020-08-16
 ### Added
 - Restoring backup updates node model on the frontend
@@ -16,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable SSH after restore (/boot/ssh file method)
 
 ### Fixed
-- Restore mondal not showing for nodeless/uploaded backups.
+- Restore modal not showing for nodeless/uploaded backups.
 - Uploaded image permissions
 
 ## [0.1.8] - 2020-08-14
@@ -36,7 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated npm packages.
 
 
-[Unreleased]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.9...HEAD
+[Unreleased]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.10...HEAD
+[0.1.10]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.9...0.1.10
 [0.1.9]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.8...0.1.9
 [0.1.8]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.7...0.1.8
 [0.1.7]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.6...0.1.7

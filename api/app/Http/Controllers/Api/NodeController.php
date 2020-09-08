@@ -7,13 +7,17 @@ use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\Nodes\BackupRequest;
 use App\Http\Requests\Api\Nodes\BulkRequest;
 use App\Http\Resources\Api\NodeResource;
+use App\Http\Resources\Api\Nodes\ShellTokenResource;
 use App\Models\Node;
+use App\Models\ShellToken;
 use App\Operations\BackupOperation;
 use App\Operations\RebootOperation;
 use App\Operations\ShutdownOperation;
 use App\Services\PXEService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class NodeController extends ApiController
 {
@@ -121,5 +125,22 @@ class NodeController extends ApiController
         }
 
         return $resources;
+    }
+
+    /**
+     * @param Node $node
+     * @return ShellTokenResource
+     */
+    public function shellAccess(Node $node): ShellTokenResource
+    {
+        return new ShellTokenResource(
+            ShellToken::create(
+                [
+                    'user_id' => auth()->user()->id,
+                    'node_id' => $node->id,
+                    'token' => Str::random(32)
+                ]
+            )
+        );
     }
 }
