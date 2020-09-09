@@ -3,16 +3,11 @@ services:
   rpi-cluster-pxe:
     build:
       context: .
-      dockerfile: config/Dockerfile
+      dockerfile: config/production/Dockerfile
     environment:
       USER_UID: ${USER_UID:-1000}
       USER_GID: ${USER_GID:-1000}
     volumes:
-      - ./.docker/config/dnsmasq:/etc/dnsmasq.d/
-      - ./.docker/config/nginx:/etc/nginx/sites-enabled
-      - ./baseImages:/baseImages
       - ./backups:/nfs/backups
-      - ./web:/web
-      - ./api:/api
     network_mode: "host"
     privileged: true
