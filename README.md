@@ -1,12 +1,3 @@
-# **!!! REPOSITORY HAS BEEN MOVED TO https://github.com/Knobiks/rpicloud !!!**
-
-
-
-
-
-
-
-
 **!!! This software is in alpha stage, i dont recommend using it in production !!!**
 
 # About
