@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile
-      target: Base
+      target: Development
     environment:
       USER_UID: ${USER_UID:-1000}
       USER_GID: ${USER_GID:-1000}

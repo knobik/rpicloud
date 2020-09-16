@@ -1,5 +1,6 @@
 # first stage
 FROM ubuntu:18.04 as Base
+ENV DEBIAN_FRONTEND=noninteractive
 
 # install required packages
 RUN apt-get update && apt-get install -y software-properties-common gosu sudo curl && \
@@ -14,7 +15,7 @@ RUN add-apt-repository ppa:ondrej/php
 RUN apt-get update && \
     curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get install -y \
     cron sqlite3 curl unzip supervisor \
-    dnsmasq nginx ssh nodejs \
+    dnsmasq nginx ssh nodejs git \
     kpartx nfs-kernel-server \
     php7.4-fpm php7.4-cli \
     php7.4-sqlite3 \
@@ -50,6 +51,8 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 # configure php-fpm
 COPY .docker/config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
 
+FROM Base as Development
+
 # configure supervisor
 COPY .docker/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
@@ -67,9 +70,7 @@ RUN chmod +x /usr/local/bin/start-container
 ENTRYPOINT ["start-container"]
 
 # second stage
-FROM Base as Production
-
-RUN mkdir /baseImages
+FROM Development as Production
 
 # dnsmasq
 COPY .docker/config/dnsmasq/pxeservice.conf /etc/dnsmasq.d/pxeservice.conf
@@ -78,8 +79,16 @@ COPY .docker/config/dnsmasq/pxeservice.conf /etc/dnsmasq.d/pxeservice.conf
 COPY .docker/config/nginx/api.conf /etc/nginx/sites-enabled/api.conf
 COPY .docker/config/nginx/web.conf /etc/nginx/sites-enabled/web.conf
 
-# application
-ADD api /api
-ADD web /web
+RUN mkdir /baseImages /api /web
+
+USER rpi
+RUN git clone https://github.com/knobik/rpicloud.git /tmp/rpicloud && \
+    composer install -d /tmp/rpicloud/api && \
+    bash -c "cd /tmp/rpicloud/web && npm install && npm run build"
+
+USER root
+RUN mv /tmp/rpicloud/api / && \
+    mv /tmp/rpicloud/web/dist /web/dist && \
+    rm -rf /tmp/rpicloud
 
 ENTRYPOINT ["start-container"]

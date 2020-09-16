@@ -27,6 +27,7 @@ mount -t nfsd nfds /proc/fs/nfsd
 /sbin/rpc.statd --no-notify
 echo "NFS started."
 
+composer setup -d /api/
 php /api/artisan validate:mount
 php /api/artisan validate:host
 

@@ -1,0 +1,19 @@
+build and push image:
+  image: docker:latest
+  stage: build
+  only:
+    - master
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay
+  before_script:
+    - docker info
+    - echo $DOCKER_REGISTRY_PASSWORD | docker login -u "$DOCKER_REGISTRY_USER" $DOCKER_REGISTRY --password-stdin
+    - apk update
+    - apk upgrade
+    - apk add --update --no-cache build-base python3 python3-dev libffi-dev openssl-dev py-pip bash
+    - pip install docker-compose
+  script:
+    - docker-compose -f docker-compose.prod.yml build
+    - docker-compose -f docker-compose.prod.yml push
