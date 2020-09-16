@@ -1,9 +1,10 @@
-version: '3'
+version: '3.4'
 services:
-  rpi-cluster-pxe:
+  rpicloud-dev:
     build:
       context: .
-      dockerfile: config/Dockerfile
+      dockerfile: .docker/Dockerfile
+      target: Base
     environment:
       USER_UID: ${USER_UID:-1000}
       USER_GID: ${USER_GID:-1000}
