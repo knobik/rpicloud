@@ -23,7 +23,7 @@ class Handler extends ExceptionHandler
      *
      * @var array
      */
-    static public array $responseCodes = [
+    public static array $responseCodes = [
         ValidationException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         MethodNotAllowedHttpException::class => Response::HTTP_METHOD_NOT_ALLOWED,
         NotFoundHttpException::class => Response::HTTP_NOT_FOUND,
@@ -37,7 +37,7 @@ class Handler extends ExceptionHandler
      *
      * @var array
      */
-    static public array $responseMessages = [
+    public static array $responseMessages = [
         NotFoundHttpException::class => 'errors.exceptions.NotFoundHttpException',
         MethodNotAllowedHttpException::class => 'errors.exceptions.MethodNotAllowedHttpException',
         AuthenticationException::class => 'errors.exceptions.AuthenticationException',

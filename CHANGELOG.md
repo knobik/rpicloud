@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Browser SSH terminal.
+
+## [0.1.10] - 2020-08-16
+### Fixed
+- Restore modal id error when trying to restore nodeless backup from global backup list.
+- Bump symfony/http-kernel from 5.1.3 to 5.1.5 (https://github.com/Knobiks/rpicloud/pull/3)
 
 ## [0.1.9] - 2020-08-16
 ### Added
@@ -16,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable SSH after restore (/boot/ssh file method)
 
 ### Fixed
-- Restore mondal not showing for nodeless/uploaded backups.
+- Restore modal not showing for nodeless/uploaded backups.
 - Uploaded image permissions
 
 ## [0.1.8] - 2020-08-14
@@ -36,7 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated npm packages.
 
 
-[Unreleased]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.9...HEAD
+[Unreleased]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.10...HEAD
+[0.1.10]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.9...0.1.10
 [0.1.9]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.8...0.1.9
 [0.1.8]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.7...0.1.8
 [0.1.7]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.6...0.1.7

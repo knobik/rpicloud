@@ -1,5 +1,6 @@
 <template>
   <div>
+    <terminal :node="node"></terminal>
     <b-form-group label-cols="4" label-cols-lg="2" label="Netboot" label-for="input-sm">
       <c-switch
         v-model="node.netboot"
@@ -24,11 +25,13 @@
 
 <script>
 import CSwitch from '~/components/CSwitch'
+import Terminal from '~/components/Nodes/Terminal'
 import Api from '~/assets/js/utils/Api'
 
 export default {
   components: {
-    CSwitch
+    CSwitch,
+    Terminal
   },
   props: {
     node: {

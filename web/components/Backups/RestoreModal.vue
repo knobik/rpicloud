@@ -101,7 +101,7 @@ export default {
       if (newValue === true) {
         this.loadNodes((nodes) => {
           this.nodes = nodes
-          this.form.nodeId = this.nodeId ?? this.backup.node.id
+          this.form.nodeId = this.nodeId ?? (this.backup.node ? this.backup.node.id : null)
           if (this.backup.node !== null) {
             this.form.hostname = this.backup.node.hostname
           }
