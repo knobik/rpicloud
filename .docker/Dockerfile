@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+# first stage
+FROM ubuntu:18.04 as Base
 
 # install required packages
 RUN apt-get update && apt-get install -y software-properties-common gosu sudo curl && \
@@ -43,25 +44,42 @@ RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
 
 # configure nginx
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-#COPY config/nginx.conf /etc/nginx/sites-available/default
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
 # configure php-fpm
-COPY config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
+COPY .docker/config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
 
 # configure supervisor
-COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY .docker/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # configure crontab
-COPY schedule.sh /schedule.sh
+COPY .docker/schedule.sh /schedule.sh
 RUN chmod +X /schedule.sh
 
 # configure nfs
-COPY config/nfs-exports /etc/exports
+COPY .docker/config/nfs-exports /etc/exports
 
 # entrypoint
-COPY start-container /usr/local/bin/start-container
+COPY .docker/start-container /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container
+
+ENTRYPOINT ["start-container"]
+
+# second stage
+FROM Base as Production
+
+RUN mkdir /baseImages
+
+# dnsmasq
+COPY .docker/config/dnsmasq/pxeservice.conf /etc/dnsmasq.d/pxeservice.conf
+
+# nginx
+COPY .docker/config/nginx/api.conf /etc/nginx/sites-enabled/api.conf
+COPY .docker/config/nginx/web.conf /etc/nginx/sites-enabled/web.conf
+
+# application
+ADD api /api
+ADD web /web
 
 ENTRYPOINT ["start-container"]
