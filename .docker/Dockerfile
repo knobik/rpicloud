@@ -1,4 +1,4 @@
-# first stage
+# base configuration
 FROM ubuntu:18.04 as Base
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -51,8 +51,6 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 # configure php-fpm
 COPY .docker/config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
 
-FROM Base as Development
-
 # configure supervisor
 COPY .docker/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
@@ -67,10 +65,13 @@ COPY .docker/config/nfs-exports /etc/exports
 COPY .docker/start-container /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container
 
+# development only configuration
+FROM Base as Development
+
 ENTRYPOINT ["start-container"]
 
-# second stage
-FROM Development as Production
+# production only configuration
+FROM Base as Production
 
 # dnsmasq
 COPY .docker/config/dnsmasq/pxeservice.conf /etc/dnsmasq.d/pxeservice.conf
