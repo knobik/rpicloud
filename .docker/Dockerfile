@@ -44,12 +44,11 @@ VOLUME /nfs
 RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
 
 # configure nginx
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+COPY .docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # configure php-fpm
-COPY .docker/config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
+COPY .docker/config/php-fpm/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
+COPY .docker/config/php-fpm/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
 # configure supervisor
 COPY .docker/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -77,10 +76,11 @@ FROM Base as Production
 COPY .docker/config/dnsmasq/pxeservice.conf /etc/dnsmasq.d/pxeservice.conf
 
 # nginx
-COPY .docker/config/nginx/api.conf /etc/nginx/sites-enabled/api.conf
-COPY .docker/config/nginx/web.conf /etc/nginx/sites-enabled/web.conf
+RUN rm /etc/nginx/sites-enabled/default
+COPY .docker/config/nginx/virtualhosts/api.conf /etc/nginx/sites-enabled/api.conf
+COPY .docker/config/nginx/virtualhosts/web.conf /etc/nginx/sites-enabled/web.conf
 
-RUN mkdir /baseImages /api /web
+RUN mkdir /baseImages /api /web && chown rpi:rpi /baseImages
 
 USER rpi
 RUN git clone https://github.com/knobik/rpicloud.git /tmp/rpicloud && \
@@ -88,6 +88,8 @@ RUN git clone https://github.com/knobik/rpicloud.git /tmp/rpicloud && \
     bash -c "cd /tmp/rpicloud/web && npm install && npm run build"
 
 USER root
+
+# cleanup
 RUN mv /tmp/rpicloud/api / && \
     mv /tmp/rpicloud/web/dist /web/dist && \
     rm -rf /tmp/rpicloud

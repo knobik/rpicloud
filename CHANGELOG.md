@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Browser SSH terminal.
+- Docker image generation
+
+### Fixed
+- User permissions ([issue #1](https://github.com/knobik/rpicloud/issues/1))
 
 ## [0.1.10] - 2020-08-16
 ### Fixed

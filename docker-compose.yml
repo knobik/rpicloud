@@ -10,7 +10,7 @@ services:
       USER_GID: ${USER_GID:-1000}
     volumes:
       - ./.docker/config/dnsmasq:/etc/dnsmasq.d/
-      - ./.docker/config/nginx:/etc/nginx/sites-enabled
+      - ./.docker/config/nginx/virtualhosts:/etc/nginx/sites-enabled
       - ./baseImages:/baseImages
       - ./backups:/nfs/backups
       - ./web:/web

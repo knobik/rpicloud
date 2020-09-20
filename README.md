@@ -20,8 +20,19 @@ My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other
 # Quick start
 
 ```
-docker run knobik/rpicloud --privileged=true --network host --rm -d
+docker run -d -v ~/backups:/nfs/backups --privileged --network host knobik/rpicloud
 ```
+
+ * `--privileged` is needed to have control over nfs kernel module and loop devices for mounting the base image. 
+ * `--network host` simplifies network configuration for the `dhcp`, `nfs`, `tftp`, `http` services. 
+
+Login and have fun:
+```
+login: admin@example.com
+password: admin
+```
+
+# Development
 
 ### Requirements
 * Docker version 19.03 or newer
@@ -46,13 +57,6 @@ run the `build.sh` script
 
 This will take a while, it needs to download all php and node dependencies and also download the latest raspberry pi os and set it up for pxe booting.
 
-Login and have fun:
-```
-login: admin@example.com
-password: admin
-```
-
-# Development
 All operations are made inside the docker container, so you need to ssh into the container. You can do it easy with `./ssh.sh`
 
 ### Frontend development

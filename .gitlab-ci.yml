@@ -3,6 +3,7 @@ build and push image:
   stage: build
   only:
     - master
+    - develop
   services:
     - docker:dind
   variables:

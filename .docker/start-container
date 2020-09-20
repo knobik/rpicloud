@@ -27,9 +27,9 @@ mount -t nfsd nfds /proc/fs/nfsd
 /sbin/rpc.statd --no-notify
 echo "NFS started."
 
-composer setup -d /api/
-php /api/artisan validate:mount
-php /api/artisan validate:host
+su - rpi -c "composer setup -d /api/"
+su - rpi -c "php /api/artisan validate:mount"
+su - rpi -c "php /api/artisan validate:host"
 
 # main entry point
 /usr/bin/supervisord
