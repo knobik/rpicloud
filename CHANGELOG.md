@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Browser SSH terminal.
 
+## [0.2.0] - 2020-09-21
+### Added
+- Docker image generation
+
+### Fixed
+- User permissions ([issue #1](https://github.com/knobik/rpicloud/issues/1))
+
 ## [0.1.10] - 2020-08-16
 ### Fixed
 - Restore modal id error when trying to restore nodeless backup from global backup list.
@@ -43,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated npm packages.
 
 
-[Unreleased]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.10...HEAD
+[Unreleased]: https://github.com/knobik/rpi-cluster-pxe/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.10...0.2.0
 [0.1.10]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.9...0.1.10
 [0.1.9]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.8...0.1.9
 [0.1.8]: https://github.com/knobik/rpi-cluster-pxe/compare/0.1.7...0.1.8

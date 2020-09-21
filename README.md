@@ -1,5 +1,7 @@
 **!!! This software is in alpha stage, i dont recommend using it in production !!!**
 
+![pipeline status](https://gitlab.com/knobik/rpicloud/badges/master/pipeline.svg)
+
 # About
 Ever wanted to just "reinstall" your RPi4 node in your cluster without the hussle of pulling the sd card out, flashing it on a PC and putting it back in? This is exacly the reason i started this. Awsome raspberry pi cluster management software you can host on your PC or one of your nodes.
 
@@ -17,10 +19,28 @@ My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other
 
 # Quick start
 
+```
+docker run -d -v ~/backups:/nfs/backups --privileged --network host knobik/rpicloud
+```
+
+ * `--privileged` is needed to have control over nfs kernel module and loop devices for mounting the base image. 
+ * `--network host` simplifies network configuration for the `dhcp`, `nfs`, `tftp`, `http` services. 
+
+Login to web UI:
+```
+login: admin@example.com
+password: admin
+```
+
+
+### Node setup
+Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md). Netboot then sd / usb boot order. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`).
+
+# Development
+
 ### Requirements
 * Docker version 19.03 or newer
-* docker-compose version 1.25 or newer
-* Netboot then sd / usb boot order on RPi4 nodes. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`). [How to edit bootloader config.](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md) 
+* docker-compose version 1.25 or newer 
 
 ### Setup
 Clone the repository 
@@ -40,13 +60,6 @@ run the `build.sh` script
 
 This will take a while, it needs to download all php and node dependencies and also download the latest raspberry pi os and set it up for pxe booting.
 
-Login and have fun:
-```
-login: admin@example.com
-password: admin
-```
-
-# Development
 All operations are made inside the docker container, so you need to ssh into the container. You can do it easy with `./ssh.sh`
 
 ### Frontend development

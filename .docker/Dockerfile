@@ -1,4 +1,6 @@
-FROM ubuntu:18.04
+# base configuration
+FROM ubuntu:18.04 as Base
+ENV DEBIAN_FRONTEND=noninteractive
 
 # install required packages
 RUN apt-get update && apt-get install -y software-properties-common gosu sudo curl && \
@@ -13,7 +15,7 @@ RUN add-apt-repository ppa:ondrej/php
 RUN apt-get update && \
     curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get install -y \
     cron sqlite3 curl unzip supervisor \
-    dnsmasq nginx ssh nodejs \
+    dnsmasq nginx ssh nodejs git \
     kpartx nfs-kernel-server \
     php7.4-fpm php7.4-cli \
     php7.4-sqlite3 \
@@ -42,26 +44,54 @@ VOLUME /nfs
 RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
 
 # configure nginx
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-#COPY config/nginx.conf /etc/nginx/sites-available/default
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+COPY .docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # configure php-fpm
-COPY config/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
+COPY .docker/config/php-fpm/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
+COPY .docker/config/php-fpm/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
 # configure supervisor
-COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY .docker/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # configure crontab
-COPY schedule.sh /schedule.sh
+COPY .docker/schedule.sh /schedule.sh
 RUN chmod +X /schedule.sh
 
 # configure nfs
-COPY config/nfs-exports /etc/exports
+COPY .docker/config/nfs-exports /etc/exports
 
 # entrypoint
-COPY start-container /usr/local/bin/start-container
+COPY .docker/start-container /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container
+
+# development only configuration
+FROM Base as Development
+
+ENTRYPOINT ["start-container"]
+
+# production only configuration
+FROM Base as Production
+
+# dnsmasq
+COPY .docker/config/dnsmasq/pxeservice.conf /etc/dnsmasq.d/pxeservice.conf
+
+# nginx
+RUN rm /etc/nginx/sites-enabled/default
+COPY .docker/config/nginx/virtualhosts/api.conf /etc/nginx/sites-enabled/api.conf
+COPY .docker/config/nginx/virtualhosts/web.conf /etc/nginx/sites-enabled/web.conf
+
+RUN mkdir /baseImages /api /web && chown rpi:rpi /baseImages
+
+USER rpi
+RUN git clone https://github.com/knobik/rpicloud.git /tmp/rpicloud && \
+    composer install -d /tmp/rpicloud/api && \
+    bash -c "cd /tmp/rpicloud/web && npm install && npm run build"
+
+USER root
+
+# cleanup
+RUN mv /tmp/rpicloud/api / && \
+    mv /tmp/rpicloud/web/dist /web/dist && \
+    rm -rf /tmp/rpicloud
 
 ENTRYPOINT ["start-container"]
