@@ -26,18 +26,21 @@ docker run -d -v ~/backups:/nfs/backups --privileged --network host knobik/rpicl
  * `--privileged` is needed to have control over nfs kernel module and loop devices for mounting the base image. 
  * `--network host` simplifies network configuration for the `dhcp`, `nfs`, `tftp`, `http` services. 
 
-Login and have fun:
+Login to web UI:
 ```
 login: admin@example.com
 password: admin
 ```
 
+
+### Node setup
+Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md). Netboot then sd / usb boot order. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`).
+
 # Development
 
 ### Requirements
 * Docker version 19.03 or newer
-* docker-compose version 1.25 or newer
-* Netboot then sd / usb boot order on RPi4 nodes. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`). [How to edit bootloader config.](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md) 
+* docker-compose version 1.25 or newer 
 
 ### Setup
 Clone the repository 
