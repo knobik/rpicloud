@@ -1,6 +1,6 @@
 **!!! This software is in alpha stage, i dont recommend using it in production !!!**
 
-![pipeline status](https://gitlab.com/knobik/rpicloud/badges/master/pipeline.svg)
+[![pipeline status](https://gitlab.com/knobik/rpicloud/badges/master/pipeline.svg)](https://gitlab.com/knobik/rpicloud/-/pipelines)
 
 # About
 Ever wanted to just "reinstall" your RPi4 node in your cluster without the hussle of pulling the sd card out, flashing it on a PC and putting it back in? This is exacly the reason i started this. Awsome raspberry pi cluster management software you can host on your PC or one of your nodes.
@@ -48,14 +48,14 @@ Clone the repository
 git clone git@github.com:knobik/rpi-cluster-pxe.git
 ```
 
-make `build.sh` executable
+make `build-dev.sh` executable
 ```
-chmod +x build.sh
+chmod +x build-dev.sh
 ```
 
-run the `build.sh` script
+run the `build-dev.sh` script
 ```
-./build.sh
+./build-dev.sh
 ```
 
 This will take a while, it needs to download all php and node dependencies and also download the latest raspberry pi os and set it up for pxe booting.
