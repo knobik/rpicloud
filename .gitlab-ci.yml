@@ -16,4 +16,4 @@ build and push image:
   script:
     - docker-compose -f docker-compose.prod.yml build
     - docker tag knobik/rpicloud knobik/rpicloud:$CI_COMMIT_TAG
-    - docker-compose -f docker-compose.prod.yml push
+    - docker push knobik/rpicloud
