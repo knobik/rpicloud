@@ -1,19 +1,30 @@
 build and push image:
-  image: docker:latest
+  image: docker:19.03.6
   stage: build
   only:
     - tags
   services:
-    - docker:dind
+    - name: docker:19.03.6-dind
+      command: [ "--experimental" ]
   variables:
-    DOCKER_DRIVER: overlay
+    DOCKER_HOST: tcp://docker:2375 # free gitlab runner
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+    DOCKER_CLI_EXPERIMENTAL: enabled
+    BUILDX_URL: https://github.com/docker/buildx/releases/download/v0.4.2/buildx-v0.4.2.linux-amd64
+    BUILDX_BUILDER: multistageBuilder
+    BUILDX_PLATFORM: linux/amd64,linux/arm64,linux/arm/v7
   before_script:
-    - echo $DOCKER_REGISTRY_PASSWORD | docker login -u "$DOCKER_REGISTRY_USER" $DOCKER_REGISTRY --password-stdin
-    - apk update
-    - apk upgrade
-    - apk add --update --no-cache build-base python3 python3-dev libffi-dev openssl-dev py-pip bash
-    - pip install docker-compose
+    - mkdir -p $HOME/.docker/cli-plugins/
+    - wget -O $HOME/.docker/cli-plugins/docker-buildx $BUILDX_URL
+    - chmod a+x $HOME/.docker/cli-plugins/docker-buildx
+    - "echo -e '{\n  \"experimental\": \"enabled\"\n}' | tee $HOME/.docker/config.json"
+    - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    - docker buildx create --use --driver docker-container --name ${BUILDX_BUILDER} --platform=${BUILDX_PLATFORM}
+    - docker buildx inspect --bootstrap ${BUILDX_BUILDER}
+    - docker buildx ls
+    - echo $DOCKER_REGISTRY_PASSWORD | docker login -u "${DOCKER_REGISTRY_USER}" ${DOCKER_REGISTRY} --password-stdin
   script:
-    - docker-compose -f docker-compose.prod.yml build
-    - docker tag knobik/rpicloud knobik/rpicloud:$CI_COMMIT_TAG
-    - docker push knobik/rpicloud
+    - docker buildx build --target=production -t knobik/rpicloud:latest --platform=${BUILDX_PLATFORM} --push "."
+#    - docker tag knobik/rpicloud knobik/rpicloud:${CI_COMMIT_TAG}
+    - docker push knobik/rpicloud:latest

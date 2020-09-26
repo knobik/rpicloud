@@ -3,13 +3,6 @@ services:
   rpicloud:
     build:
       context: .
-      dockerfile: .docker/Dockerfile
-      target: Production
+      dockerfile: Dockerfile
+      target: production
     image: knobik/rpicloud
-    environment:
-      USER_UID: ${USER_UID:-1000}
-      USER_GID: ${USER_GID:-1000}
-    volumes:
-      - ./backups:/nfs/backups
-    network_mode: "host"
-    privileged: true

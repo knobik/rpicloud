@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
 
 class InitImg extends Command
 {
-    public const DISTRO_STORAGE_FILENAME = '/baseImages/netbootBase.img';
+    public const DISTRO_STORAGE_FILENAME = '/.data/netbootBase.img';
     public const DISTRO_IMG_URL = 'https://downloads.raspberrypi.org/raspios_lite_armhf_latest';
 
     /**
@@ -125,6 +125,7 @@ class InitImg extends Command
         $root = ValidateMount::MOUNT_ROOT;
 
         // setup nfs mounts
+        $this->putFile($boot, 'ssh.txt', '', 'root:root');
         $this->putFile($boot, 'cmdline.txt', $this->getStub('pxe/cmdline.txt'), 'root:root');
         $this->putFile("{$root}/etc", 'fstab', $this->getStub('pxe/fstab'), 'root:root');
 
