@@ -3,11 +3,6 @@ services:
   rpicloud:
     build:
       context: .
-      dockerfile: .docker/Dockerfile
-      target: Production
+      dockerfile: Dockerfile
+      target: production
     image: knobik/rpicloud
-    volumes:
-      - ./backups:/nfs/backups
-      - ./.data:/.data
-    network_mode: "host"
-    privileged: true
