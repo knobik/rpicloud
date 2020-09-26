@@ -4,10 +4,12 @@ build and push image:
   only:
     - tags
   services:
-    - docker:dind
+    - name: docker:dind
+      command: ["--experimental"]
   variables:
     DOCKER_DRIVER: overlay
   before_script:
+    - docker info
     - echo $DOCKER_REGISTRY_PASSWORD | docker login -u "$DOCKER_REGISTRY_USER" $DOCKER_REGISTRY --password-stdin
     - apk update
     - apk upgrade
