@@ -11,7 +11,7 @@ services:
     volumes:
       - ./.docker/config/dnsmasq:/etc/dnsmasq.d/
       - ./.docker/config/nginx/virtualhosts:/etc/nginx/sites-enabled
-      - ./baseImages:/baseImages
+      - ./.data:/.data
       - ./backups:/nfs/backups
       - ./web:/web
       - ./api:/api

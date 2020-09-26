@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
 
 class InitImg extends Command
 {
-    public const DISTRO_STORAGE_FILENAME = '/baseImages/netbootBase.img';
+    public const DISTRO_STORAGE_FILENAME = '/.data/netbootBase.img';
     public const DISTRO_IMG_URL = 'https://downloads.raspberrypi.org/raspios_lite_armhf_latest';
 
     /**
