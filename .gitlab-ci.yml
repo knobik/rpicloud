@@ -4,7 +4,7 @@ build and push image:
   only:
     - tags
   services:
-  - name: docker-dind
+  - name: docker:dind
     command: ["--experimental"]
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
@@ -12,6 +12,7 @@ build and push image:
     DOCKER_BUILDKIT: 1
     DOCKER_CLI_EXPERIMENTAL: enabled
     BUILDX_URL: https://github.com/docker/buildx/releases/download/v0.4.2/buildx-v0.4.2.linux-amd64
+    BUILDX_PLATFORM: linux/amd64,linux/arm64
   before_script:
     - mkdir -p $HOME/.docker/cli-plugins/
     - wget -O $HOME/.docker/cli-plugins/docker-buildx $BUILDX_URL
