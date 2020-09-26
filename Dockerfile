@@ -1,5 +1,5 @@
 # base configuration
-FROM ubuntu:18.04 as Base
+FROM ubuntu:18.04 as base
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install required packages
@@ -14,7 +14,7 @@ RUN add-apt-repository ppa:ondrej/php
 
 RUN apt-get update && \
     curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get install -y \
-    cron sqlite3 curl unzip supervisor \
+    build-essential cron sqlite3 curl unzip supervisor \
     dnsmasq nginx ssh nodejs git \
     kpartx nfs-kernel-server \
     php7.4-fpm php7.4-cli \
@@ -65,12 +65,12 @@ COPY .docker/start-container /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container
 
 # development only configuration
-FROM Base as Development
+FROM base as development
 
 ENTRYPOINT ["start-container"]
 
 # production only configuration
-FROM Base as Production
+FROM base as production
 
 # dnsmasq
 COPY .docker/config/dnsmasq/pxeservice.conf /etc/dnsmasq.d/pxeservice.conf

@@ -3,8 +3,8 @@ services:
   rpicloud-dev:
     build:
       context: .
-      dockerfile: .docker/Dockerfile
-      target: Development
+      dockerfile: Dockerfile
+      target: development
     environment:
       USER_UID: ${USER_UID:-1000}
       USER_GID: ${USER_GID:-1000}

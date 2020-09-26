@@ -125,6 +125,7 @@ class InitImg extends Command
         $root = ValidateMount::MOUNT_ROOT;
 
         // setup nfs mounts
+        $this->putFile($boot, 'ssh.txt', '', 'root:root');
         $this->putFile($boot, 'cmdline.txt', $this->getStub('pxe/cmdline.txt'), 'root:root');
         $this->putFile("{$root}/etc", 'fstab', $this->getStub('pxe/fstab'), 'root:root');
 
