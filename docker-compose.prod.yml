@@ -8,5 +8,6 @@ services:
     image: knobik/rpicloud
     volumes:
       - ./backups:/nfs/backups
+      - ./.data:/.data
     network_mode: "host"
     privileged: true

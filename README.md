@@ -20,7 +20,7 @@ My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other
 # Quick start
 
 ```
-docker run -d -v ~/backups:/nfs/backups --privileged --network host knobik/rpicloud
+docker run -d -v ~/.rpicloud:/.data -v ~/backups:/nfs/backups --privileged --network host knobik/rpicloud
 ```
 
  * `--privileged` is needed to have control over nfs kernel module and loop devices for mounting the base image. 

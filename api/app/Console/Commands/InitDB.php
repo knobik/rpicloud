@@ -27,7 +27,7 @@ class InitDB extends Command
      */
     public function handle()
     {
-        $dbPath = database_path('database.sqlite');
+        $dbPath = config('database.connections.sqlite.database');
 
         if (file_exists($dbPath)) {
             $this->info('Database exists. Skipping.');
