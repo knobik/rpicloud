@@ -27,4 +27,4 @@ build and push image:
   script:
     - docker buildx build --target=production -t knobik/rpicloud:latest --platform=${BUILDX_PLATFORM} --push "."
 #    - docker tag knobik/rpicloud knobik/rpicloud:${CI_COMMIT_TAG}
-    - docker push knobik/rpicloud
+    - docker push knobik/rpicloud:latest
