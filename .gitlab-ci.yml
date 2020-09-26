@@ -4,10 +4,19 @@ build and push image:
   only:
     - tags
   services:
-    - docker:dind
+  - name: docker-dind
+    command: ["--experimental"]
   variables:
-    DOCKER_DRIVER: overlay
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+    DOCKER_CLI_EXPERIMENTAL: enabled
+    BUILDX_URL: https://github.com/docker/buildx/releases/download/v0.4.2/buildx-v0.4.2.linux-amd64
   before_script:
+    - mkdir -p $HOME/.docker/cli-plugins/
+    - wget -O $HOME/.docker/cli-plugins/docker-buildx $BUILDX_URL
+    - chmod a+x $HOME/.docker/cli-plugins/docker-buildx
+    - docker buildx install
     - docker info
     - echo $DOCKER_REGISTRY_PASSWORD | docker login -u "$DOCKER_REGISTRY_USER" $DOCKER_REGISTRY --password-stdin
     - apk update
