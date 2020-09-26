@@ -36,7 +36,7 @@ class InitDB extends Command
 
         touch($dbPath);
         $this->call('migrate', ['--force' => true]);
-        $this->call('db:seed', ['--class' => 'DatabaseSeeder']);
+        $this->call('db:seed', ['--class' => 'DatabaseSeeder', '--force' => true]);
 
         $this->info('Done initizing database.');
     }
