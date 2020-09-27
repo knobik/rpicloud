@@ -9,4 +9,5 @@ docker-compose -f docker-compose.yml up -d --build
 docker-compose -f docker-compose.yml exec --user rpi rpicloud-dev composer install -d /api/
 docker-compose -f docker-compose.yml exec --user rpi rpicloud-dev composer setup -d /api/
 docker-compose -f docker-compose.yml exec --user rpi rpicloud-dev bash -c "cd /web && npm install && npm run build"
+docker-compose down
 echo -e "${GREEN}Done!${NC}"
