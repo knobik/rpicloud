@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Exceptions\InitException;
+use App\Exceptions\PXEException;
 use App\Jobs\Operations\AddSystemUserJob;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -12,7 +13,8 @@ use Symfony\Component\Process\Process;
 
 class InitImg extends Command
 {
-    public const DISTRO_STORAGE_FILENAME = '/.data/netbootBase.img';
+    public const NFS_BASE_PATH = '/nfs';
+    public const TMP_MOUNT_PATH = '/mnt';
     public const DISTRO_IMG_URL = 'https://downloads.raspberrypi.org/raspios_lite_armhf_latest';
 
     /**
@@ -30,32 +32,49 @@ class InitImg extends Command
     protected $description = 'Downloads and prepares the base netboot img.';
 
     /**
+     * @param string $basePath
+     * @return string
+     */
+    public static function bootPath(string $basePath = self::NFS_BASE_PATH): string
+    {
+        return $basePath . '/boot';
+    }
+
+    /**
+     * @param string $basePath
+     * @return string
+     */
+    public static function rootPath(string $basePath = self::NFS_BASE_PATH): string
+    {
+        return $basePath . '/root';
+    }
+
+    /**
      * Execute the console command.
      *
      * @return mixed
      * @throws FileNotFoundException
      * @throws InitException
+     * @throws PXEException
      */
     public function handle()
     {
-        if (file_exists(static::DISTRO_STORAGE_FILENAME)) {
-            $this->info("Base image already exists, skipping.");
+        if ($this->hasBaseImage()) {
+            $this->info("Base image already exists, skipping...");
             return;
         }
 
-        if (!$this->option('host')) {
-            $this->downloadLatestDistro();
-        }
+        $imagePath = $this->downloadLatestDistro();
 
-        $this->prepareForUsage();
+        $this->prepareForUsage($imagePath);
 
-        $this->info('Done initizing netboot img.');
+        $this->info('Done initizing netboot image.');
     }
 
     /**
-     * @return void
+     * @return string
      */
-    public function downloadLatestDistro(): void
+    public function downloadLatestDistro(): string
     {
         // download the zip file
         $this->info('Downloading ' . static::DISTRO_IMG_URL);
@@ -67,35 +86,69 @@ class InitImg extends Command
         $unzipPath = '/tmp/raspbian';
         (new Process(['unzip', '-o', $zipPath, '-d', $unzipPath]))->setTimeout(null)->run();
 
-        // move the file
-        $imgPath = head(glob("{$unzipPath}/*.img"));
-        $this->info('Moving ' . $imgPath);
-        rename($imgPath, static::DISTRO_STORAGE_FILENAME);
-
-        $this->info('Cleaning up...');
+        $this->info('Cleaning up.');
         unlink($zipPath);
+
+        return head(glob("{$unzipPath}/*.img"));
     }
 
     /**
+     * @param string $imagePath
      * @return void
      * @throws FileNotFoundException
      * @throws InitException
+     * @throws PXEException
      */
-    private function prepareForUsage(): void
+    private function prepareForUsage(string $imagePath): void
     {
-        if ($this->option('host') && !ValidateMount::hasBaseImage()) {
-            $this->info('No base image present. Skipping img preparation.');
-            return;
+        $this->info('Creating loop device.');
+        $device = $this->makeLoopDevice($imagePath);
+
+        if (!$device) {
+            throw new PXEException(
+                'Cant create a new loop device. Try to reboot the machine. If that does not work, increase the max_loop value in the system.'
+            );
         }
 
-        // mount the image
-        $this->call('validate:mount');
+        // prepare temp mounting point
+        $tmpMountBootPath = static::bootPath(static::TMP_MOUNT_PATH);
+        $tmpMountRootPath = static::rootPath(static::TMP_MOUNT_PATH);
+        (new Process(['sudo', 'mkdir', '-p', $tmpMountBootPath, $tmpMountRootPath]))->run();
 
+        $partitionMap = [
+            ['index' => 1, 'dest' => $tmpMountBootPath],
+            ['index' => 2, 'dest' => $tmpMountRootPath],
+        ];
+
+        $this->info('Mounting directories.');
+        // mount the partitions
+        foreach ($partitionMap as $mapped) {
+            $partition = $this->partitionPath($device, $mapped['index']);
+            if (!$this->partitionIsMounted($partition)) {
+                $this->mountPartition($partition, $mapped['dest']);
+            }
+        }
+
+        // copy the system files
+        $this->info('Copying system files.');
+        (new Process(['sudo', 'cp', '-a', static::bootPath(static::TMP_MOUNT_PATH), self::NFS_BASE_PATH]))->run();
+        (new Process(['sudo', 'cp', '-a', static::rootPath(static::TMP_MOUNT_PATH), self::NFS_BASE_PATH]))->run();
+
+        // we are done with the mount, we can unmount the directories and teardown the loop device
+        $this->info('Unmounting directories.');
+        foreach ($partitionMap as $mapped) {
+            $partition = $this->partitionPath($device, $mapped['index']);
+            if ($this->partitionIsMounted($partition)) {
+                $this->umountPartition($mapped['dest']);
+            }
+        }
+        $this->info('Tearing down loop device.');
+        $this->destroyLoopDevice($imagePath);
+
+        // prepare system
+        $this->info('Preparing the system.');
         $this->copyFiles();
-
-        if (!$this->option('host')) {
-            $this->addSystemUser();
-        }
+        $this->addSystemUser();
     }
 
     /**
@@ -104,7 +157,7 @@ class InitImg extends Command
      */
     private function addSystemUser(): void
     {
-        foreach (AddSystemUserJob::commandChain(ValidateMount::MOUNT_ROOT) as $command) {
+        foreach (AddSystemUserJob::commandChain(static::rootPath()) as $command) {
             $process = Process::fromShellCommandline($command);
             $process->run();
 
@@ -121,8 +174,8 @@ class InitImg extends Command
      */
     private function copyFiles(): void
     {
-        $boot = ValidateMount::MOUNT_BOOT;
-        $root = ValidateMount::MOUNT_ROOT;
+        $boot = static::bootPath();
+        $root = static::rootPath();
 
         // setup nfs mounts
         $this->putFile($boot, 'ssh.txt', '', 'root:root');
@@ -203,5 +256,94 @@ class InitImg extends Command
         $values[] = hostIp();
 
         return str_replace($keys, $values, $content);
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasBaseImage(): bool
+    {
+        return file_exists(static::rootPath() . '/etc/');
+    }
+
+    /**
+     * @param string $partition
+     * @param string $destination
+     */
+    private function mountPartition(string $partition, string $destination): void
+    {
+        (new Process(['sudo', 'mount', $partition, $destination]))->run();
+    }
+
+    /**
+     * @param string $destination
+     */
+    private function umountPartition(string $destination): void
+    {
+        (new Process(['sudo', 'umount', $destination]))->run();
+    }
+
+    /**
+     * @param string $partition
+     * @return bool
+     */
+    private function partitionIsMounted(string $partition): bool
+    {
+        $process = new Process(['df']);
+        $process->run();
+
+        return strpos($process->getOutput(), $partition) !== false;
+    }
+
+    /**
+     * @param string $imagePath
+     * @return string|null
+     */
+    private function makeLoopDevice(string $imagePath): ?string
+    {
+        (new Process(['sudo', 'kpartx', '-v', '-a', $imagePath]))->run();
+
+        return $this->getLoopDevice($imagePath);
+    }
+
+    /**
+     * @param string $imagePath
+     * @return void
+     */
+    private function destroyLoopDevice(string $imagePath): void
+    {
+        (new Process(['sudo', 'kpartx', '-d', $imagePath]))->run();
+        (new Process(['sudo', 'losetup', '-d', $imagePath]))->run();
+    }
+
+    /**
+     * @param string $imagePath
+     * @return string|null
+     */
+    private function getLoopDevice(string $imagePath): ?string
+    {
+        $process = new Process(['sudo', 'losetup']);
+        $process->run();
+
+        $device = null;
+        foreach (explode("\n", $process->getOutput()) as $line) {
+            if (strpos($line, $imagePath) !== false) {
+                $parts = Str::of($line)->replaceMatches('/\s+/', ' ')->explode(' ');
+                $device = str_replace('/dev/', '', $parts[0]);
+                break;
+            }
+        }
+
+        return $device;
+    }
+
+    /**
+     * @param string $device
+     * @param int $index
+     * @return string
+     */
+    private function partitionPath(string $device, int $index): string
+    {
+        return "/dev/mapper/{$device}p{$index}";
     }
 }

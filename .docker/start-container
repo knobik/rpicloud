@@ -28,8 +28,6 @@ mount -t nfsd nfds /proc/fs/nfsd
 echo "NFS started."
 
 su - rpi -c "composer setup -d /api/"
-su - rpi -c "php /api/artisan validate:mount"
-su - rpi -c "php /api/artisan validate:host"
 
 # main entry point
 /usr/bin/supervisord
