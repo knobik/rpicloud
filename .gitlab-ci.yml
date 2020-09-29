@@ -7,7 +7,7 @@ build and push image:
     - name: docker:19.03.6-dind
       command: [ "--experimental" ]
   variables:
-    DOCKER_HOST: tcp://docker:2375 # free gitlab runner
+#    DOCKER_HOST: tcp://docker:2375 # free gitlab runner
     DOCKER_DRIVER: overlay2
     DOCKER_BUILDKIT: 1
     DOCKER_CLI_EXPERIMENTAL: enabled
@@ -28,3 +28,4 @@ build and push image:
     - docker buildx build --target=production -t knobik/rpicloud:latest --platform=${BUILDX_PLATFORM} --push "."
 #    - docker tag knobik/rpicloud knobik/rpicloud:${CI_COMMIT_TAG}
     - docker push knobik/rpicloud:latest
+
