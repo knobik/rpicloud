@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\traits\SystemProcess;
 use App\Exceptions\InitException;
 use App\Exceptions\PXEException;
 use App\Jobs\Operations\AddSystemUserJob;
@@ -13,6 +14,8 @@ use Symfony\Component\Process\Process;
 
 class InitImg extends Command
 {
+    use SystemProcess;
+
     public const NFS_BASE_PATH = '/nfs';
     public const TMP_MOUNT_PATH = '/mnt';
     public const DISTRO_IMG_URL = 'https://downloads.raspberrypi.org/raspios_lite_armhf_latest';
@@ -57,7 +60,7 @@ class InitImg extends Command
      * @throws InitException
      * @throws PXEException
      */
-    public function handle()
+    public function handle(): void
     {
         if ($this->hasBaseImage()) {
             $this->info("Base image already exists, skipping...");
@@ -79,12 +82,12 @@ class InitImg extends Command
         // download the zip file
         $this->info('Downloading ' . static::DISTRO_IMG_URL);
         $zipPath = '/tmp/raspbian.zip';
-        (new Process(['curl', '-fSL', static::DISTRO_IMG_URL, '-o', $zipPath]))->setTimeout(null)->run();
+        $this->process(['curl', '-fSL', static::DISTRO_IMG_URL, '-o', $zipPath], null);
 
         // extract the zip file
         $this->info('Extracting from ' . $zipPath);
         $unzipPath = '/tmp/raspbian';
-        (new Process(['unzip', '-o', $zipPath, '-d', $unzipPath]))->setTimeout(null)->run();
+        $this->process(['unzip', '-o', $zipPath, '-d', $unzipPath], null);
 
         $this->info('Cleaning up.');
         unlink($zipPath);
@@ -113,7 +116,7 @@ class InitImg extends Command
         // prepare temp mounting point
         $tmpMountBootPath = static::bootPath(static::TMP_MOUNT_PATH);
         $tmpMountRootPath = static::rootPath(static::TMP_MOUNT_PATH);
-        (new Process(['sudo', 'mkdir', '-p', $tmpMountBootPath, $tmpMountRootPath]))->run();
+        $this->process(['sudo', 'mkdir', '-p', $tmpMountBootPath, $tmpMountRootPath]);
 
         $partitionMap = [
             ['index' => 1, 'dest' => $tmpMountBootPath],
@@ -131,8 +134,11 @@ class InitImg extends Command
 
         // copy the system files
         $this->info('Copying system files.');
-        (new Process(['sudo', 'cp', '-a', static::bootPath(static::TMP_MOUNT_PATH), self::NFS_BASE_PATH]))->run();
-        (new Process(['sudo', 'cp', '-a', static::rootPath(static::TMP_MOUNT_PATH), self::NFS_BASE_PATH]))->run();
+        $this->process(
+            ['sudo', 'mkdir', '-p', static::bootPath(static::NFS_BASE_PATH), static::rootPath(self::NFS_BASE_PATH)]
+        );
+        $this->process(['sudo', 'cp', '-a', static::bootPath(static::TMP_MOUNT_PATH) . '/', self::NFS_BASE_PATH]);
+        $this->process(['sudo', 'cp', '-a', static::rootPath(static::TMP_MOUNT_PATH) . '/', self::NFS_BASE_PATH]);
 
         // we are done with the mount, we can unmount the directories and teardown the loop device
         $this->info('Unmounting directories.');
@@ -143,7 +149,7 @@ class InitImg extends Command
             }
         }
         $this->info('Tearing down loop device.');
-        $this->destroyLoopDevice($imagePath);
+        $this->destroyLoopDevice($imagePath, $device);
 
         // prepare system
         $this->info('Preparing the system.');
@@ -200,7 +206,7 @@ class InitImg extends Command
      * @param string $contents
      * @param string|null $owner
      */
-    private function putScript(string $destination, string $filename, string $contents, ?string $owner = null)
+    private function putScript(string $destination, string $filename, string $contents, ?string $owner = null): void
     {
         $this->putFile($destination, $filename, $contents, $owner);
         $this->makeExecutable(rtrim($destination, '/') . '/' . $filename);
@@ -219,11 +225,11 @@ class InitImg extends Command
         $fullFilename = rtrim($destination, '/') . '/' . $filename;
         file_put_contents($tmpFilename, $contents);
 
-        (new Process(['sudo', 'mkdir', '-p', $destination]))->run();
-        (new Process(['sudo', 'cp', '-f', $tmpFilename, $fullFilename]))->run();
+        $this->process(['sudo', 'mkdir', '-p', $destination]);
+        $this->process(['sudo', 'cp', '-f', $tmpFilename, $fullFilename]);
 
         if ($owner) {
-            (new Process(['sudo', 'chown', $owner, $fullFilename]))->run();
+            $this->process(['sudo', 'chown', $owner, $fullFilename]);
         }
 
         unlink($tmpFilename);
@@ -232,9 +238,9 @@ class InitImg extends Command
     /**
      * @param string $filename
      */
-    private function makeExecutable(string $filename)
+    private function makeExecutable(string $filename): void
     {
-        (new Process(['sudo', 'chmod', '+x', $filename]))->run();
+        $this->process(['sudo', 'chmod', '+x', $filename]);
     }
 
     private function getStub(string $name): string
@@ -272,7 +278,7 @@ class InitImg extends Command
      */
     private function mountPartition(string $partition, string $destination): void
     {
-        (new Process(['sudo', 'mount', $partition, $destination]))->run();
+        $this->process(['sudo', 'mount', $partition, $destination]);
     }
 
     /**
@@ -280,7 +286,7 @@ class InitImg extends Command
      */
     private function umountPartition(string $destination): void
     {
-        (new Process(['sudo', 'umount', $destination]))->run();
+        $this->process(['sudo', 'umount', $destination]);
     }
 
     /**
@@ -301,19 +307,20 @@ class InitImg extends Command
      */
     private function makeLoopDevice(string $imagePath): ?string
     {
-        (new Process(['sudo', 'kpartx', '-v', '-a', $imagePath]))->run();
+        $this->process(['sudo', 'kpartx', '-v', '-a', $imagePath]);
 
         return $this->getLoopDevice($imagePath);
     }
 
     /**
      * @param string $imagePath
+     * @param string $device
      * @return void
      */
-    private function destroyLoopDevice(string $imagePath): void
+    private function destroyLoopDevice(string $imagePath, string $device): void
     {
-        (new Process(['sudo', 'kpartx', '-d', $imagePath]))->run();
-        (new Process(['sudo', 'losetup', '-d', $imagePath]))->run();
+        $this->process(['sudo', 'kpartx', '-d', $imagePath]);
+        $this->process(['sudo', 'losetup', '-d', "/dev/$device"]);
     }
 
     /**
@@ -326,6 +333,7 @@ class InitImg extends Command
         $process->run();
 
         $device = null;
+        // go from bottom to top, we need the latest loop device
         foreach (explode("\n", $process->getOutput()) as $line) {
             if (strpos($line, $imagePath) !== false) {
                 $parts = Str::of($line)->replaceMatches('/\s+/', ' ')->explode(' ');

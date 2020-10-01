@@ -37,7 +37,9 @@ RUN apt-get update && \
 USER rpi
 RUN composer global require hirak/prestissimo
 USER root
-RUN mkdir -p /nfs/root /nfs/boot /nfs/backups
+RUN mkdir -p /nfs/backups /nfs/boot /nfs/root
+#RUN mkdir -p /nfs/backups /.data/baseImage/boot /.data/baseImage/root
+#RUN ln -s /.data/baseImage/boot /nfs/boot && ln -s /.data/baseImage/root /nfs/root
 VOLUME /nfs
 
 # configure dnsmasq

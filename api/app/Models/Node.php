@@ -80,4 +80,12 @@ class Node extends BaseModel
     {
         return $this->operations()->whereNull('finished_at');
     }
+
+    /**
+     * @return bool
+     */
+    public function isNetbooted(): bool
+    {
+        return $this->online && $this->netboot && $this->netbooted;
+    }
 }
