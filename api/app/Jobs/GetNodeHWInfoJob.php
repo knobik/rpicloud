@@ -25,7 +25,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $this->cpuInfo();
         $this->ramInfo();
 
-        GetNodeStatusJob::dispatchow($this->getNode());
+        GetNodeStatusJob::dispatchNow($this->getNode());
     }
 
     /**
