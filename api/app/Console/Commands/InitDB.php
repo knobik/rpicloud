@@ -30,7 +30,8 @@ class InitDB extends Command
         $dbPath = config('database.connections.sqlite.database');
 
         if (file_exists($dbPath)) {
-            $this->info('Database exists. Skipping.');
+            $this->info('Database exists. Migrations only....');
+            $this->call('migrate', ['--force' => true]);
             return;
         }
 

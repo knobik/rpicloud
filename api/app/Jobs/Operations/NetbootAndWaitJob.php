@@ -17,22 +17,23 @@ class NetbootAndWaitJob extends BaseOperationJob
     /**
      * Execute the job.
      * @param PXEService $PXEService
-     * @throws PXEException
      */
     public function handle(PXEService $PXEService): void
     {
         $node = $this->getNode();
 
-        // enable pxe boot
-        $PXEService->enableNetboot($node);
-        sleep(5); // wait for the dnsmasq to restart
+        if (!$node->isNetbooted()) {
+            // enable pxe boot
+            $PXEService->enableNetboot($node);
+            sleep(5); // wait for the dnsmasq to restart
 
-        // reboot the node
-        $this->track('Rebooting the node.');
-        $this->reboot(10);
+            // reboot the node
+            $this->track('Rebooting the node.');
+            $this->reboot(10);
 
-        // wait till node netboots
-        $this->track('Waiting for the node to netboot.');
-        $this->waitForBoot(config('pxe.hostname'));
+            // wait till node netboots
+            $this->track('Waiting for the node to netboot.');
+            $this->waitForBoot(config('pxe.hostname'));
+        }
     }
 }

@@ -8,6 +8,9 @@ if [ ! -z "$USER_UID" ]; then
     groupmod -g $USER_GID rpi
 fi
 
+# setup the backend
+su - rpi -c "composer setup -d /api/"
+
 # Run NFS server
 
 # start rpcbind if it is not started yet
@@ -26,10 +29,6 @@ mount -t nfsd nfds /proc/fs/nfsd
 /usr/sbin/rpc.nfsd -G 10 -N 2 -V 3
 /sbin/rpc.statd --no-notify
 echo "NFS started."
-
-su - rpi -c "composer setup -d /api/"
-su - rpi -c "php /api/artisan validate:mount"
-su - rpi -c "php /api/artisan validate:host"
 
 # main entry point
 /usr/bin/supervisord
