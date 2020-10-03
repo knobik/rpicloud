@@ -150,6 +150,7 @@ class InitImg extends Command
         }
         $this->info('Tearing down loop device.');
         $this->destroyLoopDevice($imagePath, $device);
+        unlink($imagePath);
 
         // prepare system
         $this->info('Preparing the system.');
