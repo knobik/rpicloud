@@ -40,7 +40,7 @@ class ShellHandler implements MessageComponentInterface
     /**
      * @param ConnectionInterface $conn
      */
-    public function onOpen(ConnectionInterface $conn)
+    public function onOpen(ConnectionInterface $conn): void
     {
         $this->connections->attach($conn, new Client($conn));
         $this->output->writeln('New connection. ID: ' . $this->client($conn)->getId());
@@ -49,7 +49,7 @@ class ShellHandler implements MessageComponentInterface
     /**
      * @param ConnectionInterface $conn
      */
-    public function onClose(ConnectionInterface $conn)
+    public function onClose(ConnectionInterface $conn): void
     {
         $this->output->writeln('Connection closed. ID: ' . $this->client($conn)->getId());
         $this->connections->detach($conn);
@@ -59,7 +59,7 @@ class ShellHandler implements MessageComponentInterface
      * @param ConnectionInterface $conn
      * @param \Exception $e
      */
-    public function onError(ConnectionInterface $conn, \Exception $e)
+    public function onError(ConnectionInterface $conn, \Exception $e): void
     {
         dd($e);
     }
