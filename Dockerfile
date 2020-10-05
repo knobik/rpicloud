@@ -15,10 +15,11 @@ RUN add-apt-repository ppa:ondrej/php
 RUN apt-get update && \
     curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get install -y \
     build-essential cron sqlite3 curl unzip supervisor \
-    dnsmasq nginx ssh nodejs git \
-    kpartx nfs-kernel-server \
+    nginx ssh nodejs git redis-server \
+    dnsmasq kpartx nfs-kernel-server \
     php7.4-fpm php7.4-cli \
     php7.4-sqlite3 \
+    php7.4-redis\
     php7.4-gd \
     php7.4-curl \
     php7.4-imap \
