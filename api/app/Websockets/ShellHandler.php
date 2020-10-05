@@ -4,10 +4,21 @@
 namespace App\Websockets;
 
 
+use App\Exceptions\SSHException;
 use App\Websockets\Shell\Client;
+use Illuminate\Auth\AuthenticationException;
+use JsonException;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
+use React\EventLoop\ExtEventLoop;
+use React\EventLoop\ExtEvLoop;
+use React\EventLoop\ExtLibeventLoop;
+use React\EventLoop\ExtLibevLoop;
+use React\EventLoop\ExtUvLoop;
+use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\LoopInterface;
+use React\EventLoop\StreamSelectLoop;
 use SplObjectStorage;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -17,6 +28,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ShellHandler implements MessageComponentInterface
 {
+    public const SSH_PULL_INTERVAL = 100;
+
     /**
      * @var OutputInterface
      */
@@ -28,6 +41,11 @@ class ShellHandler implements MessageComponentInterface
     private SplObjectStorage $connections;
 
     /**
+     * @var ExtEventLoop|ExtEvLoop|ExtLibeventLoop|ExtLibevLoop|ExtUvLoop|LoopInterface|StreamSelectLoop
+     */
+    private $loop;
+
+    /**
      * ShellHandler constructor.
      * @param OutputInterface $output
      */
@@ -35,6 +53,16 @@ class ShellHandler implements MessageComponentInterface
     {
         $this->output = $output;
         $this->connections = new SplObjectStorage();
+        $this->loop = LoopFactory::create();
+
+        $this->loop->addPeriodicTimer(static::SSH_PULL_INTERVAL / 1000, function ($timer) {
+            foreach ($this->connections as $connection) {
+                /** @var ConnectionInterface $connection */
+                if ($data = optional($this->client($connection)->shell())->read()) {
+                    $connection->send($data);
+                }
+            }
+        });
     }
 
     /**
@@ -52,6 +80,7 @@ class ShellHandler implements MessageComponentInterface
     public function onClose(ConnectionInterface $conn): void
     {
         $this->output->writeln('Connection closed. ID: ' . $this->client($conn)->getId());
+        $this->client($conn)->cleanup();
         $this->connections->detach($conn);
     }
 
@@ -61,33 +90,42 @@ class ShellHandler implements MessageComponentInterface
      */
     public function onError(ConnectionInterface $conn, \Exception $e): void
     {
-        dd($e);
+        $this->output->writeln('Error ['.$this->client($conn)->getId().']: ' . $e->getMessage());
+        $this->client($conn)->close();
     }
 
     /**
      * @param ConnectionInterface $conn
      * @param MessageInterface $msg
-     * @throws \JsonException
+     * @throws JsonException
+     * @throws AuthenticationException
+     * @throws SSHException
      */
     public function onMessage(ConnectionInterface $conn, MessageInterface $msg): void
     {
-        $data = json_decode($msg, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $data = json_decode($msg, true, 512, JSON_THROW_ON_ERROR);
 
-        switch ($data['action']) {
-            case 'auth':
-                $this->client($conn)->shell($data['data']['token']);
-                break;
+            // refactor to switch if more actions will be added
+            if ($data['action'] === 'auth') {
+                $this->client($conn)->createShell($data['data']['token']);
+            }
 
-            case 'data':
-
-                break;
+        } catch (JsonException $exception) {
+            if ($this->client($conn)->shell()) {
+                $this->client($conn)->shell()->write($msg);
+            }
         }
 
-        d(
-            $data
-        );
-
         // TODO: Implement onMessage() method.
+    }
+
+    /**
+     * @return ExtEventLoop|ExtEvLoop|ExtLibeventLoop|ExtLibevLoop|ExtUvLoop|LoopInterface|StreamSelectLoop
+     */
+    public function getLoop()
+    {
+        return $this->loop;
     }
 
     /**

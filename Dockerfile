@@ -19,6 +19,7 @@ RUN apt-get update && \
     php8.0-sqlite3 \
     php8.0-redis\
     php8.0-gd \
+    php8.0-ssh2 \
     php8.0-curl \
     php8.0-imap \
     php8.0-mbstring \

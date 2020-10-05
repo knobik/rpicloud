@@ -50,6 +50,9 @@ class Dev extends Command
      */
     public function handle()
     {
-        ValidateFreeSpaceJob::dispatchNow(13, '/dev/mmcblk0');
+        dd(
+            collect(["12", '13', '11', '5', '15', '7', 3, 17])->max()
+        );
+//        ValidateFreeSpaceJob::dispatchNow(13, '/dev/mmcblk0');
     }
 }

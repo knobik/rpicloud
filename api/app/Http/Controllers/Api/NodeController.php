@@ -69,7 +69,7 @@ class NodeController extends ApiController
      * @param Node $node
      * @return NodeResource
      */
-    public function backup(BackupRequest $request, Node $node)
+    public function backup(BackupRequest $request, Node $node): NodeResource
     {
         $filename = PXEService::slug($node) . '_' . now()->format('Y-m-d_H-i-s') . '.img';
         (new BackupOperation($node, $request->get('storageDevice'), $filename))->dispatch();
