@@ -3,22 +3,21 @@ FROM ubuntu:18.04 as base
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install required packages
-RUN apt-get update && apt-get install -y software-properties-common gosu sudo curl && \
-    gosu nobody true
+RUN apt-get update && apt-get install -y software-properties-common sudo curl
 
 # configure user
 RUN useradd -ms /bin/bash -u 1337 rpi && adduser rpi sudo && echo 'rpi ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-#'%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 RUN add-apt-repository ppa:ondrej/php
 
 RUN apt-get update && \
     curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get install -y \
     build-essential cron sqlite3 curl unzip supervisor \
-    dnsmasq nginx ssh nodejs git \
-    kpartx nfs-kernel-server \
+    nginx ssh nodejs git redis-server \
+    dnsmasq kpartx nfs-kernel-server \
     php7.4-fpm php7.4-cli \
     php7.4-sqlite3 \
+    php7.4-redis\
     php7.4-gd \
     php7.4-curl \
     php7.4-imap \
@@ -34,9 +33,6 @@ RUN apt-get update && \
     mkdir /run/php && \
     apt-get -y autoremove && apt-get clean
 
-USER rpi
-RUN composer global require hirak/prestissimo
-USER root
 RUN mkdir -p /nfs/backups /nfs/boot /nfs/root
 #RUN mkdir -p /nfs/backups /.data/baseImage/boot /.data/baseImage/root
 #RUN ln -s /.data/baseImage/boot /nfs/boot && ln -s /.data/baseImage/root /nfs/root
