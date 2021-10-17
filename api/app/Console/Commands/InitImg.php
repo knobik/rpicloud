@@ -19,6 +19,7 @@ class InitImg extends Command
     public const NFS_BASE_PATH = '/nfs';
     public const TMP_MOUNT_PATH = '/mnt';
     public const DISTRO_IMG_URL = 'https://downloads.raspberrypi.org/raspios_lite_armhf_latest';
+    public const UNZIP_PATH = '/tmp/raspbian';
 
     /**
      * The name and signature of the console command.
@@ -86,13 +87,17 @@ class InitImg extends Command
 
         // extract the zip file
         $this->info('Extracting from ' . $zipPath);
-        $unzipPath = '/tmp/raspbian';
-        $this->process(['unzip', '-o', $zipPath, '-d', $unzipPath], null);
+        $this->process(['unzip', '-o', $zipPath, '-d', static::UNZIP_PATH], null);
 
         $this->info('Cleaning up.');
         unlink($zipPath);
 
-        return head(glob("{$unzipPath}/*.img"));
+        return $this->findImageFile();
+    }
+
+    public function findImageFile(): string
+    {
+        return head(glob(static::UNZIP_PATH . '/*.img'));
     }
 
     /**

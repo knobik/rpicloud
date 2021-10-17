@@ -2,7 +2,7 @@
 
 # Run PHP-FPM as current user
 if [ ! -z "$USER_UID" ]; then
-    sed -i "s/user\ \=.*/user\ \= $USER_UID/g" /etc/php/7.4/fpm/pool.d/www.conf
+    sed -i "s/user\ \=.*/user\ \= $USER_UID/g" /etc/php/8.0/fpm/pool.d/www.conf
     # Set UID of user "rpi"
     usermod -u $USER_UID rpi
     groupmod -g $USER_GID rpi

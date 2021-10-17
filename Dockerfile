@@ -11,24 +11,24 @@ RUN useradd -ms /bin/bash -u 1337 rpi && adduser rpi sudo && echo 'rpi ALL=(ALL)
 RUN add-apt-repository ppa:ondrej/php
 
 RUN apt-get update && \
-    curl -sL https://deb.nodesource.com/setup_12.x  | bash - && apt-get install -y \
+    curl -sL https://deb.nodesource.com/setup_14.x  | bash - && apt-get install -y \
     build-essential cron sqlite3 curl unzip supervisor \
     nginx ssh nodejs git redis-server \
     dnsmasq kpartx nfs-kernel-server \
-    php7.4-fpm php7.4-cli \
-    php7.4-sqlite3 \
-    php7.4-redis\
-    php7.4-gd \
-    php7.4-curl \
-    php7.4-imap \
-    php7.4-mbstring \
-    php7.4-xml \
-    php7.4-zip \
-    php7.4-bcmath \
-    php7.4-intl \
-    php7.4-readline \
-    php7.4-msgpack \
-    php7.4-igbinary && \
+    php8.0-fpm php8.0-cli \
+    php8.0-sqlite3 \
+    php8.0-redis\
+    php8.0-gd \
+    php8.0-curl \
+    php8.0-imap \
+    php8.0-mbstring \
+    php8.0-xml \
+    php8.0-zip \
+    php8.0-bcmath \
+    php8.0-intl \
+    php8.0-readline \
+    php8.0-msgpack \
+    php8.0-igbinary && \
     php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer && \
     mkdir /run/php && \
     apt-get -y autoremove && apt-get clean
@@ -45,8 +45,8 @@ RUN echo "ENABLED=1\nIGNORE_RESOLVCONF=yes" > /etc/default/dnsmasq
 COPY .docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # configure php-fpm
-COPY .docker/config/php-fpm/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
-COPY .docker/config/php-fpm/www.conf /etc/php/7.4/fpm/pool.d/www.conf
+COPY .docker/config/php-fpm/php-fpm.conf /etc/php/8.0/fpm/php-fpm.conf
+COPY .docker/config/php-fpm/www.conf /etc/php/8.0/fpm/pool.d/www.conf
 
 # configure supervisor
 COPY .docker/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
