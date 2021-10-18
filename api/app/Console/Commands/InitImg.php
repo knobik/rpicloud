@@ -109,58 +109,62 @@ class InitImg extends Command
      */
     private function prepareForUsage(string $imagePath): void
     {
-        $this->info('Creating loop device.');
-        $device = $this->makeLoopDevice($imagePath);
+        $this->mountAndCopyFiles($imagePath);
 
-        if (!$device) {
-            throw new PXEException(
-                'Cant create a new loop device. Try to reboot the machine. If that does not work, increase the max_loop value in the system.'
-            );
-        }
-
-        // prepare temp mounting point
-        $tmpMountBootPath = static::bootPath(static::TMP_MOUNT_PATH);
-        $tmpMountRootPath = static::rootPath(static::TMP_MOUNT_PATH);
-        $this->process(['sudo', 'mkdir', '-p', $tmpMountBootPath, $tmpMountRootPath]);
-
-        $partitionMap = [
-            ['index' => 1, 'dest' => $tmpMountBootPath],
-            ['index' => 2, 'dest' => $tmpMountRootPath],
-        ];
-
-        $this->info('Mounting directories.');
-        // mount the partitions
-        foreach ($partitionMap as $mapped) {
-            $partition = $this->partitionPath($device, $mapped['index']);
-            if (!$this->partitionIsMounted($partition)) {
-                $this->mountPartition($partition, $mapped['dest']);
-            }
-        }
-
-        // copy the system files
-        $this->info('Copying system files.');
-        $this->process(
-            ['sudo', 'mkdir', '-p', static::bootPath(static::NFS_BASE_PATH), static::rootPath(self::NFS_BASE_PATH)]
-        );
-        $this->process(['sudo', 'cp', '-a', static::bootPath(static::TMP_MOUNT_PATH) . '/', self::NFS_BASE_PATH]);
-        $this->process(['sudo', 'cp', '-a', static::rootPath(static::TMP_MOUNT_PATH) . '/', self::NFS_BASE_PATH]);
-
-        // we are done with the mount, we can unmount the directories and teardown the loop device
-        $this->info('Unmounting directories.');
-        foreach ($partitionMap as $mapped) {
-            $partition = $this->partitionPath($device, $mapped['index']);
-            if ($this->partitionIsMounted($partition)) {
-                $this->umountPartition($mapped['dest']);
-            }
-        }
-        $this->info('Tearing down loop device.');
-        $this->destroyLoopDevice($imagePath, $device);
         unlink($imagePath);
 
         // prepare system
         $this->info('Preparing the system.');
         $this->copyFiles();
         $this->addSystemUser();
+    }
+
+    /**
+     * @param string $imagePath
+     * @throws PXEException
+     */
+    private function mountAndCopyFiles(string $imagePath): void
+    {
+        $this->info('Creating map paths.');
+
+        $tmpMountBootPath = static::bootPath(static::TMP_MOUNT_PATH);
+        $tmpMountRootPath = static::rootPath(static::TMP_MOUNT_PATH);
+        $this->process(['sudo', 'mkdir', '-p', $tmpMountBootPath, $tmpMountRootPath]);
+
+        $process = $this->processFromCommandline("fdisk --bytes -lo Start,Size '{$imagePath}' | tail -n 2");
+
+        if (!$process->isSuccessful()) {
+            throw new PXEException(
+                'fdisk info on raspberry pi os failed.'
+            );
+        }
+
+        $this->process(
+            ['sudo', 'mkdir', '-p', static::bootPath(static::NFS_BASE_PATH), static::rootPath(self::NFS_BASE_PATH)]
+        );
+
+        $partitionPathMap = [
+            ['fs' => 'vfat', 'tmp_path' => $tmpMountBootPath, 'dest_path' => static::bootPath(static::TMP_MOUNT_PATH)],
+            ['fs' => 'ext4', 'tmp_path' => $tmpMountRootPath, 'dest_path' => static::rootPath(static::TMP_MOUNT_PATH)],
+        ];
+
+        foreach (explode("\n", $process->getOutput()) as $index => $row) {
+            $row = trim(preg_replace('/\s+/', ' ', $row)); // cleanup the row
+            if (!empty($row)) {
+
+                [$start, $size] = explode(' ', $row);
+                $start *= 512;
+
+                $this->info("Mounting {$partitionPathMap[$index]['tmp_path']}");
+                $this->processFromCommandline("sudo mount -o loop,offset={$start},sizelimit={$size} -t {$partitionPathMap[$index]['fs']} '{$imagePath}' '{$partitionPathMap[$index]['tmp_path']}'");
+
+                $this->info("Copying files from {$partitionPathMap[$index]['tmp_path']} to {$partitionPathMap[$index]['dest_path']}");
+                $this->process(['sudo', 'cp', '-a', $partitionPathMap[$index]['dest_path'] . '/', self::NFS_BASE_PATH]);
+
+                $this->info("Unmounting {$partitionPathMap[$index]['tmp_path']}");
+                $this->process(['sudo', 'umount', $partitionPathMap[$index]['tmp_path']]);
+            }
+        }
     }
 
     /**
@@ -278,86 +282,4 @@ class InitImg extends Command
         return file_exists(static::rootPath() . '/etc/');
     }
 
-    /**
-     * @param string $partition
-     * @param string $destination
-     */
-    private function mountPartition(string $partition, string $destination): void
-    {
-        $this->process(['sudo', 'mount', $partition, $destination]);
-    }
-
-    /**
-     * @param string $destination
-     */
-    private function umountPartition(string $destination): void
-    {
-        $this->process(['sudo', 'umount', $destination]);
-    }
-
-    /**
-     * @param string $partition
-     * @return bool
-     */
-    private function partitionIsMounted(string $partition): bool
-    {
-        $process = new Process(['df']);
-        $process->run();
-
-        return strpos($process->getOutput(), $partition) !== false;
-    }
-
-    /**
-     * @param string $imagePath
-     * @return string|null
-     */
-    private function makeLoopDevice(string $imagePath): ?string
-    {
-        $this->process(['sudo', 'kpartx', '-v', '-a', $imagePath]);
-
-        return $this->getLoopDevice($imagePath);
-    }
-
-    /**
-     * @param string $imagePath
-     * @param string $device
-     * @return void
-     */
-    private function destroyLoopDevice(string $imagePath, string $device): void
-    {
-        $this->process(['sudo', 'kpartx', '-d', $imagePath]);
-        $this->process(['sudo', 'losetup', '-d', "/dev/$device"]);
-    }
-
-    /**
-     * @param string $imagePath
-     * @return string|null
-     */
-    private function getLoopDevice(string $imagePath): ?string
-    {
-        $process = new Process(['sudo', 'losetup']);
-        $process->run();
-
-        $device = null;
-        // go from bottom to top, we need the latest loop device
-        foreach (explode("\n", $process->getOutput()) as $line) {
-            if (strpos($line, $imagePath) !== false) {
-                $parts = Str::of($line)->replaceMatches('/\s+/', ' ')->explode(' ');
-                $device = str_replace('/dev/', '', $parts[0]);
-                break;
-            }
-        }
-
-        return $device;
-    }
-
-    /**
-     * @param string $device
-     * @param int $index
-     * @return string
-     */
-    private function partitionPath(string $device, int $index): string
-    {
-        return "/dev/mapper/{$device}p{$index}";
-    }
 }
