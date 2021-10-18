@@ -1,4 +1,4 @@
-**!!! This software is in alpha stage, i dont recommend using it in production !!!**
+******!!! This software is in alpha stage, i dont recommend using it in production !!!**
 
 [![pipeline status](https://gitlab.com/knobik/rpicloud/badges/master/pipeline.svg)](https://gitlab.com/knobik/rpicloud/-/pipelines)
 
@@ -34,7 +34,7 @@ password: admin
 
 
 ### Node setup
-Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md). Netboot then sd / usb boot order. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`).
+Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-bootloader-configuration). Netboot then sd / usb boot order. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`).
 
 # Development
 
@@ -82,4 +82,4 @@ $ cd /api
 - [X] Validate free disk space before making a backup 
 - [ ] User management (now the user is admin@example.com, we need to change that!)
 - [ ] Export inventory to ansible
-- [ ] Multiple netboot images, preferably one per node or a netboot pool. (maybe, each netboot image takes atleast 3GB+ of disk space)
+- [ ] Multiple netboot images, preferably one per node or a netboot pool. (maybe, each netboot image takes atleast 3GB+ of disk space)****
