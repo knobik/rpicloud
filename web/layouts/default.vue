@@ -72,7 +72,7 @@ export default {
         {
           name: 'Backups',
           url: '/backups',
-          icon: 'fa fa-hdd-o'
+          icon: 'fa fa-hdd'
         }
       ]
     }
