@@ -24,7 +24,7 @@ build and push image:
     - docker buildx ls
     - echo $DOCKER_REGISTRY_PASSWORD | docker login --username "${DOCKER_REGISTRY_USER}" --password-stdin ${DOCKER_REGISTRY}
   script:
-    - docker buildx build --target=production -t knobik/rpicloud:latest --platform=${BUILDX_PLATFORM} --push "."
-    - docker tag knobik/rpicloud knobik/rpicloud:${CI_COMMIT_TAG}
-    - docker push knobik/rpicloud:latest
+    - docker buildx build --target=production -t knobik/rpicloud:latest -t knobik/rpicloud:${CI_COMMIT_TAG} --platform=${BUILDX_PLATFORM} --push "."
+#    - docker tag knobik/rpicloud knobik/rpicloud:${CI_COMMIT_TAG}
+#    - docker push knobik/rpicloud:latest
 
