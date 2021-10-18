@@ -3,7 +3,7 @@
     <restore-modal :backup="backup" :node-id="nodeId" :show="showRestoreModal" @hide="showRestoreModal = false" @update="$emit('update', $event)" />
     <b-button-group size="sm">
       <b-button variant="primary" title="Restore" @click="restore">
-        <i class="fa fa-refresh" />
+        <i class="fa fa-sync" />
       </b-button>
       <b-button variant="danger" title="Delete" @click="remove">
         <i class="fa fa-trash" />

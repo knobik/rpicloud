@@ -1,7 +1,10 @@
 @import '@coreui/icons/css/coreui-icons.min.css';
 /* Import Font Awesome Icons Set */
-$fa-font-path: '~font-awesome/fonts/';
-@import 'font-awesome/scss/font-awesome.scss';
+$fa-font-path: "~@fortawesome/fontawesome-free/webfonts/";
+@import '@fortawesome/fontawesome-free/scss/brands.scss';
+@import '@fortawesome/fontawesome-free/scss/regular.scss';
+@import '@fortawesome/fontawesome-free/scss/solid.scss';
+@import '@fortawesome/fontawesome-free/scss/fontawesome.scss';
 /* Import Simple Line Icons Set */
 $simple-line-font-path: '~simple-line-icons/fonts/';
 @import 'simple-line-icons/scss/simple-line-icons.scss';

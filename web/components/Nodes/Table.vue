@@ -16,25 +16,25 @@
       <template v-slot:head(selected)="data">
         <b-dropdown size="sm" split variant="light">
           <template v-slot:button-content>
-            <b-checkbox @change="toggleAll" />
+            <b-checkbox @change="toggleAll"/>
           </template>
           <b-dropdown-item @click="reboot">
-            Reboot
+            <i class="fa fa-sync"></i> Reboot
           </b-dropdown-item>
           <b-dropdown-item @click="shutdown">
-            Shutdown
+            <i class="fa fa-power-off"/> Shutdown
           </b-dropdown-item>
         </b-dropdown>
       </template>
       <template v-slot:cell(selected)="data">
-        <b-checkbox v-model="data.item.selected" class="ml-2" />
+        <b-checkbox v-model="data.item.selected" class="ml-2"/>
       </template>
 
       <template v-slot:cell(pendingOperations)="data">
         {{ data.item.pendingOperations.length }}
       </template>
       <template v-slot:cell(actions)="data">
-        <actions :node="data.item" @update="$emit('update', $event)" />
+        <actions :node="data.item" @update="$emit('update', $event)"/>
       </template>
       <template v-slot:cell(netboot)="data">
         <b-badge :variant="data.item.netboot ? 'success' : 'danger'">
@@ -91,37 +91,47 @@ export default {
     },
     fields: {
       type: Array,
-      default () {
+      default() {
         return [
-          { label: '', key: 'selected' },
-          { label: 'IP address', key: 'ip', sortable: true },
-          { label: 'Hostname', key: 'hostname', sortable: true },
-          { label: 'Mac', key: 'mac', sortable: true },
-          { label: 'Online', key: 'online', sortable: true },
-          { label: 'Netboot', key: 'netboot', sortable: true },
-          { label: 'Netbooted', key: 'netbooted', sortable: true },
-          { label: 'Pending operations in queue', key: 'pendingOperations', sortable: true },
-          { label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
+          {label: '', key: 'selected'},
+          {label: 'IP address', key: 'ip', sortable: true},
+          {label: 'Hostname', key: 'hostname', sortable: true},
+          {label: 'Mac', key: 'mac', sortable: true},
+          {label: 'Online', key: 'online', sortable: true},
+          {label: 'Netboot', key: 'netboot', sortable: true},
+          {label: 'Netbooted', key: 'netbooted', sortable: true},
+          {label: 'Pending operations in queue', key: 'pendingOperations', sortable: true},
+          {label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right']}
         ]
       }
     }
   },
   computed: {
-    selectedItems () {
+    selectedItems() {
       return this.items.filter(item => item.selected)
     },
-    selectedItemsIds () {
+    selectedItemsIds() {
       return this.selectedItems.map(item => item.id)
     }
   },
   methods: {
-    reboot () {
-      Api.post('/nodes/bulk-reboot', { nodeId: this.selectedItemsIds })
+    reboot() {
+      this.$confirm({
+        message: 'Are you sure you want to reboot those nodes?',
+        callback: () => {
+          Api.post('/nodes/bulk-reboot', {nodeId: this.selectedItemsIds})
+        }
+      })
     },
-    shutdown () {
-      Api.post('/nodes/bulk-shutdown', { nodeId: this.selectedItemsIds })
+    shutdown() {
+      this.$confirm({
+        message: 'Are you sure you want to shutdown those nodes?',
+        callback: () => {
+          Api.post('/nodes/bulk-shutdown', {nodeId: this.selectedItemsIds})
+        }
+      })
     },
-    toggleAll (value) {
+    toggleAll(value) {
       this.items.forEach((item) => {
         item.selected = value
       })

@@ -18,7 +18,7 @@
     </b-form-group>
     <b-form-group label-cols="4" label-cols-lg="2" label="Actions" label-for="input-sm">
       <b-button variant="warning" @click="reboot">
-        <i class="fa fa-refresh" /> Reboot
+        <i class="fa fa-sync" /> Reboot
       </b-button>
       <b-button variant="danger" @click="shutdown">
         <i class="fa fa-power-off" /> Shutdown
@@ -59,6 +59,7 @@ export default {
     },
     reboot () {
       this.$confirm({
+        message: 'Are you sure you want to reboot this node?',
         callback: () => {
           Api.post(`/nodes/${this.node.id}/reboot`, {}).then((response) => {
             this.$emit('update', response.data.data)
@@ -68,6 +69,7 @@ export default {
     },
     shutdown () {
       this.$confirm({
+        message: 'Are you sure you want to shutdown this node?',
         callback: () => {
           Api.post(`/nodes/${this.node.id}/shutdown`, {}).then((response) => {
             this.$emit('update', response.data.data)

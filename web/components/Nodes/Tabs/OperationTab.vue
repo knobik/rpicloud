@@ -3,7 +3,7 @@
     <b-row>
       <b-col md="12" class="pb-3 text-right">
         <button class="btn btn-primary" @click="loadOperations">
-          <i class="fa fa-refresh" /> Refresh
+          <i class="fa fa-sync" /> Refresh
         </button>
       </b-col>
     </b-row>
