@@ -34,7 +34,7 @@ RUN apt-get update && \
     mkdir /run/php && \
     apt-get -y autoremove && apt-get clean
 
-RUN mkdir -p /nfs/backups /nfs/boot /nfs/root
+RUN mkdir -p /nfs/backups /nfs/boot /nfs/root && chown -R rpi:rpi /nfs/backups
 #RUN mkdir -p /nfs/backups /.data/baseImage/boot /.data/baseImage/root
 #RUN ln -s /.data/baseImage/boot /nfs/boot && ln -s /.data/baseImage/root /nfs/root
 VOLUME /nfs
@@ -87,6 +87,9 @@ RUN git clone https://github.com/knobik/rpicloud.git /tmp/rpicloud && \
     bash -c "cd /tmp/rpicloud/web && npm install && npm run build"
 
 USER root
+
+RUN mkdir -p /.data && chown -R rpi:rpi /.data
+VOLUME /.data
 
 # cleanup
 RUN mv /tmp/rpicloud/api / && \
