@@ -1,6 +1,10 @@
 <template>
   <div>
-    <terminal :node="node"></terminal>
+    <b-form-group label-cols="4" label-cols-lg="2" label="SSH access" label-for="input-sm">
+      <b-button variant="primary" @click="openShell">
+        <i class="fa fa-terminal" /> Open console
+      </b-button>
+    </b-form-group>
     <b-form-group label-cols="4" label-cols-lg="2" label="Netboot" label-for="input-sm">
       <c-switch
         v-model="node.netboot"
@@ -40,6 +44,9 @@ export default {
     }
   },
   methods: {
+    openShell() {
+      window.open(`/nodes/${this.node.id}/terminal`, `SSH for ${this.node.id}`, "width=1024,height=768");
+    },
     toggleNetboot (value) {
       let action = 'disable-netboot'
       if (value) {

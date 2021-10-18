@@ -36,7 +36,7 @@
     "babel-eslint": "^10.0.1",
     "eslint": "^6.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
-    "node-sass": "^4.14.1",
+    "sass": "^1.43.2",
     "sass-loader": "^8.0.2",
     "xterm": "^4.14.1",
     "xterm-addon-attach": "^0.6.0",
