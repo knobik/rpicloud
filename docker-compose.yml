@@ -14,8 +14,8 @@ services:
       - ./web:/web
       - ./api:/api
       - ./.data:/.data
-      - ./.data/nfs/boot:/nfs/boot
-      - ./.data/nfs/root:/nfs/root
+#      - ./.data/nfs/boot:/nfs/boot
+#      - ./.data/nfs/root:/nfs/root
       - ./.data/backups:/nfs/backups
     network_mode: "host"
     privileged: true

@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
-use React\Socket\Server as Reactor;
+use React\Socket\SocketServer;
 
 class WebsocketShell extends Command
 {
@@ -37,7 +37,7 @@ class WebsocketShell extends Command
         $this->info('Starting shell proxy server at port ' . static::PORT . '...');
         $handler = new ShellHandler($this->getOutput());
 
-        $socket = new Reactor('0.0.0.0' . ':' . static::PORT, $handler->getLoop());
+        $socket = new SocketServer('0.0.0.0' . ':' . static::PORT, [], $handler->getLoop());
         $server = new IoServer(new HttpServer(new WsServer($handler)), $socket, $handler->getLoop());
 
         $server->run();

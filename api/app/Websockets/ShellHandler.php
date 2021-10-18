@@ -7,16 +7,13 @@ namespace App\Websockets;
 use App\Exceptions\SSHException;
 use App\Websockets\Shell\Client;
 use Illuminate\Auth\AuthenticationException;
-use JsonException;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
 use React\EventLoop\ExtEventLoop;
 use React\EventLoop\ExtEvLoop;
-use React\EventLoop\ExtLibeventLoop;
-use React\EventLoop\ExtLibevLoop;
 use React\EventLoop\ExtUvLoop;
-use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
 use SplObjectStorage;
@@ -41,7 +38,7 @@ class ShellHandler implements MessageComponentInterface
     private SplObjectStorage $connections;
 
     /**
-     * @var ExtEventLoop|ExtEvLoop|ExtLibeventLoop|ExtLibevLoop|ExtUvLoop|LoopInterface|StreamSelectLoop
+     * @var ExtEventLoop|ExtEvLoop|ExtUvLoop|LoopInterface|StreamSelectLoop
      */
     private $loop;
 
@@ -53,7 +50,7 @@ class ShellHandler implements MessageComponentInterface
     {
         $this->output = $output;
         $this->connections = new SplObjectStorage();
-        $this->loop = LoopFactory::create();
+        $this->loop = Loop::get();
 
         $this->loop->addPeriodicTimer(static::SSH_PULL_INTERVAL / 1000, function ($timer) {
             foreach ($this->connections as $connection) {
@@ -91,13 +88,13 @@ class ShellHandler implements MessageComponentInterface
     public function onError(ConnectionInterface $conn, \Exception $e): void
     {
         $this->output->writeln('Error ['.$this->client($conn)->getId().']: ' . $e->getMessage());
+        $conn->send($e->getMessage());
         $this->client($conn)->close();
     }
 
     /**
      * @param ConnectionInterface $conn
      * @param MessageInterface $msg
-     * @throws JsonException
      * @throws AuthenticationException
      * @throws SSHException
      */
@@ -111,17 +108,15 @@ class ShellHandler implements MessageComponentInterface
                 $this->client($conn)->createShell($data['data']['token']);
             }
 
-        } catch (JsonException $exception) {
+        } catch (\JsonException $exception) {
             if ($this->client($conn)->shell()) {
                 $this->client($conn)->shell()->write($msg);
             }
         }
-
-        // TODO: Implement onMessage() method.
     }
 
     /**
-     * @return ExtEventLoop|ExtEvLoop|ExtLibeventLoop|ExtLibevLoop|ExtUvLoop|LoopInterface|StreamSelectLoop
+     * @return ExtEventLoop|ExtEvLoop|ExtUvLoop|LoopInterface|StreamSelectLoop
      */
     public function getLoop()
     {

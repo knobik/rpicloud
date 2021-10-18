@@ -58,9 +58,20 @@ class Shell
      */
     public function disconnect(): void
     {
-        ssh2_disconnect($this->connection);
+        if ($this->isConnected()) {
+            ssh2_disconnect($this->connection);
+        }
+
         $this->connection = null;
         $this->shell = null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        return $this->shell !== null;
     }
 
     /**
@@ -68,6 +79,10 @@ class Shell
      */
     public function read(): ?string
     {
+        if (!$this->isConnected()) {
+            return null;
+        }
+
         $lines = '';
         while ($line = fgets($this->shell)) {
             $lines .= $line;
