@@ -15,7 +15,16 @@
       <b-col md="12">
         <b-card>
           <div slot="header">
-            Node <em>{{ node.ip }}</em>
+            <b-row>
+              <b-col md="12">
+                Node: <strong>{{ node.hostname }}</strong>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col md="12">
+                <small>{{ node.ip }}</small>
+              </b-col>
+            </b-row>
           </div>
           <b-tabs card pills vertical nav-wrapper-class="w-25" class="borderless">
             <b-tab active>
