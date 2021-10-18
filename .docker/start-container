@@ -8,6 +8,8 @@ if [ ! -z "$USER_UID" ]; then
     groupmod -g $USER_GID rpi
 fi
 
+chown rpi:rpi /.data /nfs/backups
+
 # setup the backend
 su - rpi -c "composer setup -d /api/"
 
