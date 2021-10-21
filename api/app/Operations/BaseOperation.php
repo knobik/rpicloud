@@ -87,7 +87,7 @@ abstract class BaseOperation
         $this->compile();
         $this->createOperation($this->name());
 
-        ExecuteOperationChainJob::dispatchNow($this->node->id, $this->chain);
+        ExecuteOperationChainJob::dispatchSync($this->node->id, $this->chain);
     }
 
     /**

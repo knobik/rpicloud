@@ -37,19 +37,20 @@ class ValidateFreeSpaceJob extends BaseOperationJob
         $nodeDeviceSize = $this->getNodeDeviceSize($this->device);
 
         if ($hostAvailableSize < $nodeDeviceSize) {
-            throw new SSHException("Host does not have enough space for this node backup. Host: {$hostAvailableSize}G, Node: {$nodeDeviceSize}G");
+            $this->failWithMessage("Host does not have enough space for this node backup. Host: {$hostAvailableSize}G, Node: {$nodeDeviceSize}G");
         }
     }
 
     /**
      * @param string $device
      * @return float
+     * @throws SSHException
      */
     private function getNodeDeviceSize(string $device): float
     {
         // normalize the device
         $device = str_replace('/dev/', '', $device);
-        $process = $this->execute('lsblk --json');
+        $process = $this->executeOrFail('lsblk --json');
 
         $storageDevice = collect(json_decode($process->getOutput(), true)['blockdevices'])
             ->first(fn($item) => $item['name'] === $device);
@@ -73,7 +74,7 @@ class ValidateFreeSpaceJob extends BaseOperationJob
      * @param string $value
      * @return string
      */
-    private function normalizeSize(string $value)
+    private function normalizeSize(string $value): string
     {
         return str_replace('G', '', trim($value));
     }

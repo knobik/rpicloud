@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eeb1555493084ce3f02b676f98a1dcae",
+    "content-hash": "eec1d05b840d2205b6d89218877f5f2e",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3695,6 +3695,69 @@
                 }
             ],
             "time": "2021-07-11T12:37:55+00:00"
+        },
+        {
+            "name": "romanzipp/laravel-queue-monitor",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/romanzipp/Laravel-Queue-Monitor.git",
+                "reference": "d03eccf7869653f9682da01db697d902c417e243"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/romanzipp/Laravel-Queue-Monitor/zipball/d03eccf7869653f9682da01db697d902c417e243",
+                "reference": "d03eccf7869653f9682da01db697d902c417e243",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "illuminate/database": "^5.5|^6.20.12|^7.30.3|^8.22.1",
+                "illuminate/queue": "^5.5|^6.20.12|^7.30.3|^8.22.1",
+                "illuminate/support": "^5.5|^6.20.12|^7.30.3|^8.22.1",
+                "nesbot/carbon": "^2.0",
+                "php": "^7.2|^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "laravel/framework": "^5.5|^6.20.12|^7.30.3|^8.22.1",
+                "mockery/mockery": "^1.3.2",
+                "orchestra/testbench": "^3.8|^4.0|^5.0|^6.0",
+                "phpstan/phpstan": "^0.12.99",
+                "phpunit/phpunit": "^8.0|^9.0",
+                "romanzipp/php-cs-fixer-config": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "romanzipp\\QueueMonitor\\Providers\\QueueMonitorProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "romanzipp\\QueueMonitor\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "romanzipp",
+                    "email": "ich@ich.wtf",
+                    "homepage": "https://ich.wtf"
+                }
+            ],
+            "description": "Queue Monitoring for Laravel Database Job Queue",
+            "support": {
+                "issues": "https://github.com/romanzipp/Laravel-Queue-Monitor/issues",
+                "source": "https://github.com/romanzipp/Laravel-Queue-Monitor/tree/2.2.0"
+            },
+            "time": "2021-10-03T11:26:19+00:00"
         },
         {
             "name": "spatie/ssh",
@@ -10534,7 +10597,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^8.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-ssh2": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.1.0"

@@ -13,17 +13,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Node $node
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken query()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken whereNodeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ShellToken whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken whereNodeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShellToken whereUserId($value)
  * @mixin \Eloquent
  */
 class ShellToken extends BaseModel

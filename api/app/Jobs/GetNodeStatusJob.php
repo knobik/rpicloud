@@ -31,11 +31,13 @@ class GetNodeStatusJob extends BaseSSHJob
             $node->online = false;
         }
 
+        // if node is online, we can gather other info
         if ($node->online) {
+            $disks = $this->getDisks();
+
             $node->hostname = $hostname;
             $node->netbooted = $hostname === config('pxe.hostname');
 
-            $disks = $this->getDisks();
             if ($disks !== null) {
                 $node->storage_devices = $disks;
             }

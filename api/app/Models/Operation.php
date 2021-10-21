@@ -16,20 +16,20 @@ namespace App\Models;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation query()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereFailed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereFinishedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereLog($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereNodeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereStartedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Operation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereFailed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereFinishedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereLog($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereNodeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereStartedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Operation whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Operation extends BaseModel

@@ -23,6 +23,8 @@ class AddNodeTable extends Migration
             $table->boolean('netbooted')->default(false);
             $table->boolean('online')->default(false);
             $table->string('arch')->nullable();
+            $table->string('model')->nullable();
+            $table->string('boot_order')->nullable();
             $table->unsignedInteger('cpus')->nullable();
             $table->unsignedInteger('cpu_max_freq')->nullable();
             $table->unsignedInteger('ram_max')->nullable();

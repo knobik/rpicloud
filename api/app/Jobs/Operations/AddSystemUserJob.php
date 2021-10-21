@@ -41,9 +41,7 @@ class AddSystemUserJob extends BaseOperationJob
                 $process = $this->execute($command);
 
                 if (!$process->isSuccessful()) {
-                    throw new SSHException(
-                        'Error while running command: ' . $command . "\n\n" . $process->getErrorOutput()
-                    );
+                    $this->failWithMessage('Error while running command: ' . $command . "\n\n" . $process->getErrorOutput());
                 }
             }
         } else {

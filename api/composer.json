@@ -20,6 +20,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
         "phpseclib/phpseclib": "^2.0",
+        "romanzipp/laravel-queue-monitor": "^2.2",
         "spatie/ssh": "^1.4",
         "symfony/process": "^5.0"
     },
@@ -80,7 +81,7 @@
         "dev": [
             "@php artisan ide-helper:generate",
             "@php artisan ide-helper:meta",
-            "@php artisan ide-helper:models --write",
+            "@php artisan ide-helper:models --write --reset",
             "@php artisan ide-helper:eloquent"
         ]
     }

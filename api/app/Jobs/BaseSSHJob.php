@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\OperationException;
 use App\Exceptions\SSHException;
 use App\Models\Node;
 use Illuminate\Bus\Queueable;
@@ -9,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 use Spatie\Ssh\Ssh;
 use Symfony\Component\Process\Process;
 
@@ -18,6 +20,7 @@ abstract class BaseSSHJob implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use IsMonitored;
 
     /**
      * Dont retry base jobs.
@@ -112,11 +115,20 @@ abstract class BaseSSHJob implements ShouldQueue
     {
         $process = $this->execute($command);
         if (!$process->isSuccessful()) {
-            throw new SSHException(
-                "SSH ERROR ({$this->getNode()->ip}): {$process->getErrorOutput()}"
-            );
+            $this->failWithMessage($process->getErrorOutput());
         }
 
         return $process;
+    }
+
+    /**
+     * @param string $message
+     * @throws SSHException
+     */
+    protected function failWithMessage(string $message): void
+    {
+        throw new SSHException(
+            "SSH ERROR ({$this->getNode()->ip}): {$message}"
+        );
     }
 }

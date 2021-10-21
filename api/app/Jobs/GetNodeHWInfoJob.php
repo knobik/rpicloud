@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Exceptions\PXEException;
 use App\Exceptions\SSHException;
 use App\Models\Node;
 use App\Services\PXEService;
@@ -10,6 +9,8 @@ use Illuminate\Support\Collection;
 
 class GetNodeHWInfoJob extends BaseSSHJob
 {
+    public const MODEL_UNKNOWN = 'unknown';
+
     /**
      * Execute the job.
      *
@@ -24,8 +25,55 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $this->hostnameInfo();
         $this->cpuInfo();
         $this->ramInfo();
+        $this->modelInfo();
+        $this->bootOrderInfo();
 
-        GetNodeStatusJob::dispatchNow($this->getNode());
+        GetNodeStatusJob::dispatchSync($this->getNode()->id);
+    }
+
+    /**
+     * @throws SSHException
+     */
+    private function bootOrderInfo(): void
+    {
+        $node = $this->getNode();
+        $output = $this->executeOrFail('sudo rpi-eeprom-config')->getOutput();
+
+        if (!preg_match('/^BOOT_ORDER=(.*)$/m', $output, $matches)) {
+            $this->failWithMessage('Could not get the boot order.');
+        }
+
+        // remove the 0x and reverse the string
+        $node->boot_order = Node::decodeBootOrder($matches[1]);
+        $node->save();
+    }
+
+    /**
+     * @throws SSHException
+     */
+    private function modelInfo(): void
+    {
+        $node = $this->getNode();
+
+        $process = $this->executeOrFail('cat /proc/cpuinfo');
+
+        // we need to normalize the output
+        $output = str_replace("\t", '', $process->getOutput());
+
+        $model = static::MODEL_UNKNOWN;
+        foreach (explode("\n", $output) as $row) {
+            if (!empty($row)) {
+                [$key, $value] = explode(': ', $row);
+
+                if ($key === 'Model') {
+                    $model = $value;
+                    break;
+                }
+            }
+        }
+
+        $node->model = $model;
+        $node->save();
     }
 
     /**
@@ -40,9 +88,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
         preg_match("/(?:Mem:\s*)(?<memory>(?:[\S]+))/", $process->getOutput(), $matches);
 
         if (!isset($matches['memory'])) {
-            throw new SSHException(
-                "SSH ERROR ({$node->ip}): memory not found."
-            );
+            $this->failWithMessage('Memory not found.');
         }
 
         $node->ram_max = $matches['memory'];
@@ -85,13 +131,11 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $node = $this->getNode();
         $process = $this->executeOrFail('sudo ifconfig -a');
 
-        $interface = $this->parse($process->getOutput())
+        $interface = $this->parseIpconfig($process->getOutput())
             ->first(fn($row) => $row['ip'] === $node->ip);
 
         if (!$interface || !isset($interface['mac'])) {
-            throw new SSHException(
-                "SSH ERROR ({$node->ip}): interface not found."
-            );
+            $this->failWithMessage('Interface not found.');
         }
 
         $node->mac = strtolower($interface['mac']);
@@ -101,7 +145,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
     /**
      * @throws SSHException
      */
-    private function hostnameInfo()
+    private function hostnameInfo(): void
     {
         $node = $this->getNode();
         $process = $this->executeOrFail('hostname');
@@ -113,7 +157,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
     /**
      * @return string
      */
-    private function getDelimiter(): string
+    private function getIpConfigDelimiter(): string
     {
         return "\n\n";
     }
@@ -121,7 +165,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
     /**
      * @return string
      */
-    private function getRegex(): string
+    private function getIpConfigRegex(): string
     {
         return "^(?<interface>(?:[^\s:]+)).*?(?:inet (?<ip>(?:\d+\.?){4})|$).*?(?:ether (?<mac>(?:[^\s]+)))";
     }
@@ -130,12 +174,12 @@ class GetNodeHWInfoJob extends BaseSSHJob
      * @param  mixed  $input  ifconfig input to parse
      * @return Collection
      */
-    private function parse($input): Collection
+    private function parseIpconfig($input): Collection
     {
-        $adapters = preg_split("/".$this->getDelimiter()."/s", $input, null);
+        $adapters = preg_split("/".$this->getIpConfigDelimiter()."/s", $input, null);
         $vals = [];
         foreach ($adapters as $int) {
-            preg_match("/".$this->getRegex()."/s", $int, $output);
+            preg_match("/".$this->getIpConfigRegex()."/s", $int, $output);
             $vals[] = $output;
         }
 
@@ -146,7 +190,7 @@ class GetNodeHWInfoJob extends BaseSSHJob
      * @param  array  $vals  Array of extracted values
      * @return Collection
      */
-    private function format($vals): Collection
+    private function format(array $vals): Collection
     {
         $results = [];
 
