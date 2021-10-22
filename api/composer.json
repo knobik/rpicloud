@@ -72,6 +72,7 @@
             "@php artisan key:generate --ansi"
         ],
         "setup": [
+            "@php artisan queue:flush",
             "@php artisan init:db",
             "@php artisan init:ssh",
             "@php artisan init:host",

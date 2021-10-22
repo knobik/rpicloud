@@ -33,6 +33,10 @@ class GetNodeHWInfoJob extends BaseSSHJob
      */
     public function handle(): void
     {
+        if (!$this->getNode()->online) {
+            return;
+        }
+
         $this->networkInfo();
         $this->hostnameInfo();
         $this->cpuInfo();
