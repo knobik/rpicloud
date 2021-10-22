@@ -5,7 +5,7 @@
         <b-alert v-if="runningOperation !== null" variant="info" show>
           <h5 class="alert-heading font-weight-bold d-flex align-items-center">
             <span>{{ runningOperation.name }}</span>
-            <b-spinner class="ml-auto" small variant="primary"></b-spinner>
+            <b-spinner class="ml-auto" small variant="primary" />
           </h5>
           {{ runningOperation.log ? runningOperation.log.split('\n').slice(-1).pop() : '' }}
         </b-alert>
@@ -26,7 +26,14 @@
               </b-col>
             </b-row>
           </div>
-          <b-tabs card pills vertical nav-wrapper-class="w-25" class="borderless">
+          <b-tabs
+            lazy
+            card
+            pills
+            vertical
+            nav-wrapper-class="w-25"
+            class="borderless"
+          >
             <b-tab active>
               <template slot="title">
                 <i class="fa fa-hdd-o" /> Access

@@ -4,13 +4,12 @@
 namespace App\Websockets\Shell;
 
 
-use App\Exceptions\SSHException;
 use App\Models\Node;
 
 class Shell
 {
-    public const COLS = 80;
-    public const ROWS = 24;
+    public const COLS = 110;
+    public const ROWS = 45;
 
     /**
      * @var resource
@@ -54,16 +53,29 @@ class Shell
     }
 
     /**
+     * @param int $columns
+     * @param int $rows
+     */
+    public function resize(int $columns, int $rows): void
+    {
+        // todo, figure out how to resize shell but this is propably not possible with php ssh2 extension...
+//        $this->shell = ssh2_shell($this->connection, 'xterm', null, $columns, $rows, SSH2_TERM_UNIT_CHARS);
+    }
+
+    /**
      * @return void
      */
     public function disconnect(): void
     {
+        // you need to close the shell connection first before doing the ssh2_disconnect
+        // otherwise random segfaults will happen.
+        $this->shell = null;
+
         if ($this->isConnected()) {
             ssh2_disconnect($this->connection);
         }
 
         $this->connection = null;
-        $this->shell = null;
     }
 
     /**
@@ -71,7 +83,7 @@ class Shell
      */
     public function isConnected(): bool
     {
-        return $this->shell !== null;
+        return $this->connection !== null;
     }
 
     /**

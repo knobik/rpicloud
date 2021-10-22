@@ -5,6 +5,10 @@
         <b-form-file v-model="form.file" :class="{ 'is-invalid': form.errors.has('file') }" />
         <div v-if="form.errors.has('file')" class="invalid-feedback" v-text="form.errors.get('file')" />
       </b-form-group>
+      <b-form-group label="or upload .img file from url">
+        <b-form-input v-model="form.url" :class="{ 'is-invalid': form.errors.has('url') }" />
+        <div v-if="form.errors.has('url')" class="invalid-feedback" v-text="form.errors.get('url')" />
+      </b-form-group>
     </b-form>
 
     <template v-slot:modal-footer="{ ok, cancel }" :disabled="working">
@@ -32,7 +36,8 @@ export default {
   data () {
     return {
       form: new Form({
-        file: null
+        file: null,
+        url: null
       }),
       working: false,
       nodes: []

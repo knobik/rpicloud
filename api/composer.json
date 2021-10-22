@@ -19,7 +19,6 @@
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
-        "phpseclib/phpseclib": "^2.0",
         "romanzipp/laravel-queue-monitor": "^2.2",
         "spatie/ssh": "^1.4",
         "symfony/process": "^5.0"

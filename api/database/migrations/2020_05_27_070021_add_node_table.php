@@ -24,6 +24,7 @@ class AddNodeTable extends Migration
             $table->boolean('online')->default(false);
             $table->string('arch')->nullable();
             $table->string('model')->nullable();
+            $table->string('bootloader_timestamp')->nullable();
             $table->string('boot_order')->nullable();
             $table->unsignedInteger('cpus')->nullable();
             $table->unsignedInteger('cpu_max_freq')->nullable();

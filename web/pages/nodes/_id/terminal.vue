@@ -1,5 +1,5 @@
 <template>
-  <terminal :node="node"></terminal>
+  <terminal :node="node" />
 </template>
 
 <script>
@@ -7,7 +7,7 @@ import Api from '~/assets/js/utils/Api'
 import Terminal from '~/components/Nodes/Terminal'
 
 export default {
-  layout: 'nolayout',
+  layout: 'terminal',
   components: {
     Terminal
   },
@@ -17,6 +17,6 @@ export default {
         node: response.data.data
       }
     })
-  },
+  }
 }
 </script>

@@ -1,13 +1,12 @@
 <template>
   <div>
     <backup-modal :node="node" :show="showBackupModal" @hide="showBackupModal = false" @update="updateNode" />
-    <b-row class="pb-3 d-flex justify-content-between align-content-center">
-      <b-col md="2" class="d-flex justify-content-start align-content-center">
+    <b-row class="pb-3 d-flex justify-content-between align-items-center">
+      <b-col md="2" class="d-flex justify-content-start align-items-center">
         <span class="pt-1 pr-2">Show all</span>
         <c-switch
           v-model="showAll"
           color="primary"
-          label
           variant="pill"
           size="lg"
           @change="loadBackups"
@@ -21,7 +20,7 @@
     </b-row>
     <b-row>
       <b-col md="12">
-        <backup-table :node-id="node.id" :small="true" :items="items" @update="updateNode" />
+        <backup-table :node-id="node.id" :small="true" :items="items" @update="updateNode" @reload="loadBackups()" />
       </b-col>
     </b-row>
   </div>

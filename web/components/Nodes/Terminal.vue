@@ -1,13 +1,13 @@
 <template>
-  <div class="terminal" v-show="connected" ref="xterm"/>
+  <div v-show="connected" ref="xterm" class="terminal-custom" />
 </template>
 
 <script>
-import Api from '~/assets/js/utils/Api'
 import 'xterm/css/xterm.css'
-import {Terminal} from 'xterm'
-import {AttachAddon} from 'xterm-addon-attach'
-import {FitAddon} from 'xterm-addon-fit';
+import { Terminal } from 'xterm'
+import { AttachAddon } from 'xterm-addon-attach'
+import { FitAddon } from 'xterm-addon-fit'
+import Api from '~/assets/js/utils/Api'
 
 export default {
   props: {
@@ -16,46 +16,84 @@ export default {
       type: Object
     }
   },
-  data() {
+  data () {
     return {
       domain: window.location.hostname,
+      resizeTimer: null,
       connected: true // fix for xterm not resizing
     }
   },
-  mounted() {
+  mounted () {
     this.$xterm = new Terminal()
     this.$websocket = new WebSocket(`ws://${this.domain}:8081`)
 
-    this.$attachAddon = new AttachAddon(this.$websocket)
+    this.$attachAddon = new AttachAddon(
+      this.$websocket,
+      {
+        bidirectional: false
+      }
+    )
     this.$xterm.loadAddon(this.$attachAddon)
 
-    this.$fitAddon = new FitAddon();
-    this.$xterm.loadAddon(this.$fitAddon);
+    this.$fitAddon = new FitAddon()
+    this.$xterm.loadAddon(this.$fitAddon)
 
     this.$xterm.open(this.$refs.xterm)
-
     this.connected = false // fix for xterm not resizing
 
-    window.addEventListener('resize', this.onResize)
-    this.onResize();
+    this.$xterm.onData(this.onData)
 
-    this.requestShellAccess();
+    window.addEventListener('resize', this.onResize)
+
+    // initial resize
+    setTimeout(() => {
+      this.onResize()
+      this.$xterm.focus()
+    }, 250)
+
+    this.requestShellAccess()
   },
-  beforeDestroy() {
+  beforeDestroy () {
     this.$websocket.close()
     this.$attachAddon.dispose()
     this.$xterm.dispose()
   },
   methods: {
-    onResize() {
-      this.$fitAddon.fit();
+    onData (message) {
+      const dataSend = {
+        action: 'data',
+        data: {
+          message
+        }
+      }
+      this.$websocket.send(JSON.stringify(dataSend))
+      if (message === '0') {
+        this.$xterm.write(message)
+      }
     },
-    requestShellAccess() {
+    onResize () {
+      // debounce
+      clearTimeout(this.resizeTimer)
+      this.resizeTimer = setTimeout(() => {
+        this.$fitAddon.fit()
+
+        if (this.connected) {
+          this.$websocket.send(JSON.stringify({
+            action: 'resize',
+            data: {
+              columns: 10,
+              rows: 10
+            }
+          }))
+        }
+      }, 250)
+    },
+    requestShellAccess () {
       Api.post(`/nodes/${this.node.id}/shell-access`).then((response) => {
         this.connect(response.data.data.token)
       })
     },
-    connect(token) {
+    connect (token) {
       this.$websocket.send(JSON.stringify({
         action: 'auth',
         data: {
@@ -64,14 +102,13 @@ export default {
       }))
 
       this.connected = true
-    },
+    }
   }
 }
 </script>
 <style type="scss">
-  .terminal {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-  }
+.terminal-custom {
+  height: 100%;
+  width: auto;
+}
 </style>

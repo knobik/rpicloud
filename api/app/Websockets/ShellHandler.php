@@ -90,6 +90,7 @@ class ShellHandler implements MessageComponentInterface
         $this->output->writeln('Error ['.$this->client($conn)->getId().']: ' . $e->getMessage());
         $conn->send($e->getMessage());
         $this->client($conn)->close();
+        \Log::error($e);
     }
 
     /**
@@ -100,17 +101,20 @@ class ShellHandler implements MessageComponentInterface
      */
     public function onMessage(ConnectionInterface $conn, MessageInterface $msg): void
     {
-        try {
-            $data = json_decode($msg, true, 512, JSON_THROW_ON_ERROR);
+        $json = json_decode($msg, true, 512, JSON_THROW_ON_ERROR);
 
-            // refactor to switch if more actions will be added
-            if ($data['action'] === 'auth') {
-                $this->client($conn)->createShell($data['data']['token']);
-            }
+        // refactor to switch if more actions will be added
+        if ($json['action'] === 'auth') {
+            $this->client($conn)->createShell($json['data']['token']);
+        }
 
-        } catch (\JsonException $exception) {
+        if ($json['action'] === 'resize') {
+            $this->client($conn)->resizeShell($json['data']['columns'], $json['data']['rows']);
+        }
+
+        if ($json['action'] === 'data') {
             if ($this->client($conn)->shell()) {
-                $this->client($conn)->shell()->write($msg);
+                $this->client($conn)->shell()->write($json['data']['message']);
             }
         }
     }

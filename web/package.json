@@ -27,6 +27,7 @@
     "simple-line-icons": "^2.5.5",
     "vue-confirm-dialog": "^1.0.2",
     "vue-perfect-scrollbar": "^0.1.0",
+    "vuedraggable": "^2.24.3",
     "vuex-persistedstate": "^3.2.1"
   },
   "devDependencies": {

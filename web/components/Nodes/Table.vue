@@ -26,6 +26,7 @@
           </b-dropdown-item>
         </b-dropdown>
       </template>
+
       <template v-slot:cell(selected)="data">
         <b-checkbox v-model="data.item.selected" class="ml-2" />
       </template>
@@ -33,14 +34,55 @@
       <template v-slot:cell(pendingOperations)="data">
         {{ data.item.pendingOperations.length }}
       </template>
+
       <template v-slot:cell(actions)="data">
         <actions :node="data.item" @update="$emit('update', $event)" />
       </template>
+
       <template v-slot:cell(netboot)="data">
+        <template v-if="data.item.bootOrder.length > 0 && data.item.bootOrder[0].id !== '2'">
+          <i :id="`popover-boot-${data.item.id}`" class="fa fa-exclamation-triangle text-danger" />
+          <b-popover
+            :target="`popover-boot-${data.item.id}`"
+            title="Boot issue detected."
+            triggers="hover"
+            placement="top"
+            variant="danger"
+          >
+            <template #title>
+              Boot issue detected!
+            </template>
+            <div v-if="data.item.version === 3">
+              <p>
+                Changing boot order of Raspberry pi 3 is not supported by this software.
+              </p>
+              <p>
+                <a target="_blank" class="text-dark" href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-2b-3a-3b-cm-3-3"><i class="fa fa-question-circle" /> More info how to netboot older hardware can be found here.</a>
+              </p>
+              <p />
+            </div>
+            <div v-if="data.item.version === 4">
+              <p>System detected incorrect boot order which blocks the ability to netboot the device.</p>
+              <p>
+                Current device boot order:
+                <ol>
+                  <li v-for="item in data.item.bootOrder" :key="item.id">
+                    {{ item.name }}
+                  </li>
+                </ol>
+              </p>
+              <p>
+                For the netboot to work, <code>NETWORK</code> must be on the first place.
+              </p>
+            </div>
+          </b-popover>
+        </template>
+
         <b-badge :variant="data.item.netboot ? 'success' : 'danger'">
           {{ data.item.netboot ? 'yes' : 'no' }}
         </b-badge>
       </template>
+
       <template v-slot:cell(netbooted)="data">
         <b-badge
           v-if="(data.item.netboot && !data.item.netbooted) || (data.item.netbooted && !data.item.netboot)"
@@ -55,6 +97,7 @@
           no
         </b-badge>
       </template>
+
       <template v-slot:cell(online)="data">
         <b-badge :variant="data.item.online ? 'success' : 'danger'">
           {{ data.item.online ? 'yes' : 'no' }}
@@ -101,7 +144,7 @@ export default {
           { label: 'Online', key: 'online', sortable: true },
           { label: 'Netboot', key: 'netboot', sortable: true },
           { label: 'Netbooted', key: 'netbooted', sortable: true },
-          { label: 'Pending operations in queue', key: 'pendingOperations', sortable: true },
+          { label: 'Operations in queue', key: 'pendingOperations', sortable: true },
           { label: 'Actions', key: 'actions', thClass: ['text-right'], tdClass: ['text-right'] }
         ]
       }

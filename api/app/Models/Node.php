@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use JetBrains\PhpStorm\ArrayShape;
 
 /**
  * App\Models\Node
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $online
  * @property string|null $arch
  * @property string|null $model
+ * @property string|null $bootloader_timestamp
  * @property string|null $boot_order
  * @property int|null $cpus
  * @property int|null $cpu_max_freq
@@ -33,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Node query()
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereArch($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereBootOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Node whereBootloaderTimestamp($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereCpuMaxFreq($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereCpus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereCreatedAt($value)
@@ -54,15 +57,21 @@ class Node extends BaseModel
 {
     protected $table = 'nodes';
 
-    public const BOOT_SDCARD_DETECT = '0'; // @depracated by rpi fundation
+    public const BOOT_SDCARD_DETECT = '0'; // @depracated, we dont want to support this.
     public const BOOT_SDCARD = '1';
     public const BOOT_NETWORK = '2';
-    public const BOOT_RPIBOOT = '3';
+    public const BOOT_RPIBOOT = '3'; // only CM4 and a special debugging mode, we dont support this.
     public const BOOT_USB = '4';
     public const BOOT_BCMUSBMSD = '5';
     public const BOOT_NVME = '6';
     public const BOOT_STOP = 'e';
     public const BOOT_RESTART = 'f';
+
+    public const VERSION_MAP = [
+        'Raspberry Pi 4' => 4,
+        'Raspberry Pi 3' => 3,
+        'Raspberry Pi 2' => 2,
+    ];
 
     /**
      * The attributes that should be cast.
@@ -106,6 +115,20 @@ class Node extends BaseModel
     }
 
     /**
+     * @return int|null
+     */
+    public function getVersion(): ?int
+    {
+        foreach (static::VERSION_MAP as $modelValue => $version) {
+            if (str_contains($this->model, $modelValue)) {
+                return $version;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param string $configBootOrder
      * @return string
      */
@@ -130,6 +153,39 @@ class Node extends BaseModel
         return '0x' . implode('', array_reverse(explode(',', $bootOrder)));
     }
 
+    /**
+     * @return array
+     */
+    public function bootOrderList(): array
+    {
+        return static::listBootStates($this->boot_order ?? '');
+    }
+
+    /**
+     * @param string $bootOrder
+     * @return array
+     */
+    public static function listBootStates(string $bootOrder): array
+    {
+        $order = [];
+        foreach (explode(',', $bootOrder) as $key) {
+            if (!empty($key)) {
+                $order[] = [
+                    'id' => $key,
+                    'name' => static::bootMapList()[$key]
+                ];
+            }
+        }
+        return $order;
+    }
+
+    /**
+     * @return array
+     */
+    public static function allBootStates(): array
+    {
+        return static::listBootStates(implode(',', array_keys(static::bootMapList())));
+    }
 
     /**
      * @return string[]
@@ -137,15 +193,13 @@ class Node extends BaseModel
     public static function bootMapList(): array
     {
         return [
-            static::BOOT_SDCARD_DETECT,
-            static::BOOT_SDCARD,
-            static::BOOT_NETWORK,
-            static::BOOT_RPIBOOT,
-            static::BOOT_USB,
-            static::BOOT_BCMUSBMSD,
-            static::BOOT_NVME,
-            static::BOOT_STOP,
-            static::BOOT_RESTART,
+            static::BOOT_SDCARD => 'SD Card',
+            static::BOOT_NETWORK => 'Network',
+            static::BOOT_USB => 'USB',
+            static::BOOT_BCMUSBMSD => 'BCM USB',
+            static::BOOT_NVME => 'NVME',
+            static::BOOT_STOP => 'Stop',
+            static::BOOT_RESTART => 'Restart',
         ];
     }
 }

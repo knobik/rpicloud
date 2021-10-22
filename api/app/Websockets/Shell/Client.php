@@ -55,9 +55,15 @@ class Client
         }
 
         $this->ssh = new Shell($token->node);
+
         if (!$this->ssh->connect()) {
             throw new SSHException("SSH ERROR ({$token->node->ip}): Cant connect to SSH.");
         }
+    }
+
+    public function resizeShell(int $columns, int $rows)
+    {
+        $this->ssh->resize($columns, $rows);
     }
 
     /**

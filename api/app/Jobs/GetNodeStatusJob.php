@@ -8,7 +8,11 @@ use Symfony\Component\Process\Process;
 
 class GetNodeStatusJob extends BaseSSHJob
 {
-    public const TIMEOUT = 3;
+    public int $tries = 1;
+
+    public int $timeout = 0;
+
+    public const SSH_TIMEOUT = 3;
 
     /**
      * Execute the job.
@@ -22,7 +26,7 @@ class GetNodeStatusJob extends BaseSSHJob
         $hostname = '';
         try {
             $process = $this->getSSH()
-                ->configureProcess(fn(Process $process) => $process->setTimeout(static::TIMEOUT))
+                ->configureProcess(fn(Process $process) => $process->setTimeout(static::SSH_TIMEOUT))
                 ->execute('hostname');
 
             $hostname = trim($process->getOutput());

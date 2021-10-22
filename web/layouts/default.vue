@@ -1,7 +1,6 @@
 <template>
   <div class="app">
-    <c-confirm></c-confirm>
-<!--    <vue-confirm-dialog></vue-confirm-dialog>-->
+    <c-confirm />
     <AppHeader fixed>
       <SidebarToggler class="d-lg-none" display="md" mobile />
       <b-link class="navbar-brand" to="#">
@@ -86,11 +85,9 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state.config) {
-      Api.get('/config').then((response) => {
-        this.$store.commit('setConfig', response.data.data)
-      })
-    }
+    Api.get('/config').then((response) => {
+      this.$store.commit('setConfig', response.data.data)
+    })
   },
   methods: {
     logout () {

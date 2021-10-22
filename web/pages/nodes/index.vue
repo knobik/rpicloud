@@ -22,7 +22,7 @@
           </template>
           <node-table :items="items" @update="updateNode" />
         </b-card>
-      </b-col><!--/.col-->
+      </b-col>
     </b-row>
   </div>
 </template>

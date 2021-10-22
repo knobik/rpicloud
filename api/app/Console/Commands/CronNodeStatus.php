@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\GetNodeHWInfoJob;
 use App\Jobs\GetNodeStatusJob;
 use App\Models\Node;
 use Illuminate\Console\Command;
@@ -13,7 +14,7 @@ class CronNodeStatus extends Command
      *
      * @var string
      */
-    protected $signature = 'cron:node-status';
+    protected $signature = 'cron:node-status {--hwinfo}';
 
     /**
      * The console command description.
@@ -30,7 +31,14 @@ class CronNodeStatus extends Command
     public function handle()
     {
         foreach (Node::all() as $node) {
-            GetNodeStatusJob::dispatch($node->id);
+            if ($this->option('hwinfo')) {
+                \Bus::chain([
+                    new GetNodeStatusJob($node->id),
+                    new GetNodeHWInfoJob($node->id, false)
+                ])->dispatch();
+            } else {
+                GetNodeStatusJob::dispatch($node->id);
+            }
         }
     }
 }

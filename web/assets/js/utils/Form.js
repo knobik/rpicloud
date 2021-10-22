@@ -90,6 +90,7 @@ export default class {
   }
 
   onFailure (data) {
-    this.errors.record(data.data)
+    console.log(data.data.data)
+    this.errors.record(data.data.data)
   }
 }

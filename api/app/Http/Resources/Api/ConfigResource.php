@@ -20,7 +20,9 @@ class ConfigResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'url' => config('app.url')
+            'url' => config('app.url'),
+            'bootStates' => Node::allBootStates(),
+            'requiredBootloaderTimestamp' => 1599177600 // 2020-09-04 00:00:00 https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#BOOT_ORDER
         ];
     }
 }

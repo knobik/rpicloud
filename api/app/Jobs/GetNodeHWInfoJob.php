@@ -11,6 +11,19 @@ class GetNodeHWInfoJob extends BaseSSHJob
 {
     public const MODEL_UNKNOWN = 'unknown';
 
+    private bool $dispatchStatusJob;
+
+    /**
+     * @param int $nodeId
+     * @param bool $dispatchJobStatus
+     */
+    public function __construct(int $nodeId, bool $dispatchJobStatus = true)
+    {
+        parent::__construct($nodeId);
+
+        $this->dispatchStatusJob = $dispatchJobStatus;
+    }
+
     /**
      * Execute the job.
      *
@@ -27,8 +40,11 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $this->ramInfo();
         $this->modelInfo();
         $this->bootOrderInfo();
+        $this->getBootloaderTimestamp();
 
-        GetNodeStatusJob::dispatchSync($this->getNode()->id);
+        if ($this->dispatchStatusJob) {
+            GetNodeStatusJob::dispatchSync($this->getNode()->id);
+        }
     }
 
     /**
@@ -39,12 +55,34 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $node = $this->getNode();
         $output = $this->executeOrFail('sudo rpi-eeprom-config')->getOutput();
 
-        if (!preg_match('/^BOOT_ORDER=(.*)$/m', $output, $matches)) {
-            $this->failWithMessage('Could not get the boot order.');
+        $order = '0x' . Node::BOOT_RESTART . Node::BOOT_SDCARD; // default to sdcard + restart @todo find out default boot order of new eeprom configuration.
+        if (preg_match('/^BOOT_ORDER=(.*)$/m', $output, $matches)) {
+            $order = $matches[1];
         }
 
         // remove the 0x and reverse the string
-        $node->boot_order = Node::decodeBootOrder($matches[1]);
+        $node->boot_order = Node::decodeBootOrder($order);
+        $node->save();
+    }
+
+    /**
+     * @throws SSHException
+     */
+    private function getBootloaderTimestamp(): void
+    {
+        $node = $this->getNode();
+
+        if ($node->getVersion() < 4) {
+            return;
+        }
+
+        $output = $this->executeOrFail('sudo vcgencmd bootloader_version')->getOutput();
+
+        if (!preg_match('/^timestamp (.*)$/m', $output, $matches)) {
+            $this->failWithMessage('Could not get the bootloader timestamp.');
+        }
+
+        $node->bootloader_timestamp = $matches[1];
         $node->save();
     }
 

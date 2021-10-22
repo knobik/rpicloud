@@ -12,6 +12,8 @@ use App\Models\Node;
 use App\Operations\RestoreOperation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Process\Process;
 
 class BackupController extends ApiController
@@ -58,10 +60,53 @@ class BackupController extends ApiController
     /**
      * @param UploadRequest $request
      * @return BackupResource
+     * @throws ValidationException
      */
     public function upload(UploadRequest $request): BackupResource
     {
+        // this code is ugly as form-data returns string 'null' instead of nothing.
         $file = $request->file('file');
+        if ($file === 'null') {
+            $file = null;
+        }
+
+        $url = $request->get('url');
+        if ($url === 'null') {
+            $url = null;
+        }
+
+        if ($file) {
+            $this->validate($request, [
+                'file' => 'file'
+            ]);
+        }
+
+        if ($url) {
+            $this->validate($request, [
+                'url' => 'url|ends_with:.img'
+            ]);
+
+            set_time_limit(0);
+            $tmpPath = '/tmp/' . basename($url);
+            $process = (new Process(['curl', '-fSL', $url, '-o', $tmpPath]));
+            $process->run();
+
+            if (!file_exists($tmpPath)) {
+                throw ValidationException::withMessages([
+                    'url' => trans('validation.active_url', ['attribute' => 'url'])
+                ]);
+            }
+
+            $file = new UploadedFile($tmpPath, basename($url));
+        }
+
+        // nothing provided, we drop this request.
+        if (!$file) {
+            throw ValidationException::withMessages([
+                'file' => trans('validation.required', ['attribute' => 'file'])
+            ]);
+        }
+
         $path = static::BACKUPS_DIRECTORY . "/{$file->getClientOriginalName()}";
         rename($file->getPathname(), $path);
         (new Process(['sudo', 'chown', 'root:root', $path]))->run();
