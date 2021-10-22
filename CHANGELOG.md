@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.0]
 ### Added
 - Browser SSH terminal.
+- Boot order for RPi4
+- Upload backup / img from URL.
+- More hardware info for the nodes.
+- Queue job monitor for debugging available at http://your-server:8080/jobs (unsecured atm, what did i say? this is alpha! dont use in production!)
 
 ### Fixed
 - CHANGELOG.md not updated ;)
+- Alot of small fixes and updates to the packages and code.
 
 ## [0.3.0] - 2020-10-01
 ### Added
@@ -63,7 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated npm packages.
 
 
-[Unreleased]: https://github.com/knobik/rpicloud/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/knobik/rpicloud/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/knobik/rpicloud/compare/0.4.0...0.3.0
 [0.3.0]: https://github.com/knobik/rpicloud/compare/0.3.0...0.2.0
 [0.2.0]: https://github.com/knobik/rpicloud/compare/0.1.10...0.2.0
 [0.1.10]: https://github.com/knobik/rpicloud/compare/0.1.9...0.1.10

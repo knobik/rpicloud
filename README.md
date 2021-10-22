@@ -9,10 +9,11 @@ My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other
 
 # Features
 * Manage pi cluster inventory, status, etc (TODO: export to ansible)
-* Reboot / Shutdown nodes
+* Reboot / Shutdown nodes remotely
 * Netboot node for recovery
 * Backup / Restore node
 * Easy reinstall through netboot, without removing sd card or usb device.
+* Change boot order (only RPi4+)
 
 ## For updates see [CHANGELOG.md]
 [CHANGELOG.md]: CHANGELOG.md
@@ -20,11 +21,11 @@ My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other
 # Quick start
 
 ```
-docker run -d -v ~/.rpicloud:/.data -v ~/backups:/nfs/backups --privileged --network host knobik/rpicloud
+docker run -d -v ~/data:/.data -v ~/backups:/nfs/backups --privileged --network host knobik/rpicloud
 ```
 
  * `--privileged` is needed to have control over nfs kernel module and loop devices for mounting the base image. 
- * `--network host` simplifies network configuration for the `dhcp`, `nfs`, `tftp`, `http` services. 
+ * `--network host` simplifies network configuration for the `dhcp`, `tftp`, `nfs`, `http` services.
 
 Login to web UI:
 ```
@@ -36,6 +37,8 @@ password: admin
 ### Node setup
 Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-bootloader-configuration). Netboot then sd / usb boot order. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`).
 
+This is simplified by a boot order change tool for RPi4 in our software. RPi3 and older need to be [hand configured for netboot](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-2b-3a-3b-cm-3-3).
+
 # Development
 
 ### Requirements
@@ -43,19 +46,12 @@ Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.com
 * docker-compose version 1.25 or newer 
 
 ### Setup
-Clone the repository 
+Clone the repository and build the image
 ```
 git clone git@github.com:knobik/rpi-cluster-pxe.git
-```
-
-make `build-dev.sh` executable
-```
 chmod +x build-dev.sh
-```
-
-run the `build-dev.sh` script
-```
-./build-dev.sh
+bash ./build-dev.sh
+docker-compose up
 ```
 
 This will take a while, it needs to download all php and node dependencies and also download the latest raspberry pi os and set it up for pxe booting.
