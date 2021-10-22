@@ -45,7 +45,7 @@ class ExecuteOperationChainJob extends BaseOperationJob
             foreach ($this->operations as $operation) {
                 /** @var BaseOperationJob $job */
                 $job = new $operation['class'](...$operation['parameters']);
-                app(Dispatcher::class)->dispatchNow($job);
+                app(Dispatcher::class)->dispatchSync($job);
             }
         } catch (\Exception $exception) {
             $this->trackError($exception->getMessage());

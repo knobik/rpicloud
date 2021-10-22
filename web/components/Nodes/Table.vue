@@ -40,7 +40,7 @@
       </template>
 
       <template v-slot:cell(netboot)="data">
-        <template v-if="data.item.bootOrder.length > 0 && data.item.bootOrder[0].id !== '2'">
+        <template v-if="!data.item.netbootable || data.item.version <= 3">
           <i :id="`popover-boot-${data.item.id}`" class="fa fa-exclamation-triangle text-danger" />
           <b-popover
             :target="`popover-boot-${data.item.id}`"
@@ -50,18 +50,18 @@
             variant="danger"
           >
             <template #title>
-              Boot issue detected!
+              Boot order issue detected!
             </template>
-            <div v-if="data.item.version === 3">
+            <div v-if="data.item.version <= 3">
               <p>
-                Changing boot order of Raspberry pi 3 is not supported by this software.
+                Changing boot order of Raspberry pi 3 or older is not supported by this software.
               </p>
               <p>
                 <a target="_blank" class="text-dark" href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-2b-3a-3b-cm-3-3"><i class="fa fa-question-circle" /> More info how to netboot older hardware can be found here.</a>
               </p>
               <p />
             </div>
-            <div v-if="data.item.version === 4">
+            <div v-if="data.item.version >= 4">
               <p>System detected incorrect boot order which blocks the ability to netboot the device.</p>
               <p>
                 Current device boot order:

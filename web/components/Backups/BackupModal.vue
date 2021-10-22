@@ -134,7 +134,7 @@ export default {
       }
     },
     loadNodes (callback) {
-      Api.get('/nodes').then((response) => {
+      Api.get('/nodes?online=1').then((response) => {
         if (callback) {
           callback(response.data.data)
         }

@@ -14,6 +14,7 @@ use JetBrains\PhpStorm\ArrayShape;
  * @property string|null $mac
  * @property bool $netboot
  * @property bool $netbooted
+ * @property int $netbootable
  * @property bool $online
  * @property string|null $arch
  * @property string|null $model
@@ -46,6 +47,7 @@ use JetBrains\PhpStorm\ArrayShape;
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereMac($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereModel($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereNetboot($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Node whereNetbootable($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereNetbooted($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereOnline($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Node whereRamMax($value)
@@ -84,6 +86,7 @@ class Node extends BaseModel
         'netboot' => 'bool',
         'hostname' => 'string',
         'netbooted' => 'bool',
+        'netbootable' => 'bool',
         'model' => 'string',
         'boot_order' => 'string',
         'online' => 'bool',

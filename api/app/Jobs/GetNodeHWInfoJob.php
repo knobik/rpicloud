@@ -27,14 +27,13 @@ class GetNodeHWInfoJob extends BaseSSHJob
     /**
      * Execute the job.
      *
-     * @param  PXEService  $PXEService
      * @return void
      * @throws SSHException
      * @throws \JsonException
      */
-    public function handle(PXEService $PXEService): void
+    public function handle(): void
     {
-        $this->networkInfo($PXEService);
+        $this->networkInfo();
         $this->hostnameInfo();
         $this->cpuInfo();
         $this->ramInfo();
@@ -55,13 +54,15 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $node = $this->getNode();
         $output = $this->executeOrFail('sudo rpi-eeprom-config')->getOutput();
 
-        $order = '0x' . Node::BOOT_RESTART . Node::BOOT_SDCARD; // default to sdcard + restart @todo find out default boot order of new eeprom configuration.
+        // default to perfect order
+        $order = '0x' . Node::BOOT_RESTART . Node::BOOT_SDCARD . Node::BOOT_USB . Node::BOOT_NETWORK;
         if (preg_match('/^BOOT_ORDER=(.*)$/m', $output, $matches)) {
             $order = $matches[1];
         }
 
         // remove the 0x and reverse the string
         $node->boot_order = Node::decodeBootOrder($order);
+        $node->netbootable = \Str::startsWith($node->boot_order, Node::BOOT_NETWORK);
         $node->save();
     }
 
@@ -161,22 +162,30 @@ class GetNodeHWInfoJob extends BaseSSHJob
     }
 
     /**
-     * @param  PXEService  $PXEService
      * @throws SSHException
+     * @throws \JsonException
      */
-    private function networkInfo(PXEService $PXEService): void
+    private function networkInfo(): void
     {
         $node = $this->getNode();
-        $process = $this->executeOrFail('sudo ifconfig -a');
 
-        $interface = $this->parseIpconfig($process->getOutput())
-            ->first(fn($row) => $row['ip'] === $node->ip);
+        $process = $this->executeOrFail('sudo ip --json addr');
+        $data = collect(
+            json_decode($process->getOutput(), true, 512, JSON_THROW_ON_ERROR)
+        )->keyBy('ifname')
+            ->forget('lo')
+            ->first(function($interface) use ($node) {
+                if (isset($interface['addr_info'])) {
+                    $exists = collect($interface['addr_info'])
+                        ->first(fn($address) => $address['local'] === $node->ip);
 
-        if (!$interface || !isset($interface['mac'])) {
-            $this->failWithMessage('Interface not found.');
-        }
+                    return $exists !== null;
+                }
 
-        $node->mac = strtolower($interface['mac']);
+                return false;
+            });
+
+        $node->mac = strtolower($data['address']);
         $node->save();
     }
 
@@ -192,63 +201,4 @@ class GetNodeHWInfoJob extends BaseSSHJob
         $node->save();
     }
 
-    /**
-     * @return string
-     */
-    private function getIpConfigDelimiter(): string
-    {
-        return "\n\n";
-    }
-
-    /**
-     * @return string
-     */
-    private function getIpConfigRegex(): string
-    {
-        return "^(?<interface>(?:[^\s:]+)).*?(?:inet (?<ip>(?:\d+\.?){4})|$).*?(?:ether (?<mac>(?:[^\s]+)))";
-    }
-
-    /**
-     * @param  mixed  $input  ifconfig input to parse
-     * @return Collection
-     */
-    private function parseIpconfig($input): Collection
-    {
-        $adapters = preg_split("/".$this->getIpConfigDelimiter()."/s", $input, null);
-        $vals = [];
-        foreach ($adapters as $int) {
-            preg_match("/".$this->getIpConfigRegex()."/s", $int, $output);
-            $vals[] = $output;
-        }
-
-        return $this->format($vals);
-    }
-
-    /**
-     * @param  array  $vals  Array of extracted values
-     * @return Collection
-     */
-    private function format(array $vals): Collection
-    {
-        $results = [];
-
-        $expectedFields = [
-            "interface",
-            "ip",
-            "mac",
-        ];
-
-        foreach ($vals as $v) {
-            $new = [];
-            foreach ($expectedFields as $field) {
-                if (isset($v[$field])) {
-                    $new[$field] = $v[$field];
-                }
-            }
-
-            $results[] = $new;
-        }
-
-        return collect($results)->filter(fn($row) => isset($row['interface']));
-    }
 }

@@ -29,6 +29,7 @@ class NodeResource extends JsonResource
             'mac' => $this->mac,
             'netboot' => $this->netboot,
             'netbooted' => $this->netbooted,
+            'netbootable' => $this->netbootable,
             'model' => $this->model,
             'version' => $this->getVersion(),
             'bootOrder' => $this->bootOrderList(),

@@ -22,11 +22,18 @@ use Illuminate\Support\Str;
 class NodeController extends ApiController
 {
     /**
+     * @param Request $request
      * @return AnonymousResourceCollection
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return NodeResource::collection(Node::with(['pendingOperations'])->get());
+        $query = Node::query()->with('pendingOperations');
+
+        if ($request->get('online')) {
+            $query->where('online', '=', (bool)$request->get('online'));
+        }
+
+        return NodeResource::collection($query->get());
     }
 
     /**

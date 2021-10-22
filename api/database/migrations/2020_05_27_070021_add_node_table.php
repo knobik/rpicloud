@@ -21,6 +21,7 @@ class AddNodeTable extends Migration
             $table->string('mac')->nullable();
             $table->boolean('netboot')->default(false);
             $table->boolean('netbooted')->default(false);
+            $table->boolean('netbootable')->default(false);
             $table->boolean('online')->default(false);
             $table->string('arch')->nullable();
             $table->string('model')->nullable();

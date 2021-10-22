@@ -27,30 +27,48 @@
         </b-button>
       </b-button-group>
 
-      <!-- visible only for RPI4 -->
-      <template v-if="node.version >= 4">
-        <b-popover
-          v-if="!canChangeBootOrder"
-          :target="`bootorder-modal-button-${node.id}`"
-          title="Boot issue detected."
-          triggers="hover"
-          placement="top"
-          variant="danger"
-        >
-          <template #title>
-            Bootloader too old!
-          </template>
-          <p>
-            System detected an old bootloader. Please update your raspberry pi bootloader to latest version.
-          </p>
-          <p>
-            <a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#editing-the-configuration" target="_blank" class="text-dark"><i class="fa fa-question-circle" /> More information can be found here.</a>
-          </p>
-        </b-popover>
-        <b-button :id="`bootorder-modal-button-${node.id}`" variant="danger" :disabled="!canChangeBootOrder" @click="showBootOrderModal = true">
+      <b-popover
+        v-if="!canChangeBootOrder && node.version >= 4"
+        :target="`bootorder-modal-button-${node.id}`"
+        title="Boot issue detected."
+        triggers="hover"
+        placement="top"
+        variant="danger"
+      >
+        <template #title>
+          Bootloader too old!
+        </template>
+        <p>
+          System detected an old bootloader. Please update your raspberry pi bootloader to latest version.
+        </p>
+        <p>
+          <a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#editing-the-configuration" target="_blank" class="text-dark"><i class="fa fa-question-circle" /> More information can be found here.</a>
+        </p>
+      </b-popover>
+      <b-popover
+        v-if="node.version <= 3"
+        :target="`bootorder-modal-button-${node.id}`"
+        title="Boot issue detected."
+        triggers="hover"
+        placement="top"
+        variant="danger"
+      >
+        <template #title>
+          Issue
+        </template>
+        <p>
+          Changing boot order of Raspberry pi 3 or older is not supported by this software.
+        </p>
+        <p>
+          <a target="_blank" class="text-dark" href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-2b-3a-3b-cm-3-3"><i class="fa fa-question-circle" /> More info how to netboot older hardware can be found here.</a>
+        </p>
+        <p />
+      </b-popover>
+      <span :id="`bootorder-modal-button-${node.id}`">
+        <b-button variant="danger" :disabled="!canChangeBootOrder || node.version <= 3" @click="showBootOrderModal = true">
           <i class="fa fa-align-justify" /> Change boot order
         </b-button>
-      </template>
+      </span>
     </b-form-group>
   </div>
 </template>
