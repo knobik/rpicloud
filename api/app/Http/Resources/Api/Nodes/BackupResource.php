@@ -28,6 +28,7 @@ class BackupResource extends JsonResource
             'id' => $this->id,
             'node' => new NodeResource($this->node),
             'filename' => $this->filename,
+            'filesize' => $this->filesize,
             'created_at' => $this->created_at->format('Y-m-d H:i:s')
         ];
     }

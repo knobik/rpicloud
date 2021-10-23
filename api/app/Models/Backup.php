@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property string|null $node_id
  * @property string $filename
+ * @property int|null $filesize
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Backup whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Backup whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Backup whereFilename($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereFilesize($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Backup whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Backup whereNodeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Backup whereUpdatedAt($value)
@@ -29,6 +31,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Backup extends BaseModel
 {
     protected $table = 'backups';
+
+    protected $casts = [
+        'filename' => 'string',
+        'filesize' => 'int',
+    ];
 
     /**
      * @return BelongsTo

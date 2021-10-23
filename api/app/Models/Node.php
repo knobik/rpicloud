@@ -14,7 +14,7 @@ use JetBrains\PhpStorm\ArrayShape;
  * @property string|null $mac
  * @property bool $netboot
  * @property bool $netbooted
- * @property int $netbootable
+ * @property bool $netbootable
  * @property bool $online
  * @property string|null $arch
  * @property string|null $model
