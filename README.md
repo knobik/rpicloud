@@ -1,11 +1,11 @@
-******!!! This software is in alpha stage, i dont recommend using it in production !!!**
+**!!! This software is in alpha stage, i dont recommend using it in production !!!**
 
-[![pipeline status](https://gitlab.com/knobik/rpicloud/badges/master/pipeline.svg)](https://gitlab.com/knobik/rpicloud/-/pipelines)
+![animated](screenshots/animated.gif)
 
 # About
-Ever wanted to just "reinstall" your RPi4 node in your cluster without the hussle of pulling the sd card out, flashing it on a PC and putting it back in? This is exacly the reason i started this. Awsome raspberry pi cluster management software you can host on your PC or one of your nodes.
+Ever wanted to just install a new system or backup your RPi4 node in your cluster without the hussle of pulling the sd card out, flashing it on a PC and putting it back in? This is exacly the reason i started this. Awsome raspberry pi cluster management software you can host on your PC, server or one of your nodes.
 
-My personal cluster is based on RPi4 4/8GB only, so i didnt test it on any other PI revisions.
+This software is designed with RPi4 and CM4 in mind, but can also work with RPi3 and older. Just not all features will be available (boot order change, needs to be done manualy).
 
 # Features
 * Manage pi cluster inventory, status, etc (TODO: export to ansible)
