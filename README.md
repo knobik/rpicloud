@@ -22,7 +22,7 @@ This software is designed with RPi4 and CM4 in mind, but can also work with RPi3
 # Quick start
 
 ```
-docker run -d -v ~/data:/.data -v ~/backups:/nfs/backups --privileged --network host knobik/rpicloud
+docker run -d -v ~/data:/.data -v ~/backups:/nfs/backups --restart unless-stopped --privileged --network host knobik/rpicloud
 ```
 
  * `--privileged` is needed to have control over nfs kernel module and loop devices for mounting the base image. 
@@ -36,7 +36,7 @@ password: admin
 
 
 ### Node setup
-Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-bootloader-configuration). Netboot then sd / usb boot order. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`).
+~~Set RPi4 boot order by editing the [eeprom settings](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-bootloader-configuration). Netboot then sd / usb boot order. (i use `BOOT_ORDER=0xf132` which means `netboot -> usb -> sdcard -> restart`, to boot faster you can also set `DHCP_TIMEOUT=5000` and `DHCP_REQ_TIMEOUT=500`).~~
 
 This is simplified by a boot order change tool for RPi4 in our software. RPi3 and older need to be [hand configured for netboot](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-2b-3a-3b-cm-3-3).
 
