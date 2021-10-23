@@ -38,13 +38,19 @@ export default class {
       // if we have a filelist, then we add all the files to the form and continue
       if (this[field] instanceof FileList) {
         for (let i = 0; i < this[field].length; i++) {
-          data.append(field, this[field][i])
+          // dont add null values, they are changed to string 'null'
+          if (this[field][i] !== null) {
+            data.append(field, this[field][i])
+          }
         }
 
         continue
       }
 
-      data.append(field, this[field])
+      // dont add null values, they are changed to string 'null'
+      if (this[field] !== null) {
+        data.append(field, this[field])
+      }
     }
 
     return data

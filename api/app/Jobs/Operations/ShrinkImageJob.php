@@ -2,6 +2,9 @@
 
 namespace App\Jobs\Operations;
 
+use App\Http\Controllers\Api\BackupController;
+use App\Models\Backup;
+
 class ShrinkImageJob extends BaseOperationJob
 {
     public int $timeout = 0;
@@ -37,5 +40,12 @@ class ShrinkImageJob extends BaseOperationJob
         foreach ($process as $type => $data) {
             $this->log(trim($data), $operation);
         }
+
+        $filesize = filesize(BackupController::BACKUPS_DIRECTORY . "/{$this->filename}");
+        Backup::where('filename', '=', $this->filename)
+            ->update([
+                'filesize' => $filesize
+            ]);
+
     }
 }

@@ -18,6 +18,7 @@ class AddBackupsTable extends Migration
 
             $table->bigInteger('node_id')->index();
             $table->string('filename');
+            $table->bigInteger('filesize')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

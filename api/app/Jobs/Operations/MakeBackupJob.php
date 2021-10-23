@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Operations;
 
+use App\Http\Controllers\Api\BackupController;
 use App\Models\Backup;
 
 class MakeBackupJob extends BaseOperationJob
@@ -49,18 +50,22 @@ class MakeBackupJob extends BaseOperationJob
             $this->log(trim($data), $operation);
         }
 
-        $this->make();
+        $filesize = filesize(BackupController::BACKUPS_DIRECTORY . "/{$this->filename}");
+
+        $this->make($filesize);
     }
 
     /**
+     * @param int $filesize
      * @return Backup
      */
-    public function make(): Backup
+    public function make(int $filesize): Backup
     {
         return Backup::create(
             [
                 'node_id' => $this->nodeId,
-                'filename' => $this->filename
+                'filename' => $this->filename,
+                'filesize' => $filesize
             ]
         );
     }
