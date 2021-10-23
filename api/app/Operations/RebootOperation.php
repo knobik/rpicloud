@@ -14,7 +14,7 @@ class RebootOperation extends BaseOperation
      */
     protected function name(): string
     {
-        return 'Reboot node.';
+        return 'Reboot node';
     }
 
     /**

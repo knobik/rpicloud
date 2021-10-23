@@ -54,7 +54,6 @@ export default {
     }
   },
   mounted () {
-    console.log(this.value)
     this.orderedItems = this.value
     this.leftOverItems = this.$store.state.config.bootStates.filter(v => !this.orderedItems.some(e => e.id === v.id))
   }

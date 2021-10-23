@@ -88,11 +88,12 @@ abstract class BaseOperationJob extends BaseSSHJob
 
     /**
      * @param string $contents
+     * @param string|null $filename
      * @return string
      */
-    protected function makeTmpFile(string $contents)
+    protected function makeTmpFile(string $contents, ?string $filename): string
     {
-        $tmpFilename = '/tmp/' . Str::random(16);
+        $tmpFilename = '/tmp/' . ($filename ?? Str::random(16));
         file_put_contents($tmpFilename, $contents);
 
         return $tmpFilename;

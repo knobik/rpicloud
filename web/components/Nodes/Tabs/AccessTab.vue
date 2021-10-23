@@ -1,6 +1,6 @@
 <template>
   <div>
-    <boot-order-modal :node="node" :show="showBootOrderModal" @hide="showBootOrderModal = false" />
+    <boot-order-modal :node="node" :show="showBootOrderModal" @hide="showBootOrderModal = false" @update="$emit('update', $event)" />
 
     <b-form-group label-cols="4" label-cols-lg="2" label="SSH access" label-for="input-sm">
       <b-button variant="primary" @click="openConsole">

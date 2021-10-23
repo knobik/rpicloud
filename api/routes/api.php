@@ -42,6 +42,7 @@ Route::group(
                 Route::post('/bulk-shutdown', 'NodeController@bulkShutdown');
                 Route::post('/{node}/backup', 'NodeController@backup');
                 Route::post('/{node}/shell-access', 'NodeController@shellAccess');
+                Route::post('/{node}/update-boot-order', 'NodeController@updateBootOrder');
 
                 // node operations
                 Route::get('/{node}/operations', 'OperationController@index');

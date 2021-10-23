@@ -52,7 +52,7 @@ class RestoreOperation extends BaseOperation
      */
     protected function name(): string
     {
-        return 'Restore backup.';
+        return 'Restore backup';
     }
 
     /**

@@ -2,12 +2,14 @@
   <div class="animated fadeIn">
     <b-row>
       <b-col md="12">
+        <operation-log v-if="runningOperation !== null" :id="runningOperation.id" :show="showLog" @hide="showLog = false" />
         <b-alert v-if="runningOperation !== null" variant="info" show>
-          <h5 class="alert-heading font-weight-bold d-flex align-items-center">
-            <span>{{ runningOperation.name }}</span>
-            <b-spinner class="ml-auto" small variant="primary" />
-          </h5>
-          {{ runningOperation.log ? runningOperation.log.split('\n').slice(-1).pop() : '' }}
+          <div class="pointer" @click="showLog = true">
+            <h5 class="alert-heading font-weight-bold d-flex align-items-center justify-content-between">
+              <span class="d-flex align-items-center"><b-spinner class="mr-3" small variant="primary" />{{ runningOperation.description }}</span><small><em>{{ runningOperation.name }}</em></small>
+            </h5>
+            <em>{{ runningOperation.log ? runningOperation.log.split('\n').slice(-1).pop() : '' }}</em>
+          </div>
         </b-alert>
       </b-col>
     </b-row>
@@ -64,12 +66,14 @@ import Api from '~/assets/js/utils/Api'
 import AccessTab from '~/components/Nodes/Tabs/AccessTab'
 import OperationTab from '~/components/Nodes/Tabs/OperationTab'
 import BackupTab from '~/components/Nodes/Tabs/BackupTab'
+import OperationLog from '~/components/Nodes/Operations/Log.vue'
 
 export default {
   components: {
     AccessTab,
     OperationTab,
-    BackupTab
+    BackupTab,
+    OperationLog
   },
   asyncData ({ params }) {
     return Api.get(`/nodes/${params.id}`).then((response) => {
@@ -80,7 +84,8 @@ export default {
   },
   data () {
     return {
-      timer: null
+      timer: null,
+      showLog: false
     }
   },
   computed: {
@@ -137,5 +142,9 @@ export default {
     .tab-content {
       border: 0;
     }
+  }
+
+  .pointer {
+    cursor: pointer;
   }
 </style>

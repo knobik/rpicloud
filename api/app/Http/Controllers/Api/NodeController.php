@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\PXEException;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\Nodes\BackupRequest;
+use App\Http\Requests\Api\Nodes\BootOrderRequest;
 use App\Http\Requests\Api\Nodes\BulkRequest;
 use App\Http\Resources\Api\NodeResource;
 use App\Http\Resources\Api\Nodes\ShellTokenResource;
@@ -12,6 +13,7 @@ use App\Models\Node;
 use App\Models\ShellToken;
 use App\Operations\BackupOperation;
 use App\Operations\RebootOperation;
+use App\Operations\SetBootOrderOperation;
 use App\Operations\ShutdownOperation;
 use App\Services\PXEService;
 use Illuminate\Http\Request;
@@ -149,5 +151,22 @@ class NodeController extends ApiController
                 ]
             )
         );
+    }
+
+    /**
+     * @param Node $node
+     * @param BootOrderRequest $request
+     * @return NodeResource
+     */
+    public function updateBootOrder(Node $node, BootOrderRequest $request): NodeResource
+    {
+        $operation = new SetBootOrderOperation(
+            $node,
+            $request->get('bootOrder'),
+            (bool)$request->get('includeDhcpOption')
+        );
+        $operation->dispatch();
+
+        return new NodeResource($node);
     }
 }

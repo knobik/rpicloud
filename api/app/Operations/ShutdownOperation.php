@@ -14,7 +14,7 @@ class ShutdownOperation extends BaseOperation
      */
     protected function name(): string
     {
-        return 'Shutdown node.';
+        return 'Shutdown node';
     }
 
     /**

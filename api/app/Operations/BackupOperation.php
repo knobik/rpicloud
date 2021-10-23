@@ -42,7 +42,7 @@ class BackupOperation extends BaseOperation
      */
     protected function name(): string
     {
-        return 'Make backup.';
+        return 'Make backup';
     }
 
     /**

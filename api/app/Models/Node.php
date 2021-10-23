@@ -148,11 +148,15 @@ class Node extends BaseModel
     }
 
     /**
-     * @param string $bootOrder
+     * @param string|array $bootOrder
      * @return string
      */
-    public static function encodeBootOrder(string $bootOrder): string
+    public static function encodeBootOrder(string|array $bootOrder): string
     {
+        if (is_array($bootOrder)) {
+            $bootOrder = collect($bootOrder)->pluck('id')->join(',');
+        }
+
         return '0x' . implode('', array_reverse(explode(',', $bootOrder)));
     }
 
