@@ -8,11 +8,12 @@ Ever wanted to just install a new system or backup your RPi4 node in your cluste
 This software is designed with RPi4 and CM4 in mind, but can also work with RPi3 and older. Just not all features will be available (boot order change, needs to be done manualy).
 
 # Features
-* Manage pi cluster inventory, status, etc (TODO: export to ansible)
+* Manage Raspberry Pi cluster
 * Reboot / Shutdown nodes remotely
 * Netboot node for recovery
 * Backup / Restore node
 * Easy reinstall through netboot, without removing sd card or usb device.
+* Agentless
 * Change boot order (only RPi4+)
 * Tested on `Raspberry Pi OS`, `Ubuntu`
 

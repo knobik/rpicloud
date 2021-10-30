@@ -54,7 +54,7 @@ COPY .docker/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # configure crontab
 COPY .docker/schedule.sh /schedule.sh
-RUN chmod +X /schedule.sh
+RUN chmod +x /schedule.sh
 
 # configure nfs
 COPY .docker/config/nfs-exports /etc/exports
