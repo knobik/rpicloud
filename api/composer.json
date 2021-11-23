@@ -19,6 +19,7 @@
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
+        "phpseclib/phpseclib": "^2.0",
         "romanzipp/laravel-queue-monitor": "^2.2",
         "spatie/ssh": "^1.4",
         "symfony/process": "^5.0"
@@ -72,9 +73,9 @@
             "@php artisan key:generate --ansi"
         ],
         "setup": [
+            "@php artisan init:db",
             "@php artisan cache:clear",
             "@php artisan queue:flush",
-            "@php artisan init:db",
             "@php artisan init:ssh",
             "@php artisan init:host",
             "@php artisan init:img"
