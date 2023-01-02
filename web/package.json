@@ -21,7 +21,7 @@
     "bootstrap-vue": "^2.21.2",
     "css-vars-ponyfill": "^1.8.0",
     "flag-icon-css": "^3.5.0",
-    "nuxt": "^2.15.8",
+    "nuxt": "^3.0.0",
     "nuxt-clipboard2": "^0.2.1",
     "perfect-scrollbar": "^1.5.2",
     "simple-line-icons": "^2.5.5",
@@ -38,7 +38,7 @@
     "eslint": "^6.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
     "sass": "^1.43.2",
-    "sass-loader": "^8.0.2",
+    "sass-loader": "^13.2.0",
     "xterm": "^4.14.1",
     "xterm-addon-attach": "^0.6.0",
     "xterm-addon-fit": "^0.4.0"
